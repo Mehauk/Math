@@ -6,7 +6,7 @@ use rand::{
 use std::{
     fmt::{Debug, Display},
     iter::Sum,
-    ops::{Add, AddAssign, Mul, Sub, SubAssign},
+    ops::{Add, AddAssign, Index, Mul, Neg, Sub, SubAssign},
 };
 
 struct Matrix<T> {
@@ -15,7 +15,10 @@ struct Matrix<T> {
     arr: Vec<T>,
 }
 
-impl<T: Num + Copy + Clone + SampleUniform + Default + One + Display + AddAssign> Matrix<T> {
+impl<
+        T: Num + Copy + Clone + SampleUniform + Default + One + Display + AddAssign + Neg<Output = T>,
+    > Matrix<T>
+{
     fn new(m: usize, n: usize) -> Self {
         let v = vec![T::default(); n * m];
         Matrix { m: m, n: n, arr: v }
@@ -45,6 +48,42 @@ impl<T: Num + Copy + Clone + SampleUniform + Default + One + Display + AddAssign
         matrix
     }
 
+    fn determinant(&self) -> T {
+        if self.size() == 1 {
+            return self[(0, 0)];
+        }
+
+        let mut multiplier = -T::one();
+
+        let mut value = T::zero();
+
+        if let Some(v) = self.get_row(0) {
+            for i in 0..v.len() {
+                multiplier = -multiplier;
+
+                let mut arr: Vec<T> = vec![];
+
+                for x in 0..self.n {
+                    if x != i {
+                        if let Some(c) = self.get_col(x) {
+                            arr.append(&mut c[1..c.len()].to_vec());
+                        }
+                    }
+                }
+
+                let mat = Matrix {
+                    m: self.m - 1,
+                    n: self.n - 1,
+                    arr: arr,
+                };
+
+                value += multiplier * (v[i]) * mat.determinant();
+            }
+        }
+
+        value
+    }
+
     fn invert(mut self) -> Option<Self> {
         if self.n != self.m {
             return None;
@@ -54,7 +93,12 @@ impl<T: Num + Copy + Clone + SampleUniform + Default + One + Display + AddAssign
         println!("{:?}", _identity);
         println!("{:?}", self);
 
-        // set ones diagonally else None
+        // find determinant
+        if self.determinant() == T::default() {
+            return None;
+        }
+
+        // set ones diagonally
 
         // remove allother values and return Some
 
@@ -113,6 +157,18 @@ impl<T: Copy> Matrix<T> {
         }
 
         Some(v)
+    }
+
+    fn size(&self) -> usize {
+        self.m * self.n
+    }
+}
+
+impl<T> Index<(usize, usize)> for Matrix<T> {
+    type Output = T;
+
+    fn index(&self, index: (usize, usize)) -> &T {
+        &self.arr[index.1 + self.n * index.0]
     }
 }
 
@@ -225,8 +281,9 @@ impl<T: Copy + Display> Debug for Matrix<T> {
 // }
 
 fn main() {
-    let m: Matrix<i32> = Matrix::random(3, 3, -20, 20);
-    println!("{:?}", m.invert());
+    // let m: Matrix<i32> = Matrix::random(3, 3, -20, 20);
+    let m = Matrix{m: 3, n: 3, arr: vec![1, 2, 3, 4, 0, 6, 8, 7, 9]};
+    println!("{:?}", m.determinant());
     // let m2 = Matrix::random(2, 3, i32::default(), 5);
     // println!("{:?}", m2);
     // let m3 = m - m2;

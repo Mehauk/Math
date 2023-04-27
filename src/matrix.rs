@@ -1,67 +1,66 @@
-use num_traits::{Num, One};
-use rand::{
-    distributions::{uniform::SampleUniform, Uniform},
-    Rng,
-};
+use num_traits::Num;
+use rand::{distributions::Uniform, Rng};
 use std::{
     fmt::{Debug, Display},
-    iter::Sum,
-    ops::{Add, AddAssign, Index, Mul, Neg, Sub, SubAssign},
+    ops::{Add, Div, Index, Mul, Sub},
+    ptr::swap_nonoverlapping,
 };
 
-pub struct Matrix<T> {
-    pub m: usize,
-    pub n: usize,
-    pub arr: Vec<T>,
+pub struct Matrix {
+    m: usize,
+    n: usize,
+    arr: Vec<f64>,
 }
 
-impl<
-        T: Num + Copy + Clone + SampleUniform + Default + One + Display + AddAssign + Neg<Output = T>,
-    > Matrix<T>
-{
+impl Matrix {
     fn new(m: usize, n: usize) -> Self {
-        let v = vec![T::default(); n * m];
+        let v = vec![0.0; n * m];
         Matrix { m: m, n: n, arr: v }
     }
 
-    fn random(m: usize, n: usize, min: T, max: T) -> Self {
-        let mut v: Vec<T> = vec![];
+    pub fn from(m: usize, n: usize, mut arr: Vec<f64>) -> Self {
+        while arr.len() < m * n {
+            arr.push(0.0);
+        }
+        Matrix { m, n, arr }
+    }
+
+    pub fn random(m: usize, n: usize, min: f64, max: f64) -> Self {
+        let mut v: Vec<f64> = vec![];
         let range = Uniform::new(min, max);
         for i in 0..m * n {
-            let v1: T = rand::thread_rng().sample(&range);
+            let v1: f64 = rand::thread_rng().sample(&range);
             v.insert(i, v1);
         }
         Matrix { m: m, n: n, arr: v }
     }
 
-    fn identity(m: usize, n: usize) -> Self {
-        let one: T = T::one();
-
-        let mut matrix: Matrix<T> = Matrix::new(m, n);
+    pub fn identity(m: usize, n: usize) -> Self {
+        let mut matrix: Matrix = Matrix::new(m, n);
 
         let mut i = 0;
         for x in 0..m {
-            matrix.arr[i + x * n] = one;
+            matrix.arr[i + x * n] = 1.0;
             i += 1;
         }
 
         matrix
     }
 
-    fn determinant(&self) -> T {
+    fn determinant(&self) -> f64 {
         if self.size() == 1 {
             return self[(0, 0)];
         }
 
-        let mut multiplier = -T::one();
+        let mut multiplier = -1.0;
 
-        let mut value = T::zero();
+        let mut value = 0.0;
 
         if let Some(v) = self.get_row(0) {
-            for i in 0..v.len() {
+            for (i, v) in v.iter().enumerate() {
                 multiplier = -multiplier;
 
-                let mut arr: Vec<T> = vec![];
+                let mut arr: Vec<f64> = vec![];
 
                 for x in 0..self.n {
                     if x != i {
@@ -77,11 +76,20 @@ impl<
                     arr: arr,
                 };
 
-                value += multiplier * (v[i]) * mat.determinant();
+                value += multiplier * (v) * mat.determinant();
             }
         }
-
         value
+    }
+
+    fn swap_rows(&mut self, i0: usize, i1: usize) {
+        unsafe {
+            swap_nonoverlapping(
+                self.get_row_mut(i0).unwrap().as_mut_ptr(),
+                self.get_row_mut(i1).unwrap().as_mut_ptr(),
+                self.n,
+            )
+        }
     }
 
     pub fn invert(mut self) -> Option<Self> {
@@ -89,58 +97,65 @@ impl<
             return None;
         }
 
-        let mut _identity: Matrix<T> = Matrix::identity(self.m, self.n);
-        println!("{:?}", _identity);
-        println!("{:?}", self);
+        let mut identity: Matrix = Matrix::identity(self.m, self.n);
 
         // find determinant
-        if self.determinant() == T::default() {
+        if self.determinant() == f64::default() {
             return None;
         }
 
-        // set ones diagonally
+        // swap rows
         for i in 0..self.n {
             if let Some(c) = self.get_col(i) {
-                // find first non-zero
-                let mut index = i;
+                let mut i2 = i;
                 for x in i..self.m {
-                    if c[x] != T::zero() {
-                        index = x;
+                    if c[x] != 0.0 {
+                        i2 = x;
                         break;
                     }
                 }
 
-                // Swap rows
-                if index != i {
-                    println!("SADFASDFAS");
-                    if let (Some(r1), Some(r2)) = (self.get_row(i), self.get_row(index)) {
-                        let n = self.n;
-                        if let Some(r1x) = self.get_row_mut(i) {
-                            for v in 0..n {
-                                r1x[v] = r1[v];
-                            }
+                if i2 != i {
+                    self.swap_rows(i, i2);
+                    identity.swap_rows(i, i2);
+                }
+            }
+
+            // normalize
+            if let (Some(r), Some(ri)) = (self.get_row_mut(i), identity.get_row_mut(i)) {
+                let d = r[i];
+                if d != 0.0 {
+                    r.iter_mut().for_each(|e| *e = *e / d);
+                    ri.iter_mut().for_each(|e| *e = *e / d);
+                }
+            };
+
+            if let (Some(r), Some(ri)) = (self.get_row(i), identity.get_row(i)) {
+                // reduce all other values in column to zero
+                for x in 0..self.m {
+                    if i != x {
+                        if let (Some(rc), Some(rci)) =
+                            (self.get_row_mut(x), identity.get_row_mut(x))
+                        {
+                            let v = rc[i];
+                            rc.iter_mut()
+                                .zip(r.iter())
+                                .for_each(|(x1, y1)| *x1 -= y1 * v);
+                            rci.iter_mut()
+                                .zip(ri.iter())
+                                .for_each(|(x1, y1)| *x1 -= y1 * v);
                         }
-                        if let Some(r2x) = self.get_row_mut(index) {
-                            for v in 0..n {
-                                r2x[v] = r2[v];
-                            }
-                        }
-                    };
+                    }
                 }
             }
         }
 
-        // remove allother values and return Some
-
-        println!("{:?}", _identity);
-        println!("{:?}", self);
-        Some(_identity)
+        // return the modified indentity matrix
+        Some(identity)
     }
-}
 
-impl<T: Copy> Matrix<T> {
     fn transpose(&self) -> Self {
-        let mut v: Vec<T> = vec![];
+        let mut v: Vec<f64> = vec![];
         for i in 0..self.n {
             for x in 0..self.m {
                 v.push(self.arr[i + x * self.n]);
@@ -153,7 +168,7 @@ impl<T: Copy> Matrix<T> {
         }
     }
 
-    fn get_row(&self, i: usize) -> Option<Vec<T>> {
+    fn get_row(&self, i: usize) -> Option<Vec<f64>> {
         if i >= self.m {
             return None;
         }
@@ -164,7 +179,7 @@ impl<T: Copy> Matrix<T> {
         Some(v)
     }
 
-    fn get_row_mut(&mut self, i: usize) -> Option<&mut [T]> {
+    fn get_row_mut(&mut self, i: usize) -> Option<&mut [f64]> {
         if i >= self.m {
             return None;
         }
@@ -175,7 +190,7 @@ impl<T: Copy> Matrix<T> {
         Some(v)
     }
 
-    fn get_col(&self, i: usize) -> Option<Vec<T>> {
+    fn get_col(&self, i: usize) -> Option<Vec<f64>> {
         if i >= self.n {
             return None;
         }
@@ -194,15 +209,15 @@ impl<T: Copy> Matrix<T> {
     }
 }
 
-impl<T> Index<(usize, usize)> for Matrix<T> {
-    type Output = T;
+impl Index<(usize, usize)> for Matrix {
+    type Output = f64;
 
-    fn index(&self, index: (usize, usize)) -> &T {
+    fn index(&self, index: (usize, usize)) -> &f64 {
         &self.arr[index.1 + self.n * index.0]
     }
 }
 
-impl<T: Num + AddAssign + Copy> Add for Matrix<T> {
+impl Add for Matrix {
     type Output = Option<Self>;
 
     fn add(mut self, rhs: Self) -> Self::Output {
@@ -218,7 +233,7 @@ impl<T: Num + AddAssign + Copy> Add for Matrix<T> {
     }
 }
 
-impl<T: Num + SubAssign + Copy> Sub for Matrix<T> {
+impl Sub for Matrix {
     type Output = Option<Self>;
 
     fn sub(mut self, rhs: Self) -> Self::Output {
@@ -234,7 +249,34 @@ impl<T: Num + SubAssign + Copy> Sub for Matrix<T> {
     }
 }
 
-impl<T: Num + AddAssign + Copy + Sum> Mul for Matrix<T> {
+impl Mul<Matrix> for f64 {
+    type Output = Matrix;
+
+    fn mul(self, mut rhs: Matrix) -> Self::Output {
+        rhs.arr.iter_mut().for_each(|e| *e *= self);
+        rhs
+    }
+}
+
+impl Mul<f64> for Matrix {
+    type Output = Matrix;
+
+    fn mul(mut self, rhs: f64) -> Self::Output {
+        self.arr.iter_mut().for_each(|e| *e *= rhs);
+        self
+    }
+}
+
+impl Div<f64> for Matrix {
+    type Output = Matrix;
+
+    fn div(mut self, rhs: f64) -> Self::Output {
+        self.arr.iter_mut().for_each(|e| *e /= rhs);
+        self
+    }
+}
+
+impl Mul for Matrix {
     type Output = Option<Self>;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -242,18 +284,14 @@ impl<T: Num + AddAssign + Copy + Sum> Mul for Matrix<T> {
             return None;
         }
 
-        let mut v: Vec<T> = vec![];
+        let mut v: Vec<f64> = vec![];
 
         for i in 0..self.m {
             for x in 0..rhs.n {
                 let r = self.get_row(i).unwrap();
                 let c = rhs.get_col(x).unwrap();
 
-                let value: T = r
-                    .iter()
-                    .zip(c.iter())
-                    .map(|(x1, y1)| x1.to_owned() * y1.to_owned())
-                    .sum();
+                let value: f64 = r.iter().zip(c.iter()).map(|(x1, y1)| x1 * y1).sum();
 
                 v.push(value);
             }
@@ -267,7 +305,7 @@ impl<T: Num + AddAssign + Copy + Sum> Mul for Matrix<T> {
     }
 }
 
-impl<T: Copy + Display> Display for Matrix<T> {
+impl Display for Matrix {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut s = String::from("");
 
@@ -277,7 +315,7 @@ impl<T: Copy + Display> Display for Matrix<T> {
         let fourth = self.arr[self.n * self.m - 1];
 
         s = s.add(&format!(
-            "{}\t...\t{}\n...\t...\t...\n{}\t...\t{}",
+            "{:.2}\t...\t{:.2}\n...\t...\t...\n{:.2}\t...\t{:.2}",
             first, second, third, fourth,
         ));
 
@@ -285,7 +323,7 @@ impl<T: Copy + Display> Display for Matrix<T> {
     }
 }
 
-impl<T: Copy + Display> Debug for Matrix<T> {
+impl Debug for Matrix {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut s = String::from("");
 
@@ -293,19 +331,9 @@ impl<T: Copy + Display> Debug for Matrix<T> {
             if i % self.n == 0 {
                 s = s.add("\n");
             }
-            s = s.add(&format!("{}\t", self.arr[i]));
+            s = s.add(&format!("{:.3}\t", self.arr[i]));
         }
 
         write!(f, "\nMatrix {} x {}{}\n", self.m, self.n, s)
     }
 }
-
-// impl Mul<Matrix<i32>> for i32 {
-//     type Output = Matrix<i32>;
-//     fn mul(self, mut rhs: Matrix<i32>) -> Matrix<i32> {
-//         for val in rhs.arr.iter_mut() {
-//             *val *= self;
-//         }
-//         rhs
-//     }
-// }

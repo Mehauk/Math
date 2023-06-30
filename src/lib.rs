@@ -1,4 +1,3 @@
-use num_traits::Num;
 use rand::{distributions::Uniform, Rng};
 use std::{
     fmt::{Debug, Display},
@@ -162,7 +161,7 @@ impl Matrix {
         Some(identity)
     }
 
-    fn transpose(&self) -> Self {
+    pub fn transpose(&self) -> Self {
         let mut v: Vec<f64> = vec![];
         for i in 0..self.n {
             for x in 0..self.m {
@@ -337,9 +336,13 @@ impl Debug for Matrix {
 
         for i in 0..self.m * self.n {
             if i % self.n == 0 {
-                s = s.add("\n");
+                s = s.add("\t\n\n");
             }
-            s = s.add(&format!("{:.2}\t", self.arr[i]));
+            let mod_i = match self.arr[i] > 0.0 {
+                true => String::from("+"),
+                false => String::new(),
+            };
+            s = s.add(&format!("{}{:.2}\t", mod_i, self.arr[i]));
         }
 
         write!(f, "\nMatrix {} x {}{}\n", self.m, self.n, s)

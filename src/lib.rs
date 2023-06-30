@@ -47,6 +47,14 @@ impl Matrix {
         matrix
     }
 
+    pub fn copy(&self) -> Self {
+        Matrix {
+            m: self.m,
+            n: self.n,
+            arr: self.arr.to_owned(),
+        }
+    }
+
     fn determinant(&self) -> f64 {
         if self.size() == 1 {
             return self[(0, 0)];
@@ -92,7 +100,7 @@ impl Matrix {
         }
     }
 
-    pub fn invert(mut self) -> Option<Self> {
+    pub fn invert(mut self) -> Option<Matrix> {
         if self.n != self.m {
             return None;
         }
@@ -331,7 +339,7 @@ impl Debug for Matrix {
             if i % self.n == 0 {
                 s = s.add("\n");
             }
-            s = s.add(&format!("{:.3}\t", self.arr[i]));
+            s = s.add(&format!("{:.2}\t", self.arr[i]));
         }
 
         write!(f, "\nMatrix {} x {}{}\n", self.m, self.n, s)

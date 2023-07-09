@@ -7,5 +7,5 @@ fn main() {
     println!("{:?}", m);
     println!("{:?}", mi);
     println!("{:?}", m.copy() * mi);
-    println!("{:?}", m.transpose())
+    println!("{:?}", m.transpose());
 }

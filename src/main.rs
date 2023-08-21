@@ -1,8 +1,10 @@
-use linear_algebra::Matrix;
+mod linear_algebra;
+
+use linear_algebra::matrix;
 
 fn main() {
     let i = 7;
-    let m = Matrix::random(i, i, -10.0, 10.0);
+    let m = matrix::CustomMatrix::random(i, i, -10.0, 10.0);
     let mi = m.copy().invert().unwrap();
     println!("{:?}", m);
     println!("{:?}", mi);

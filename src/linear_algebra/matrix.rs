@@ -14,7 +14,7 @@ pub struct CustomMatrix {
 impl CustomMatrix {
     fn new(m: usize, n: usize) -> Self {
         let v = vec![0.0; n * m];
-        CustomMatrix { m: m, n: n, arr: v }
+        CustomMatrix { m, n, arr: v }
     }
 
     pub fn from(m: usize, n: usize, mut arr: Vec<f64>) -> Self {
@@ -31,7 +31,7 @@ impl CustomMatrix {
             let v1: f64 = rand::thread_rng().sample(&range);
             v.insert(i, v1);
         }
-        CustomMatrix { m: m, n: n, arr: v }
+        CustomMatrix { m, n, arr: v }
     }
 
     pub fn identity(m: usize, n: usize) -> Self {
@@ -80,7 +80,7 @@ impl CustomMatrix {
                 let mat = CustomMatrix {
                     m: self.m - 1,
                     n: self.n - 1,
-                    arr: arr,
+                    arr,
                 };
 
                 value += multiplier * (v) * mat.determinant();

@@ -1,14 +1,11 @@
 mod linear_algebra;
 mod machine_learning;
 
-use std::fs::File;
-
 use linear_algebra::matrix;
+use machine_learning::load_data;
 
 fn main() -> Result<(), std::io::Error> {
-    let s = std::fs::read("src/assets/r.txt")?;
-
-    println!("{:?}", s);
+    load_data("src/assets/machine_learning/", "letters")?;
 
     Ok(())
 }

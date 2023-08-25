@@ -2,10 +2,14 @@ mod linear_algebra;
 mod machine_learning;
 
 use linear_algebra::matrix;
-use machine_learning::load_data;
+use machine_learning::{DataSet, MnistDatasetParser};
 
 fn main() -> Result<(), std::io::Error> {
-    load_data("src/assets/machine_learning/", "letters")?;
+    DataSet::load_data(
+        "src/assets/machine_learning/",
+        "letters",
+        &MnistDatasetParser {},
+    )?;
 
     Ok(())
 }

@@ -1,5 +1,5 @@
+use image;
 use std::{
-    fmt::Debug,
     fs::File,
     io::{Error, ErrorKind, Read},
 };
@@ -15,40 +15,46 @@ impl DataSet {
         dataset_name: &str,
         parse_data: impl Fn(&str, &str, &str) -> Result<Vec<ImageData>, Error>,
     ) -> Result<DataSet, Error> {
-        let _test_data = parse_data(dataset_path, dataset_name, "-test")?;
-        let _train_data = parse_data(dataset_path, dataset_name, "-train")?;
+        let _test_data = parse_data(dataset_path, dataset_name, "test")?;
+        let _train_data = parse_data(dataset_path, dataset_name, "train")?;
 
         Ok(DataSet {
-            training_data: vec![],
-            testing_data: vec![],
+            testing_data: _test_data,
+            training_data: _train_data,
         })
     }
 }
 
 pub struct ImageData {
-    /// a value between 0-1, normalized from u8
+    /// a value between 0-1 (inc), normalized from u8
     pub pixels: Vec<f64>,
+
+    /// a value between 1-26 (inc), represents a-z
     pub label: u8,
+
+    // property used for recontructing the image
+    _size: Option<(i32, i32)>,
 }
 
-impl Debug for ImageData {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut s: String = String::new();
-        s.push('\n');
-        s.push_str("This is supposed to be a: ");
-        s.push_str(&self.label.to_string());
-        s.push('\n');
-        for i in 0..28 {
-            for x in 0..28 {
-                if self.pixels[i * x] < 0.51 {
-                    s.push('.')
-                } else {
-                    s.push('8')
-                }
+/// Contructs an image from the parsed ImageData
+/// Usefull for debugging
+impl ImageData {
+    fn _show(&self, file_path: &str) {
+        if let Some((width, height)) = self._size {
+            let width = width as u32;
+            let height = height as u32;
+            let mut image = image::RgbImage::new(width, height);
+            for (i, e) in self.pixels.iter().enumerate() {
+                let p = (e * 255.0) as u8;
+                image.put_pixel(i as u32 / width, i as u32 % height, image::Rgb([p, p, p]));
             }
-            s.push('\n');
+            if let Ok(_) = image.save(file_path) {
+                println!("Saved imageData to: {}", file_path);
+                return;
+            };
         }
-        f.write_str(&s)
+
+        println!("Failed to save imageData");
     }
 }
 
@@ -61,15 +67,15 @@ impl Debug for ImageData {
 ///
 /// ### Example
 /// ```
-/// parse_mnist("src/assets/machine_learning/", "letters", "-train")
+/// parse_mnist("src/assets/machine_learning/", "letters", "train")
 /// ```
 pub fn parse_mnist(
     dataset_path: &str,
     dataset_name: &str,
     ext: &str,
 ) -> Result<Vec<ImageData>, Error> {
-    let mut image_file = File::open(format!("{}{}{}-images", dataset_path, dataset_name, ext))?;
-    let mut label_file = File::open(format!("{}{}{}-labels", dataset_path, dataset_name, ext))?;
+    let mut image_file = File::open(format!("{}{}.{}.images", dataset_path, dataset_name, ext))?;
+    let mut label_file = File::open(format!("{}{}.{}.labels", dataset_path, dataset_name, ext))?;
 
     // MNIST dataset documentation:
     // [0, 0, 8, n]; are the first 4 bytes.
@@ -100,7 +106,9 @@ pub fn parse_mnist(
 
     print!("{:?}", image_sizes);
 
-    let image_dimensions = image_sizes[1] * image_sizes[2];
+    let (width, height) = (image_sizes[1], image_sizes[2]);
+
+    let image_dimensions = width * height;
 
     let mut image_vector = Vec::<ImageData>::new();
 
@@ -115,12 +123,15 @@ pub fn parse_mnist(
 
         label_file.read_exact(&mut buf)?;
         let label = buf[0];
-        image_vector.push(ImageData { pixels, label });
+        image_vector.push(ImageData {
+            pixels,
+            label,
+            _size: Some((width, height)),
+        });
 
-        println!("{:?}", image_vector[0]);
-
-        return Err(Error::from(ErrorKind::AddrInUse));
+        println!("Contructed ImageData: {}", label)
     }
 
-    Ok(image_vector)
+    Err(Error::from(ErrorKind::AddrInUse))
+    // Ok(image_vector)
 }

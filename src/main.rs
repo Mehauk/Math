@@ -10,7 +10,7 @@ fn main() -> Result<(), std::io::Error> {
     Ok(())
 }
 
-fn test_custom_matrix_methods() {
+fn _test_custom_matrix_methods() {
     let i = 7;
     let m = matrix::CustomMatrix::random(i, i, -10.0, 10.0);
     let mi = m.copy().invert().unwrap();

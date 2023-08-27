@@ -3,12 +3,12 @@ mod machine_learning;
 mod utilities;
 
 use linear_algebra::matrix;
-// use machine_learning::{parse_mnist, DataSet};
+use machine_learning::{parse_mnist, DataSet};
 use utilities::benchmarking::_time_it;
 
 fn main() -> Result<(), std::io::Error> {
-    _matrix_calculations_comparison();
-    // DataSet::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
+    // _matrix_calculations_comparison();
+    DataSet::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
 
     Ok(())
 }

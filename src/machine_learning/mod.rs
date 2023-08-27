@@ -1,21 +1,21 @@
 use image;
-use nalgebra::{ArrayStorage, Const, Matrix};
+use nalgebra::{ArrayStorage, Const, Matrix, DMatrix};
 use std::{
     fs::File,
     io::{Error, Read},
 };
 
-pub struct DataSet<const R: usize, const C: usize> {
-    pub training_data: Vec<ImageData<R, C>>,
-    pub testing_data: Vec<ImageData<R, C>>,
+pub struct DataSet {
+    pub training_data: Vec<ImageData>,
+    pub testing_data: Vec<ImageData>,
 }
 
-impl<const R: usize, const C: usize> DataSet<R, C> {
+impl DataSet {
     pub fn load_data(
         dataset_path: &str,
         dataset_name: &str,
-        parse_data: impl Fn(&str, &str, &str) -> Result<Vec<ImageData<R, C>>, Error>,
-    ) -> Result<DataSet<R, C>, Error> {
+        parse_data: impl Fn(&str, &str, &str) -> Result<Vec<ImageData>, Error>,
+    ) -> Result<DataSet, Error> {
         let _test_data = parse_data(dataset_path, dataset_name, "test")?;
         let _train_data = parse_data(dataset_path, dataset_name, "train")?;
 
@@ -26,9 +26,9 @@ impl<const R: usize, const C: usize> DataSet<R, C> {
     }
 }
 
-pub struct ImageData<const R: usize, const C: usize> {
+pub struct ImageData {
     /// values between 0-1 (inc), normalized from u8
-    pub pixels: Matrix<f64, Const<R>, Const<C>, ArrayStorage<f64, R, C>>,
+    pub pixels: DMatrix<f64>,
     pub label: u8,
 
     // property used for recontructing the image
@@ -37,7 +37,7 @@ pub struct ImageData<const R: usize, const C: usize> {
 
 /// Contructs an image from the parsed ImageData
 /// Usefull for debugging
-impl<const R: usize, const C: usize> ImageData<R, C> {
+impl ImageData {
     fn _show(&self, file_path: &str) {
         if let Some((width, height)) = self._dims {
             let width = width as u32;
@@ -68,7 +68,11 @@ impl<const R: usize, const C: usize> ImageData<R, C> {
 /// ```
 /// parse_mnist("src/assets/machine_learning/", "letters", "train")
 /// ```
-pub fn parse_mnist(dataset_path: &str, dataset_name: &str, ext: &str) -> Result<(), Error> {
+pub fn parse_mnist(
+    dataset_path: &str,
+    dataset_name: &str,
+    ext: &str,
+) -> Result<Vec<ImageData>, Error> {
     let mut image_file = File::open(format!("{}{}.{}.images", dataset_path, dataset_name, ext))?;
     let mut label_file = File::open(format!("{}{}.{}.labels", dataset_path, dataset_name, ext))?;
 
@@ -103,9 +107,9 @@ pub fn parse_mnist(dataset_path: &str, dataset_name: &str, ext: &str) -> Result<
 
     let (width, height) = (image_sizes[1], image_sizes[2]);
 
-    let image_dimensions = width * height;
+    let image_dimensions = (width * height) as usize;
 
-    // let mut image_vector = Vec::<ImageData>::new();
+    let mut image_vector = Vec::<ImageData>::new();
 
     let mut buf: [u8; 1] = [0; 1];
 
@@ -118,17 +122,16 @@ pub fn parse_mnist(dataset_path: &str, dataset_name: &str, ext: &str) -> Result<
 
         label_file.read_exact(&mut buf)?;
         let label = buf[0];
-        // image_vector.push(ImageData {
-        //     pixels,
-        //     // 1-26 (inc) -> for letters (a-z)
-        //     // 0-9 (inc) -> for digits
-        //     label,
-        //     _dims: Some((width, height)),
-        // });
+        image_vector.push(ImageData {
+            pixels: DMatrix::from_vec(image_dimensions, 1, pixels),
+            // 1-26 (inc) -> for letters (a-z)
+            // 0-9 (inc) -> for digits
+            label,
+            _dims: Some((width, height)),
+        });
 
         println!("Contructed ImageData: {}", label)
     }
 
-    Ok(())
-    // Ok(image_vector)
+    Ok(image_vector)
 }

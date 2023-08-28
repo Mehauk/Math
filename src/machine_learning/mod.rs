@@ -1,5 +1,5 @@
 use image;
-use nalgebra::{ArrayStorage, Const, Matrix, DMatrix};
+use nalgebra::DMatrix;
 use std::{
     fs::File,
     io::{Error, Read},
@@ -103,8 +103,6 @@ pub fn parse_mnist(
         label_sizes.push(i32::from_be_bytes(int_bytes));
     }
 
-    print!("{:?}", image_sizes);
-
     let (width, height) = (image_sizes[1], image_sizes[2]);
 
     let image_dimensions = (width * height) as usize;
@@ -124,14 +122,25 @@ pub fn parse_mnist(
         let label = buf[0];
         image_vector.push(ImageData {
             pixels: DMatrix::from_vec(image_dimensions, 1, pixels),
+
             // 1-26 (inc) -> for letters (a-z)
             // 0-9 (inc) -> for digits
             label,
             _dims: Some((width, height)),
         });
 
-        println!("Contructed ImageData: {}", label)
+        println!("Contructed ImageData: {:?}", _letter_from_number(&label))
     }
 
     Ok(image_vector)
+}
+
+fn _letter_from_number(n: &u8) -> Option<char> {
+    let (a, b) = (b'a', b'b');
+    let c = a + (b - a) * (n - 1);
+    if c < b'z' {
+        return Some(c as char);
+    }
+
+    None
 }

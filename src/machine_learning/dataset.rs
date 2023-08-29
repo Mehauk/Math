@@ -117,7 +117,8 @@ pub fn parse_mnist<const R: usize, const C: usize>(
 
     let mut buf: [u8; 1] = [0; 1];
 
-    for _ in 0..image_sizes[0] {
+    println!("Contructing {} Dataset: ", dataset_name);
+    for i in 0..image_sizes[0] {
         let mut pixels = Vec::<f64>::new();
         for _ in 0..image_dimensions {
             image_file.read_exact(&mut buf)?;
@@ -135,8 +136,21 @@ pub fn parse_mnist<const R: usize, const C: usize>(
             _dims: Some((width, height)),
         });
 
-        println!("Contructed ImageData: {:?}", _letter_from_number(&label))
+        let fraction = ((i + 1) as f32) / (image_sizes[0] as f32) * 100.0;
+        let mut loading_indicator: [char; 10] = ['_'; 10];
+        for li in 0..(fraction as usize / 10) {
+            loading_indicator[li] = '█'
+        }
+        print!(
+            "\rcurrent({:?}) - {}  {}/{}  {:.2}%     ",
+            _letter_from_number(&label),
+            loading_indicator.iter().collect::<String>(),
+            i,
+            image_sizes[0],
+            fraction,
+        );
     }
+    println!("\nDone!");
 
     Ok(image_vector)
 }

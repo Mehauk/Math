@@ -26,8 +26,14 @@ impl<const R: usize, const C: usize> DataSet<R, C> {
     }
 }
 
+// TODO: convert to Trait?
 pub struct ImageData<const R: usize, const C: usize> {
-    /// values between 0-1 (inc), normalized from u8
+    /// `ArrayStorage` requires constant usize for Row and Column.
+    ///
+    /// We could also use `VecStorage` to create a matrix with
+    /// dimensions calculated at runtime, but operations would be slower.
+    ///
+    /// values in the matrix are between 0-1 (inc), normalized from u8
     pub pixels: SMatrix<f64, R, C>,
     pub label: u8,
 
@@ -66,7 +72,7 @@ impl<const R: usize, const C: usize> ImageData<R, C> {
 ///
 /// ### Example
 /// ```
-/// parse_mnist("src/assets/machine_learning/", "letters", "train")
+/// parse_mnist::<{28*28}, 1>("src/assets/machine_learning/", "letters", "train")
 /// ```
 pub fn parse_mnist<const R: usize, const C: usize>(
     dataset_path: &str,
@@ -103,6 +109,7 @@ pub fn parse_mnist<const R: usize, const C: usize>(
         label_sizes.push(i32::from_be_bytes(int_bytes));
     }
 
+    // these are expeected to be 28, 28
     let (width, height) = (image_sizes[1], image_sizes[2]);
 
     let image_dimensions = (width * height) as usize;

@@ -2,20 +2,20 @@ use image;
 use nalgebra::SMatrix;
 use std::{
     fs::File,
-    io::{Error, Read},
+    io::{Error, ErrorKind, Read},
 };
 
-pub struct DataSet<const R: usize, const C: usize> {
-    pub training_data: Vec<ImageData<R, C>>,
-    pub testing_data: Vec<ImageData<R, C>>,
+pub struct DataSet<const I: usize> {
+    pub training_data: Vec<ImageData<I>>,
+    pub testing_data: Vec<ImageData<I>>,
 }
 
-impl<const R: usize, const C: usize> DataSet<R, C> {
+impl<const I: usize> DataSet<I> {
     pub fn load_data(
         dataset_path: &str,
         dataset_name: &str,
-        parse_data: impl Fn(&str, &str, &str) -> Result<Vec<ImageData<R, C>>, Error>,
-    ) -> Result<DataSet<R, C>, Error> {
+        parse_data: impl Fn(&str, &str, &str) -> Result<Vec<ImageData<I>>, Error>,
+    ) -> Result<DataSet<I>, Error> {
         let _test_data = parse_data(dataset_path, dataset_name, "test")?;
         let _train_data = parse_data(dataset_path, dataset_name, "train")?;
 
@@ -27,14 +27,14 @@ impl<const R: usize, const C: usize> DataSet<R, C> {
 }
 
 // TODO: convert to Trait?
-pub struct ImageData<const R: usize, const C: usize> {
+pub struct ImageData<const I: usize> {
     /// `ArrayStorage` requires constant usize for Row and Column.
     ///
     /// We could also use `VecStorage` to create a matrix with
     /// dimensions calculated at runtime, but operations would be slower.
     ///
     /// values in the matrix are between 0-1 (inc), normalized from u8
-    pub pixels: SMatrix<f64, R, C>,
+    pub pixels: SMatrix<f64, I, 1>,
     pub label: u8,
 
     // property used for recontructing the image
@@ -43,7 +43,7 @@ pub struct ImageData<const R: usize, const C: usize> {
 
 /// Contructs an image from the parsed ImageData
 /// Usefull for debugging
-impl<const R: usize, const C: usize> ImageData<R, C> {
+impl<const I: usize> ImageData<I> {
     fn _show(&self, file_path: &str) {
         if let Some((width, height)) = self._dims {
             let width = width as u32;
@@ -74,11 +74,11 @@ impl<const R: usize, const C: usize> ImageData<R, C> {
 /// ```
 /// parse_mnist::<{28*28}, 1>("src/assets/machine_learning/", "letters", "train")
 /// ```
-pub fn parse_mnist<const R: usize, const C: usize>(
+pub fn parse_mnist<const I: usize>(
     dataset_path: &str,
     dataset_name: &str,
     ext: &str,
-) -> Result<Vec<ImageData<R, C>>, Error> {
+) -> Result<Vec<ImageData<I>>, Error> {
     let mut image_file = File::open(format!("{}{}.{}.images", dataset_path, dataset_name, ext))?;
     let mut label_file = File::open(format!("{}{}.{}.labels", dataset_path, dataset_name, ext))?;
 
@@ -113,7 +113,7 @@ pub fn parse_mnist<const R: usize, const C: usize>(
     let (width, height) = (image_sizes[1], image_sizes[2]);
 
     let image_dimensions = (width * height) as usize;
-    let mut image_vector = Vec::<ImageData<R, C>>::new();
+    let mut image_vector = Vec::<ImageData<I>>::new();
 
     let mut buf: [u8; 1] = [0; 1];
 
@@ -128,7 +128,7 @@ pub fn parse_mnist<const R: usize, const C: usize>(
         label_file.read_exact(&mut buf)?;
         let label = buf[0];
         image_vector.push(ImageData {
-            pixels: SMatrix::<f64, R, C>::from_vec(pixels),
+            pixels: SMatrix::<f64, I, 1>::from_vec(pixels),
 
             // 1-26 (inc) -> for letters (a-z)
             // 0-9 (inc) -> for digits
@@ -149,6 +149,10 @@ pub fn parse_mnist<const R: usize, const C: usize>(
             image_sizes[0],
             fraction,
         );
+
+        let nn = super::NueralNetwork::<I, 5, 26>::random(2);
+        nn.pass_through(image_vector[0].pixels);
+        return Err(Error::from(ErrorKind::AddrInUse));
     }
     println!("\nDone!");
 

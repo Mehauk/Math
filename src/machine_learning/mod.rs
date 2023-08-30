@@ -8,9 +8,15 @@ pub mod dataset;
 /// - `O` number of output nodes.
 ///
 /// ### parameters
-/// - `imput_matrix` - A `IxL` matrix that holds the wights used in calculating the first layer of nodes from the input.
-/// - `hidden_layer` - An arbitrary number of `LxL` weight matrices used in calculating nodes for the next layer.
-/// - `imput_matrix` - A `OxL` matrix that holds the wights used in calculating the output nodes from the hidden layer.
+/// - `imput_matrix : Tuple(SMatrix, Smatrix)`
+///     - A `IxL` matrix that holds the wights used in calculating the first layer of nodes from the input.
+///     - A `Lx1` matrix that holds the biases used in calculating the first layer of nodes from the input.
+/// - `hidden_layer : Vec<Tuple(SMatrix, Smatrix)>`
+///     - An arbitrary number of `LxL` weight matrices used in calculating nodes for the next layer.
+///     - An arbitrary number of `Lx1` bias matrices used in calculating nodes for the next layer.
+/// - `imput_matrix : Tuple(SMatrix, Smatrix)`
+///     - A `OxL` matrix that holds the wights used in calculating the output nodes from the hidden layer.
+///     - A `Ox1` matrix that holds the biases used in calculating the output nodes from the hidden layer.
 struct NueralNetwork<const I: usize, const L: usize, const O: usize> {
     input_matrix: (SMatrix<f64, L, I>, SMatrix<f64, L, 1>),
     hidden_layer: Vec<(SMatrix<f64, L, L>, SMatrix<f64, L, 1>)>,
@@ -18,6 +24,33 @@ struct NueralNetwork<const I: usize, const L: usize, const O: usize> {
 }
 
 impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
+    pub fn random(number_of_hidden_layers: usize) -> NueralNetwork<I, L, O> {
+        let mut hidden_layer: Vec<(SMatrix<f64, L, L>, SMatrix<f64, L, 1>)> = vec![];
+        hidden_layer.reserve(number_of_hidden_layers + 1);
+        for _ in 0..number_of_hidden_layers {
+            hidden_layer.push((
+                SMatrix::<f64, L, L>::from_vec((0..L * L).map(|_| rand::random::<f64>()).collect()),
+                SMatrix::<f64, L, 1>::from_vec((0..L * 1).map(|_| rand::random::<f64>()).collect()),
+            ))
+        }
+
+        let input_matrix = (
+            SMatrix::<f64, L, I>::from_vec((0..L * L).map(|_| rand::random::<f64>()).collect()),
+            SMatrix::<f64, L, 1>::from_vec((0..L * 1).map(|_| rand::random::<f64>()).collect()),
+        );
+
+        let output_matrix = (
+            SMatrix::<f64, O, L>::from_vec((0..O * L).map(|_| rand::random::<f64>()).collect()),
+            SMatrix::<f64, O, 1>::from_vec((0..O * 1).map(|_| rand::random::<f64>()).collect()),
+        );
+
+        NueralNetwork {
+            input_matrix,
+            hidden_layer,
+            output_matrix,
+        }
+    }
+
     pub fn pass_through(&self, input: SMatrix<f64, I, 1>) -> SMatrix<f64, O, 1> {
         // construct the first layer of nodes to start the forward propagation.
         // LxI * Ix1 => Lx1

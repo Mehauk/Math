@@ -1,67 +1,11 @@
-use image;
-use nalgebra::SMatrix;
 use std::{
     fs::File,
     io::{Error, Read},
 };
 
-pub struct DataSet<const I: usize> {
-    pub training_data: Vec<ImageData<I>>,
-    pub testing_data: Vec<ImageData<I>>,
-}
+use super::ImageData;
 
-impl<const I: usize> DataSet<I> {
-    pub fn load_data(
-        dataset_path: &str,
-        dataset_name: &str,
-        parse_data: impl Fn(&str, &str, &str) -> Result<Vec<ImageData<I>>, Error>,
-    ) -> Result<DataSet<I>, Error> {
-        let _test_data = parse_data(dataset_path, dataset_name, "test")?;
-        let _train_data = parse_data(dataset_path, dataset_name, "train")?;
-
-        Ok(DataSet {
-            testing_data: _test_data,
-            training_data: _train_data,
-        })
-    }
-}
-
-// TODO: convert to Trait?
-pub struct ImageData<const I: usize> {
-    /// `ArrayStorage` requires constant usize for Row and Column.
-    ///
-    /// We could also use `VecStorage` to create a matrix with
-    /// dimensions calculated at runtime, but operations would be slower.
-    ///
-    /// values in the matrix are between 0-1 (inc), normalized from u8
-    pub pixels: SMatrix<f64, I, 1>,
-    pub label: u8,
-
-    // property used for recontructing the image
-    _dims: Option<(i32, i32)>,
-}
-
-/// Contructs an image from the parsed ImageData
-/// Usefull for debugging
-impl<const I: usize> ImageData<I> {
-    fn _show(&self, file_path: &str) {
-        if let Some((width, height)) = self._dims {
-            let width = width as u32;
-            let height = height as u32;
-            let mut image = image::RgbImage::new(width, height);
-            for (i, e) in self.pixels.iter().enumerate() {
-                let p = (e * 255.0) as u8;
-                image.put_pixel(i as u32 / width, i as u32 % height, image::Rgb([p, p, p]));
-            }
-            if let Ok(_) = image.save(file_path) {
-                println!("Saved imageData to: {}", file_path);
-                return;
-            };
-        }
-
-        println!("Failed to save imageData");
-    }
-}
+pub const INPUT_SIZE: usize = 28 * 28;
 
 /// parses mnist ubyte files
 ///
@@ -72,7 +16,7 @@ impl<const I: usize> ImageData<I> {
 ///
 /// ### Example
 /// ```
-/// parse_mnist::<{28*28}, 1>("src/assets/machine_learning/", "letters", "train")
+/// parse_mnist::<{INPUT_SIZE}, 1>("src/assets/machine_learning/", "letters", "train")
 /// ```
 pub fn parse_mnist<const I: usize>(
     dataset_path: &str,
@@ -117,7 +61,7 @@ pub fn parse_mnist<const I: usize>(
 
     let mut buf: [u8; 1] = [0; 1];
 
-    println!("Contructing {} Dataset: ", dataset_name);
+    println!("Contructing {}.{} Dataset: ", dataset_name, ext);
     for i in 0..image_sizes[0] {
         let mut pixels = Vec::<f64>::new();
         for _ in 0..image_dimensions {
@@ -128,7 +72,7 @@ pub fn parse_mnist<const I: usize>(
         label_file.read_exact(&mut buf)?;
         let label = buf[0];
         image_vector.push(ImageData {
-            pixels: SMatrix::<f64, I, 1>::from_vec(pixels),
+            pixels: nalgebra::SMatrix::<f64, I, 1>::from_vec(pixels),
 
             // 1-26 (inc) -> for letters (a-z)
             // 0-9 (inc) -> for digits
@@ -145,7 +89,7 @@ pub fn parse_mnist<const I: usize>(
             "\rcurrent({:?}) - {}  {}/{}  {:.2}%     ",
             _letter_from_number(&label),
             loading_indicator.iter().collect::<String>(),
-            i,
+            i + 1,
             image_sizes[0],
             fraction,
         );
@@ -158,7 +102,7 @@ pub fn parse_mnist<const I: usize>(
 fn _letter_from_number(n: &u8) -> Option<char> {
     let (a, b) = (b'a', b'b');
     let c = a + (b - a) * (n - 1);
-    if c < b'z' {
+    if c <= b'z' {
         return Some(c as char);
     }
 

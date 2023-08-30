@@ -1,21 +1,21 @@
 mod machine_learning;
 mod utilities;
 
-use machine_learning::dataset::{parse_mnist, DataSet};
-use utilities::benchmarking::_time_it;
+use machine_learning::{
+    dataset::{
+        mnist::{parse_mnist, INPUT_SIZE},
+        DataSet,
+    },
+    NueralNetwork,
+};
+
+// initialize constant values
+const LAYERS_SIZE: usize = 16;
+const OUTPUT_SIZE: usize = 26;
 
 fn main() -> Result<(), std::io::Error> {
     // 28*28 is the expected image dimensions
-
-    _time_it(|| -> Result<DataSet<{ 28 * 28 }>, std::io::Error> {
-        let d = DataSet::<{ 28 * 28 }>::load_data(
-            "src/assets/machine_learning/",
-            "letters",
-            parse_mnist,
-        )?;
-
-        Ok(d)
-    });
-
+    DataSet::<INPUT_SIZE>::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
+    NueralNetwork::<INPUT_SIZE, LAYERS_SIZE, OUTPUT_SIZE>::random(2);
     Ok(())
 }

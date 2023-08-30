@@ -2,7 +2,7 @@ use image;
 use nalgebra::SMatrix;
 use std::{
     fs::File,
-    io::{Error, ErrorKind, Read},
+    io::{Error, Read},
 };
 
 pub struct DataSet<const I: usize> {
@@ -149,10 +149,6 @@ pub fn parse_mnist<const I: usize>(
             image_sizes[0],
             fraction,
         );
-
-        let nn = super::NueralNetwork::<I, 5, 26>::random(2);
-        nn.pass_through(image_vector[0].pixels);
-        return Err(Error::from(ErrorKind::AddrInUse));
     }
     println!("\nDone!");
 

@@ -1,5 +1,7 @@
 use nalgebra::SMatrix;
 
+use super::dataset::DataSet;
+
 /// Contruct a NeuralNetwork with;
 /// - `I` number of inputs
 /// - `L` number of nodes in each hidden_layer
@@ -72,6 +74,10 @@ impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
         output.apply(normalize);
         output
     }
+
+    pub fn train(&self, data_set: &DataSet<I>) {}
+
+    pub fn test(&self, data_set: &DataSet<I>) {}
 }
 
 /// Return value between `[-1, 1]`

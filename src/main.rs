@@ -6,7 +6,7 @@ use machine_learning::{
         mnist::{parse_mnist, INPUT_SIZE},
         DataSet,
     },
-    NueralNetwork,
+    neural_network::NueralNetwork,
 };
 
 // initialize constant values

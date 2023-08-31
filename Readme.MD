@@ -3,19 +3,19 @@ A repository for experimenting with Maths.
 
 ### Table of Contents
 - [Linear Algebra](#linear-algebra)
-    - [Vectors](#vectors)
-      - [Vector Arithmetic](#vector-arithmetic)
-      - [Imaginary Numbers as vectors](#imaginary-numbers-as-vectors)
-    - [Matrices](#matrices)
-      - [Matrix Arithmetic](#matrix-arithmetic)
+  - [Vectors](#vectors)
+    - [Vector Arithmetic](#vector-arithmetic)
+    - [Imaginary Numbers as Vectors](#imaginary-numbers-as-vectors)
+  - [Matrices](#matrices)
+    - [Matrix Arithmetic](#matrix-arithmetic)
 - [Calculus](#calculus)
-    - [Pre-Calc](#pre-calc)
-    - [Derivatives](#derivatives)
-    - [Integrals](#integrals)
-    - [Differential Equations](#differential-equations)
-    - [Multi-Dimensional Calculus](#multi-dimensional-calculus)
+  - [Pre-Calc](#pre-calc)
+    - [Functions](#functions)
+  - [Derivatives](#derivatives)
+  - [Integrals](#integrals)
+  - [Differential Equations](#differential-equations)
+  - [Multi-Dimensional Calculus](#multi-dimensional-calculus)
 - [Machine Learning](#machine-learning)
-    - [Nodes](#nodes)
     - [Forward Propagation](#forward-propagation)
     - [Back Propagation](#back-propagation)
 
@@ -23,12 +23,12 @@ A repository for experimenting with Maths.
 # Linear Algebra
 > ### pre-requisites
 > - Algebra
- ### Vectors
-  #### Vector Arithmetic
-  #### Imaginary Numbers as vectors
+ ## Vectors
+  ### Vector Arithmetic
+  ### Imaginary Numbers as Vectors
 
- ### Matrices
-  #### Matrix Arithmetic
+ ## Matrices
+  ### Matrix Arithmetic
 
 &nbsp;
 # Calculus
@@ -36,15 +36,44 @@ A repository for experimenting with Maths.
 > - Algebra
 > - Trigonometry
 
- ### Pre-Calc
- 
- ### Derivatives
+ ## Pre-Calc
+  ### Functions
+  > ## Functions can also be represented in code:
+  > ```py
+  > def some_polynomial_function(x: float) -> float:
+  >    return 3*x*x + 7*x + 14
+  > ```
+  > 
+  > A limitation due to the discrete nature of digital computers is that any 
+  > function also becomes discrete. Although ${f(x) = 2x^2 + 7x + 14}$ is a 
+  > continuous function both the input to the function $x$ and the output 
+  > are floats, and as such they have a limited range and precision.
+  > 
+  > Here is another example that more clearly demonstrates this:
+  > ```rs
+  > fn another_polynomial_function(x: i32) -> i32 {
+  >    (0.5 as i32)*x
+  > }
+  > ```
+  > This translates to ${f(x) = {1\over2}x}$ and the domain is as follows:
+  > $${D: \{x| x \in \mathbb{R}\}}$$
+  > 
+  > However The domain of an `i32` is: 
+  > $${D: \{x| -2^{31} \le x <2^{31} | x \in \mathbb{I}\}}$$
+  > Additionaly an input of ${x = 1}$ would return $0.5$, but since an `i32` 
+  > cannot represent fractional values, it would return $0$;
 
- ### Integrals
+ ## Derivatives
 
- ### Differential Equations
 
- ### Multi-Dimensional Calculus
+ ## Integrals
+
+
+ ## Differential Equations
+
+
+ ## Multi-Dimensional Calculus
+
 
 &nbsp;
 # Machine Learning
@@ -52,8 +81,8 @@ A repository for experimenting with Maths.
 > - [Calculus](#calculus) 
 > - [Linear Algebra](#linear-algebra)
 
- ### Nodes
-
  ### Forward Propagation
- 
+ ---
+
  ### Back Propagation
+ ---

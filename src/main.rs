@@ -1,3 +1,4 @@
+mod calculus;
 mod machine_learning;
 mod utilities;
 

@@ -15,9 +15,11 @@ A repository for experimenting with Maths.
   - [Integrals](#integrals)
   - [Differential Equations](#differential-equations)
   - [Multi-Dimensional Calculus](#multi-dimensional-calculus)
+  - [Convolutions](#convolutions)
 - [Machine Learning](#machine-learning)
-    - [Forward Propagation](#forward-propagation)
-    - [Back Propagation](#back-propagation)
+  - [Forward Propagation](#forward-propagation)
+  - [Back Propagation](#back-propagation)
+
 
 &nbsp;
 # Linear Algebra
@@ -30,9 +32,10 @@ A repository for experimenting with Maths.
  ## Matrices
   ### Matrix Arithmetic
 
+
 &nbsp;
 # Calculus
-> ### pre-requisites
+> ### pre-requisites :c
 > - Algebra
 > - Trigonometry
 
@@ -65,14 +68,13 @@ A repository for experimenting with Maths.
 
  ## Derivatives
 
-
  ## Integrals
-
 
  ## Differential Equations
 
-
  ## Multi-Dimensional Calculus
+
+ ## Convolutions
 
 
 &nbsp;
@@ -81,8 +83,6 @@ A repository for experimenting with Maths.
 > - [Calculus](#calculus) 
 > - [Linear Algebra](#linear-algebra)
 
- ### Forward Propagation
- ---
+ ## Forward Propagation
 
- ### Back Propagation
- ---
+ ## Back Propagation

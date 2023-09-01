@@ -17,6 +17,8 @@ A repository for experimenting with Maths.
   - [Multi-Dimensional Calculus](#multi-dimensional-calculus)
   - [Convolutions](#convolutions)
 - [Machine Learning](#machine-learning)
+  - [Neural Network](#neural-network)
+    - [Introduction](#introduction)
   - [Forward Propagation](#forward-propagation)
   - [Back Propagation](#back-propagation)
 
@@ -82,6 +84,12 @@ A repository for experimenting with Maths.
 > ### pre-requisites
 > - [Calculus](#calculus) 
 > - [Linear Algebra](#linear-algebra)
+
+ ## Neural Network
+  ### Introduction
+  The function $f(x) = x^2$ looks like this:
+  
+
 
  ## Forward Propagation
 

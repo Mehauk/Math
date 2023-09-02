@@ -87,7 +87,41 @@ A repository for experimenting with Maths.
 
  ## Neural Network
   ### Introduction
-  The function $f(x) = x^2$ looks like this:
+  A `Neural Network` is a `function` that approcimates other `funtions`.
+
+  The table below depicts a series of inputs passed as arguments to a `function` and the resulting return values.
+
+  <center>
+  
+  | Input - $x$ | Output - $f(x)$ |
+  | :---------: | :-------------: |
+  |      0      |        0        |
+  |      1      |        1        |
+  |      2      |        2        |
+
+  </center>
+
+
+  A prediction can be made about the underlying `funtion` with respect to the table above. This particular `function` maps the input to the output in a $1:1$ ratio, in other words it is the `linear function` $f(x) = x$. 
+  
+  ```dart
+  /// This `function` is only able to create `linear functions`, this would be innacurate the further the actual `function` was from being a `first order plynomial`.
+  double Function(double) predict_function(
+  data: List<({input: double, output: double})>, 
+  ) {
+  final int length = data.length;
+  double avgRatio = 0;
+
+  data.forEach((e) => (e.output / e.input))
+
+  avgRatio = avgRatio / length
+
+  func = (x: double) => avgRatio*x;
+
+  return func;
+  }
+  ```
+
   
 
 

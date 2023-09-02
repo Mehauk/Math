@@ -2,25 +2,10 @@
 A repository for experimenting with Maths.
 
 ### Table of Contents
-- [Linear Algebra](#linear-algebra)
-  - [Vectors](#vectors)
-    - [Vector Arithmetic](#vector-arithmetic)
-    - [Imaginary Numbers as Vectors](#imaginary-numbers-as-vectors)
-  - [Matrices](#matrices)
-    - [Matrix Arithmetic](#matrix-arithmetic)
-- [Calculus](#calculus)
-  - [Pre-Calc](#pre-calc)
-    - [Functions](#functions)
-  - [Derivatives](#derivatives)
-  - [Integrals](#integrals)
-  - [Differential Equations](#differential-equations)
-  - [Multi-Dimensional Calculus](#multi-dimensional-calculus)
-  - [Convolutions](#convolutions)
-- [Machine Learning](#machine-learning)
-  - [Neural Network](#neural-network)
-    - [Introduction](#introduction)
-  - [Forward Propagation](#forward-propagation)
-  - [Back Propagation](#back-propagation)
+> - [Linear Algebra](#linear-algebra)
+>   - [Vectors](#vectors)
+>     - [Vector Arithmetic](#vector-arithmetic)
+>     - [Imaginary Numbers as Vectors](#imaginary-numbers-as-vectors)
 
 
 &nbsp;

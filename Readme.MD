@@ -98,7 +98,7 @@ A repository for experimenting with Maths.
   |      2      |        2        |
   |      3      |        3        |
 
-  ![](.misc/visuals/images/x_dots.png)
+  ![](.misc/visuals/images/x_dots_cropped.png)
 
   A prediction can be made about the underlying `funtion` with respect to the table above. This particular `function` maps the input to the output in a $1:1$ ratio, in other words it is the `linear function` $f(x) = x$. 
   

@@ -37,7 +37,7 @@ A repository for experimenting with Maths.
 
 &nbsp;
 # Calculus
-> ### pre-requisites :blush:
+> ### pre-requisites
 > - Algebra
 > - Trigonometry
 
@@ -50,9 +50,10 @@ A repository for experimenting with Maths.
   > ```
   > 
   > A limitation due to the discrete nature of digital computers is that any 
-  > function also becomes discrete. Although ${f(x) = 2x^2 + 7x + 14}$ is a 
-  > continuous function both the input to the function $x$ and the output 
-  > are floats, and as such they have a limited range and precision.
+  > `function` also becomes discrete. Although ${f(x) = 2x^2 + 7x + 14}$ is 
+  > a continuous `function` both the input to the `function` $x$ and  
+  > the output are floats, and as such they have a limited range 
+  > and precision.
   > 
   > Here is another example that more clearly demonstrates this:
   > ```rs
@@ -87,7 +88,7 @@ A repository for experimenting with Maths.
 
  ## Neural Network
   ### Introduction
-  A `Neural Network` is a `function` that approcimates other `funtions`.
+  A `Neural Network` is a `function` that approximates other `funtions`.
 
   The table below depicts a series of inputs passed as arguments to a `function` and the resulting return values.
 
@@ -98,7 +99,7 @@ A repository for experimenting with Maths.
   |      2      |        2        |
   |      3      |        3        |
 
-  A prediction can be made about the underlying `funtion` with respect to the table above. This particular `function` maps the input to the output in a $1:1$ ratio, in other words it is the `linear function` $f(x) = x$. 
+  A prediction can be made about the underlying `funtion` with respect to the table above. This particular `function` seems to map the input to the output in a $1:1$ ratio, in other words it can be assumed to be the `linear function` $f(x) = x$. This assumption could be wrong as the next point in the dataset might not be $(4, 4)$. Below is an example of a `function` that could automate this type of approximation.
   
   ```dart
   /// This `function` is only able to create `linear functions`, 
@@ -108,20 +109,36 @@ A repository for experimenting with Maths.
   data: List<({input: double, output: double})>, 
   ) {
   final int length = data.length;
-  double avgRatio = 0;
+  double avgSlope = 0;
 
-  data.forEach((e) => (e.output / e.input))
+  for (var i = 1; i < length, i++) {
+    final double top = (data[i].output - data[i-1].output)
+    final double bottom = (data[i].input - data[i-1].input)
+    avgSlope += top / bottom
+  }
 
-  avgRatio = avgRatio / length
+  avgSlope = avgSlope / (length - 1)
 
-  func = (x: double) => avgRatio*x;
+  func = (x: double) => avgSlope*x;
 
   return func;
   }
+  ```  
+
+  The above `function` would still attempt to find a linear_equation to fit the input data even if the dataset was from `non-linear functions` such as the `trigonometric functions` or even `higher order polynomial functions` to name a few. In fact `pedict_function` can only return `linear_functions` that pass through the origin. Creating a more generalized `function` estimator requires a change in process.
+
+  Lets first tackle the problem of `linear_functions` that are offset from the origin. The particular function we wish to approximate is: $f(x) = 3x + 3$.
+  Using the points $(0, 3)$, $(1, 6)$, $(2, 9)$; lets see what `predict_function` would do.
+
+  ```dart
+  final int length = 3;
+
+  double avgSlope = ((6-3) / (1-0) + (9-6) / (2-1)) / (length - 1);
+
+  return (x: double) => 3*x;
   ```
 
-  
-
+  The slope was calculated correctly, but the offset was lost. 
 
  ## Forward Propagation
 

@@ -62,10 +62,10 @@ A repository for experimenting with Maths.
   > }
   > ```
   > This translates to ${f(x) = {1\over2}x}$ and the domain is as follows:
-  > $${D: \{x| x \in \mathbb{R}\}}$$
+  > $${D: \lbrace x| x \in \mathbb{R} \rbrace}$$
   > 
   > However The domain of an `i32` is: 
-  > $${D: \{x| -2^{31} \le x <2^{31} | x \in \mathbb{I}\}}$$
+  > $${D: \lbrace x| -2^{31} \le x <2^{31} | x \in \mathbb{I} \rbrace}$$
   > Additionaly an input of ${x = 1}$ would return $0.5$, but since an `i32` 
   > cannot represent fractional values, it would return $0$;
 
@@ -96,16 +96,12 @@ A repository for experimenting with Maths.
 
   The following table represents inputs passed to the netwrok above and what the expected outputs should be. From this data we hope that our `neural network` can decipher the correct relationship (`function`) between $x$ and $f(x)$.
 
-  <center>
-
   | Input - $x$ | Expected Output - $f(x)$ |
   | :---------: | :----------------------: |
   |      0      |            2             |
   |      1      |            5             |
   |      2      |            8             |
   |      3      |            11            |
-
-  </center>
 
  ## Forward Propagation
 

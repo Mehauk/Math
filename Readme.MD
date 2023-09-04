@@ -88,57 +88,24 @@ A repository for experimenting with Maths.
 
  ## Neural Network
   ### Introduction
-  A `Neural Network` is a `function` that approximates other `funtions`.
+  ![](.misc/visuals/images/simplestnn.png)
 
-  The table below depicts a series of inputs passed as arguments to a `function` and the resulting return values.
+  The figure above dipects a simple `neural network` with one input, one node, and one output. This can be read as.
 
-  | Input - $x$ | Output - $f(x)$ |
-  | :---------: | :-------------: |
-  |      0      |        0        |
-  |      1      |        1        |
-  |      2      |        2        |
-  |      3      |        3        |
+  $$f(x) = wx + b$$
 
-  A prediction can be made about the underlying `funtion` with respect to the table above. This particular `function` seems to map the input to the output in a $1:1$ ratio, in other words it can be assumed to be the `linear function` $f(x) = x$. This assumption could be wrong as the next point in the dataset might not be $(4, 4)$. Below is an example of a `function` that could automate this type of approximation.
-  
-  ```dart
-  /// This `function` is only able to create `linear functions`, 
-  /// this would be more innacurate the further the actual 
-  /// `function` was from being a `first order plynomial`.
-  double Function(double) predict_function(
-  data: List<({input: double, output: double})>, 
-  ) {
-  final int length = data.length;
-  double avgSlope = 0;
+  The following table represents inputs passed to the netwrok above and what the expected outputs should be. From this data we hope that our `neural network` can decipher the correct relationship (`function`) between $x$ and $f(x)$.
 
-  for (var i = 1; i < length, i++) {
-    final double top = (data[i].output - data[i-1].output)
-    final double bottom = (data[i].input - data[i-1].input)
-    avgSlope += top / bottom
-  }
+  <center>
 
-  avgSlope = avgSlope / (length - 1)
+  | Input - $x$ | Expected Output - $f(x)$ |
+  | :---------: | :----------------------: |
+  |      0      |            2             |
+  |      1      |            5             |
+  |      2      |            8             |
+  |      3      |            11            |
 
-  func = (x: double) => avgSlope*x;
-
-  return func;
-  }
-  ```  
-
-  The above `function` would still attempt to find a linear_equation to fit the input data even if the dataset was from `non-linear functions` such as the `trigonometric functions` or even `higher order polynomial functions` to name a few. In fact `pedict_function` can only return `linear_functions` that pass through the origin. Creating a more generalized `function` estimator requires a change in process.
-
-  Lets first tackle the problem of `linear_functions` that are offset from the origin. The particular function we wish to approximate is: $f(x) = 3x + 3$.
-  Using the points $(0, 3)$, $(1, 6)$, $(2, 9)$; lets see what `predict_function` would do.
-
-  ```dart
-  final int length = 3;
-
-  double avgSlope = ((6-3) / (1-0) + (9-6) / (2-1)) / (length - 1);
-
-  return (x: double) => 3*x;
-  ```
-
-  The slope was calculated correctly, but the offset was lost. 
+  </center>
 
  ## Forward Propagation
 

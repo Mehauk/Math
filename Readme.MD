@@ -116,19 +116,6 @@ A repository for experimenting with Maths.
   
   The partial derivatives are;
 
-  $$ {\delta{E}\over\delta{w}}=\sum^x{\delta\over\delta{w}}(f_e(x) - f(x))^2$$
-  $$ {\delta\over\delta{w}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {\delta{f(x)}\over\delta{w}}$$
-
-  $$ {\delta{f(x)}\over\delta{w}} = {\delta{w}\over\delta{w}}x + {\delta{b}\over\delta{w}} = x$$
-  $$ {\delta{E}\over\delta{w}}=\sum^x2x(f_e(x) - f(x))$$
-
-  $$ --- $$
-
-  $$ {\delta{E}\over\delta{b}}=\sum^x{\delta\over\delta{b}}(f_e(x) - f(x))^2$$
-  $$ {\delta\over\delta{b}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {\delta{f(x)}\over\delta{b}}$$
-
-  $$ {\delta{f(x)}\over\delta{b}} = {\delta{w}\over\delta{b}}x + {\delta{b}\over\delta{b}} = 1$$
-  $$ {\delta{E}\over\delta{b}}=\sum^x2(f_e(x) - f(x))$$
 
  ## Forward Propagation
 

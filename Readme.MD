@@ -62,10 +62,10 @@ A repository for experimenting with Maths.
   > }
   > ```
   > This translates to ${f(x) = {1\over2}x}$ and the domain is as follows:
-  > $${D: \lbrace x| x \in \mathbb{R} \rbrace}$$
+  > $$ {D: \lbrace x| x \in \mathbb{R} \rbrace} $$
   > 
   > However The domain of an `i32` is: 
-  > $${D: \lbrace x| -2^{31} \le x <2^{31} | x \in \mathbb{I} \rbrace}$$
+  > $$ {D: \lbrace x| -2^{31} \le x <2^{31} | x \in \mathbb{I} \rbrace} $$
   > Additionaly an input of ${x = 1}$ would return $0.5$, but since an `i32` 
   > cannot represent fractional values, it would return $0$;
 
@@ -90,18 +90,48 @@ A repository for experimenting with Maths.
   ### Introduction
   ![](.misc/visuals/images/simplestnn.png)
 
-  The figure above dipects a simple `neural network` with one input, one node, and one output. This can be read as.
+  The figure above dipects a simple `neural network` with one input $x$, one weight $w$, and one bias at the output $b$. This can be read as;
 
-  $$f(x) = wx + b$$
+  $$ f(x) = wx + b $$
 
-  The following table represents inputs passed to the netwrok above and what the expected outputs should be. From this data we hope that our `neural network` can decipher the correct relationship (`function`) between $x$ and $f(x)$.
+  The following table represents inputs passed to the network above and what the expected outputs should be. From this data we hope that our `neural network` can decipher the correct relationship (i.e. `function`) between $x$ and $f_e(x)$.
 
-  | Input - $x$ | Expected Output - $f(x)$ |
-  | :---------: | :----------------------: |
-  |      0      |            2             |
-  |      1      |            5             |
-  |      2      |            8             |
-  |      3      |            11            |
+  | Input - $x$ | Expected Output - $f_e(x)$ |
+  | :---------: | :------------------------: |
+  |      0      |             2              |
+  |      1      |             5              |
+  |      2      |             8              |
+  |      3      |             11             |
+
+  To start, we inititalze the constants $w, b$ with arbitrary values; in our case $1$. We can then compare the expected result with the calculated result; 
+
+  $$ (f_e(x) - f(x))^2 $$
+  $$ (f_e(0) - f(0))^2  = (2 - (1(0) + 1))^2 = 1$$
+
+  Using the descrepancy to gradually alter the weight and the bias decreasing the the error $E$. More formally $E$ is the sum of all of the differences between excepted and calculated outputs.
+
+  $$ E(w, b) = \sum^x  (f_e(x) - f(x))^2 $$
+
+  $E$ is a function of both $w$ and $b$ as they are changing variables that both contribute to the error. We can use the partial derivatives of this `function` to find better values for $w$ and $b$ such that the error becomes small. 
+  
+  The partial derivatives are;
+
+  $$ {\delta{E}\over\delta{w}}=\sum^x{\delta\over\delta{w}}(f_e(x) - f(x))^2$$
+  $$ {\delta\over\delta{w}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {\delta{f(x)}\over\delta{w}}$$
+
+  $$ {\delta{f(x)}\over\delta{w}} = {\delta{w}\over\delta{w}}x + {\delta{b}\over\delta{w}} = x$$
+  $$ {\delta{E}\over\delta{w}}=\sum^x2x(f_e(x) - f(x))$$
+
+  $$ --- $$
+
+  $$ {\delta{E}\over\delta{b}}=\sum^x{\delta\over\delta{b}}(f_e(x) - f(x))^2$$
+  $$ {\delta\over\delta{b}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {\delta{f(x)}\over\delta{b}}$$
+
+  $$ {\delta{f(x)}\over\delta{b}} = {\delta{w}\over\delta{b}}x + {\delta{b}\over\delta{b}} = 1$$
+  $$ {\delta{E}\over\delta{b}}=\sum^x2(f_e(x) - f(x))$$
+
+  
+  
 
  ## Forward Propagation
 

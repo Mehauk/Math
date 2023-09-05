@@ -130,9 +130,6 @@ A repository for experimenting with Maths.
   $$ {\delta{f(x)}\over\delta{b}} = {\delta{w}\over\delta{b}}x + {\delta{b}\over\delta{b}} = 1$$
   $$ {\delta{E}\over\delta{b}}=\sum^x2(f_e(x) - f(x))$$
 
-  
-  
-
  ## Forward Propagation
 
  ## Back Propagation

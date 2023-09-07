@@ -12,6 +12,7 @@ A repository for experimenting with Maths.
   - [Pre-Calc](#pre-calc)
     - [Functions](#functions)
   - [Derivatives](#derivatives)
+    - [Extrema](#extrema)
   - [Integrals](#integrals)
   - [Differential Equations](#differential-equations)
   - [Multi-Dimensional Calculus](#multi-dimensional-calculus)
@@ -70,6 +71,8 @@ A repository for experimenting with Maths.
   > cannot represent fractional values, it would return $0$;
 
  ## Derivatives
+  ### Extrema
+  
 
  ## Integrals
 
@@ -103,38 +106,40 @@ A repository for experimenting with Maths.
   |      2      |             8              |
   |      3      |             11             |
 
-  To start, we inititalze the constants $w, b$ with arbitrary values; in our case $1$. We can then compare the expected result with the calculated result; 
+  To start, we inititalze the constants $w, b$ with arbitrary values; in our case $1$. We can then compare the Error $E$ between the expected result and the calculated result; 
 
+  $$ E(w, b) = (f_e(x) - f(x))^2 $$
+  $$ --- $$
   $$ (f_e(x) - f(x))^2 $$
   $$ (f_e(0) - f(0))^2  = (2 - (1(0) + 1))^2 = 1$$
 
-  Using the descrepancy to gradually alter the weight and the bias decreasing the the error $E$. More formally $E$ is the sum of all of the differences between excepted and calculated outputs.
 
-  $$ E(w, b) = \sum^x  (f_e(x) - f(x))^2 $$
+  $E$ is a function of both variables $w$ and $b$. The Gradient of the error indicates the direction of steepest change. Using each of the partial derivatives we can nudge the variables such that the error is reduced.
 
-  $E$ is a function of both $w$ and $b$ as they are changing variables that both contribute to the error. We can use the partial derivatives of this `function` to find better values for $w$ and $b$ 
+  The gradient is;
+  $$ \Delta{G} = ({\delta{E}\over\delta{w}}, {\delta{E}\over\delta{b}}) $$
   
   The partial derivatives are;
 
-  $$ {\delta{E}\over\delta{w}}=\sum^x{\delta\over\delta{w}}(f_e(x) - f(x))^2 $$
+  $$ {\delta{E}\over\delta{w}}={\delta\over\delta{w}}(f_e(x) - f(x))^2 $$
 
   $$ {\delta\over\delta{w}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {\delta{f(x)}\over\delta{w}} $$
 
   $$ {\delta{f(x)}\over\delta{w}} = {\delta{w}\over\delta{w}}x + {\delta{b}\over\delta{w}} = x $$
 
-  $$ {\delta{E}\over\delta{w}}=\sum^x2x(f_e(x) - f(x)) $$
+  $$ {\delta{E}\over\delta{w}}=2x(f_e(x) - f(x)) $$
 
   $$ --- $$
 
-  $$ {\delta{E}\over\delta{b}}=\sum^x{\delta\over\delta{b}}(f_e(x) - f(x))^2$$
+  $$ {\delta{E}\over\delta{b}}={\delta\over\delta{b}}(f_e(x) - f(x))^2$$
 
   $$ {\delta\over\delta{b}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {\delta{f(x)}\over\delta{b}} $$
 
   $$ {\delta{f(x)}\over\delta{b}} = {\delta{w}\over\delta{b}}x + {\delta{b}\over\delta{b}} = 1 $$
 
-  $$ {\delta{E}\over\delta{b}}=\sum^x2(f_e(x) - f(x)) $$
+  $$ {\delta{E}\over\delta{b}}=2(f_e(x) - f(x)) $$
 
-  Rather than calculating the  as a sum of all the differences, we can simplify the process by calculating the error for each indivual $x$ and using the respective partial derivatives to nudge the variables $w, b$ as needed. The process if formally known as [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).
+  By calculating the gradient at each individual $x$, we can nudge the variables in some negative proportion relative to its partial derivative. Since we are looking for a minimum of the error function, we can nudge the variables to the right if their respective derivative is negative and left is positive. (A minimum can be found if a function is decreasing to the left and increasing to the right.) This means we can nudge the variables negatively proportional to their partial derivatives to gradually locate a minimum. This process if formally known as [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).
 
 
  ## Forward Propagation

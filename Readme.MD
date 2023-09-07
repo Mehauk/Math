@@ -112,7 +112,7 @@ A repository for experimenting with Maths.
 
   $$ E(w, b) = \sum^x  (f_e(x) - f(x))^2 $$
 
-  $E$ is a function of both $w$ and $b$ as they are changing variables that both contribute to the error. We can use the partial derivatives of this `function` to find better values for $w$ and $b$ such that the error becomes small. 
+  $E$ is a function of both $w$ and $b$ as they are changing variables that both contribute to the error. We can use the partial derivatives of this `function` to find better values for $w$ and $b$ 
   
   The partial derivatives are;
 
@@ -133,6 +133,9 @@ A repository for experimenting with Maths.
   $$ {\delta{f(x)}\over\delta{b}} = {\delta{w}\over\delta{b}}x + {\delta{b}\over\delta{b}} = 1 $$
 
   $$ {\delta{E}\over\delta{b}}=\sum^x2(f_e(x) - f(x)) $$
+
+  Rather than calculating the  as a sum of all the differences, we can simplify the process by calculating the error for each indivual $x$ and using the respective partial derivatives to nudge the variables $w, b$ as needed. The process if formally known as [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).
+
 
  ## Forward Propagation
 

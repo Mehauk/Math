@@ -106,7 +106,11 @@ A repository for experimenting with Maths.
   |      2      |             8              |
   |      3      |             11             |
 
-  To start, we inititalze the constants $w, b$ with arbitrary values; in our case $1$. We can then compare the Error $E$ between the expected result and the calculated result; 
+  To start, we inititalze the constants $w, b$ with arbitrary values; in our case $1$. 
+  
+  $$ f(x) = 1x + 1 $$
+
+  We can then compare the Error $E$ between the expected result and the calculated result; 
 
   $$ E(w, b) = (f_e(x) - f(x))^2 $$
   $$ --- $$
@@ -121,25 +125,50 @@ A repository for experimenting with Maths.
   
   The partial derivatives are;
 
-  $$ {\delta{E}\over\delta{w}}={\delta\over\delta{w}}(f_e(x) - f(x))^2 $$
+  $$ {\delta{E}\over\delta{w}} = {\delta\over\delta{w}}(f_e(x) - f(x))^2 $$
 
-  $$ {\delta\over\delta{w}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {\delta{f(x)}\over\delta{w}} $$
+  $$ {\delta\over\delta{w}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {-\delta{f(x)}\over\delta{w}} $$
 
   $$ {\delta{f(x)}\over\delta{w}} = {\delta{w}\over\delta{w}}x + {\delta{b}\over\delta{w}} = x $$
 
-  $$ {\delta{E}\over\delta{w}}=2x(f_e(x) - f(x)) $$
+  $$ {\delta{E}\over\delta{w}} = -2x(f_e(x) - f(x)) $$
 
   $$ --- $$
 
-  $$ {\delta{E}\over\delta{b}}={\delta\over\delta{b}}(f_e(x) - f(x))^2$$
+  $$ {\delta{E}\over\delta{b}} = {\delta\over\delta{b}}(f_e(x) - f(x))^2$$
 
-  $$ {\delta\over\delta{b}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {\delta{f(x)}\over\delta{b}} $$
+  $$ {\delta\over\delta{b}}(f_e(x) - f(x))^2 = 2(f_e(x) - f(x)) {-\delta{f(x)}\over\delta{b}} $$
 
   $$ {\delta{f(x)}\over\delta{b}} = {\delta{w}\over\delta{b}}x + {\delta{b}\over\delta{b}} = 1 $$
 
-  $$ {\delta{E}\over\delta{b}}=2(f_e(x) - f(x)) $$
+  $$ {\delta{E}\over\delta{b}} = -2(f_e(x) - f(x)) $$
 
-  By calculating the gradient at each individual $x$, we can nudge the variables in some negative proportion relative to its partial derivative. Since we are looking for a minimum of the error function, we can nudge the variables to the right if their respective derivative is negative and left is positive. (A minimum can be found if a function is decreasing to the left and increasing to the right.) This means we can nudge the variables negatively proportional to their partial derivatives to gradually locate a minimum. This process if formally known as [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).
+  By calculating the gradient at each individual $x$, we can nudge the variables in some negative proportion relative to its partial derivative. Since we are looking for a minimum of the error function, we can nudge the variables to the right if their respective derivative is negative and left is positive. (A minimum can be found if a function is decreasing to the left and increasing to the right.) This means we can nudge the variables negatively proportional to their partial derivatives to gradually locate a minimum. This process if formally known as [Stochastic Gradient Descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).
+
+  $$ {\delta{E_0}\over\delta{w}} = 2(0)(f_e(0) - f(0)) $$
+  $$ {\delta{E_0}\over\delta{w}} = 0 $$
+  
+  $$ --- $$
+  
+  $$ {\delta{E_0}\over\delta{b}} = -2(f_e(0) - f(0)) $$
+  $$ {\delta{E_0}\over\delta{b}} = -2(2 - (1(0) + 1)) = -2(1) $$
+  $$ {\delta{E_0}\over\delta{b}} = -2 $$
+
+  Since $\delta{E_0}\over\delta{w}$ is $0$ we cannot determine which direction to nudge the variable. $\delta{E_0}\over\delta{b}$ on the other hand is negative, at $x=0$ the error $E$ is decreasing with respect to $b$. This means we can nudge b is the positive direction.
+
+  $$ w_{new} = w_{old} - {\delta{E_0}\over\delta{w}} $$
+  $$ w_{new} = w_{old} - 0 = 1 - 0 $$
+  $$ w_{new} = 1 $$
+
+  $$ --- $$
+
+  $$ b_{new} = b_{old} - {\delta{E_0}\over\delta{b}} $$
+  $$ b_{new} = 1 - (-1) $$
+  $$ b_{new} = 2 $$
+
+  Our equation is now;
+
+  $$ f(x) = 1x + 2 $$
 
 
  ## Forward Propagation

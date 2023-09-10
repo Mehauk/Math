@@ -170,6 +170,12 @@ A repository for experimenting with Maths.
 
   $$ f(x) = 1x + 2 $$
 
+  We can continue this process for each entry in the dataset to slowly approximate the the `function` we are looking for. In this case we would get something close to $f(x) = 3x + 2$.
+
+
+
+
+
 
  ## Forward Propagation
 

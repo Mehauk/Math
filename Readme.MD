@@ -110,18 +110,17 @@ A repository for experimenting with Maths.
   
   $$ f(x) = 1x + 1 $$
 
-  We can then compare the Error $E$ between the expected result and the calculated result; 
+  We can then compare the Error $E$ between the expected result and the calculated result by taking a square of the differece, This is done for every $x$;
 
-  $$ E(w, b) = (f_e(x) - f(x))^2 $$
+  $$ E_x(w, b) = (f_e(x) - f(x))^2 $$
   $$ --- $$
-  $$ (f_e(x) - f(x))^2 $$
   $$ (f_e(0) - f(0))^2  = (2 - (1(0) + 1))^2 = 1$$
 
 
-  $E$ is a function of both variables $w$ and $b$. The Gradient of the error indicates the direction of steepest change. Using each of the partial derivatives we can nudge the variables such that the error is reduced.
+  The Gradient of the error indicates the direction of steepest change and can be found using partial derivatives. Using these partial derivatives we can minimize the error for each individual $x$.
 
   The gradient is;
-  $$ \Delta{G} = ({\delta{E}\over\delta{w}}, {\delta{E}\over\delta{b}}) $$
+  $$ \Delta{E} = ({\delta{E}\over\delta{w}}, {\delta{E}\over\delta{b}}) $$
   
   The partial derivatives are;
 
@@ -171,9 +170,6 @@ A repository for experimenting with Maths.
   $$ f(x) = 1x + 2 $$
 
   We can continue this process for each entry in the dataset to slowly approximate the the `function` we are looking for. In this case we would get something close to $f(x) = 3x + 2$.
-
-
-
 
 
 

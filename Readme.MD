@@ -110,7 +110,7 @@ A repository for experimenting with Maths.
   
   $$ f(x) = 1x + 1 $$
 
-  We can then compare the Error $E$ between the expected result and the calculated result by taking a square of the differece, This is done for every $x$;
+  We can then compare the Error $E$ between the expected result and the calculated result at every $x$. It is arbitrary how the error funtion is contructed so long as it describes this difference, so choosing one that is simple to derive is more practical. our error function will be the square of the differece;
 
   $$ E_x(w, b) = (f_e(x) - f(x))^2 $$
   $$ --- $$

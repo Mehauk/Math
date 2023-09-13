@@ -110,11 +110,11 @@ A repository for experimenting with Maths.
   
   $$ f(x) = 1x + 1 $$
 
-  We can then compare the Error $E$ between the expected result and the calculated result at every $x$. It is arbitrary how the error funtion is contructed so long as it describes this difference, so choosing one that is simple to derive is more practical. our error function will be the square of the differece;
+  We can then compare the Error $E$ between the expected result and the calculated result at every $x$. It is arbitrary how the error funtion is contructed so long as it describes the difference between $f(x)$ and $f_e(x)$, so choosing one that is simple to derive is more practical. Our error function will be the square of the differece;
 
   $$ E_x(w, b) = (f_e(x) - f(x))^2 $$
   $$ --- $$
-  $$ (f_e(0) - f(0))^2  = (2 - (1(0) + 1))^2 = 1$$
+  $$ E_0(1, 1) = (f_e(0) - f(0))^2  = (2 - (1(0) + 1))^2 = 1$$
 
 
   The Gradient of the error indicates the direction of steepest change and can be found using partial derivatives. Using these partial derivatives we can minimize the error for each individual $x$.
@@ -142,7 +142,7 @@ A repository for experimenting with Maths.
 
   $$ {\delta{E}\over\delta{b}} = -2(f_e(x) - f(x)) $$
 
-  By calculating the gradient at each individual $x$, we can nudge the variables in some negative proportion relative to its partial derivative. Since we are looking for a minimum of the error function, we can nudge the variables to the right if their respective derivative is negative and left is positive. (A minimum can be found if a function is decreasing to the left and increasing to the right.) This means we can nudge the variables negatively proportional to their partial derivatives to gradually locate a minimum. This process if formally known as [Stochastic Gradient Descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).
+  Since we are looking for a minimum of the error function, we can nudge the variables to the right if their respective derivative is negative and left is positive. (A minimum can be found if a function is decreasing to the left and increasing to the right.) This means we can nudge the variables negatively proportional to their partial derivatives to gradually locate a minimum. This process if formally known as [Stochastic Gradient Descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).
 
   $$ {\delta{E_0}\over\delta{w}} = 2(0)(f_e(0) - f(0)) $$
   $$ {\delta{E_0}\over\delta{w}} = 0 $$
@@ -153,10 +153,10 @@ A repository for experimenting with Maths.
   $$ {\delta{E_0}\over\delta{b}} = -2(2 - (1(0) + 1)) = -2(1) $$
   $$ {\delta{E_0}\over\delta{b}} = -2 $$
 
-  Since $\delta{E_0}\over\delta{w}$ is $0$ we cannot determine which direction to nudge the variable. $\delta{E_0}\over\delta{b}$ on the other hand is negative, at $x=0$ the error $E$ is decreasing with respect to $b$. This means we can nudge b is the positive direction.
+  Since $\delta{E_0}\over\delta{w}$ is $0$ we cannot determine which direction to nudge the variable $w$. $\delta{E_0}\over\delta{b}$ on the other hand is negative; at $x=0$ the error $E$ is decreasing with respect to $b$. This means we can nudge $b$ in the positive direction.
 
   $$ w_{new} = w_{old} - {\delta{E_0}\over\delta{w}} $$
-  $$ w_{new} = w_{old} - 0 = 1 - 0 $$
+  $$ w_{new} = 1 - 0 $$
   $$ w_{new} = 1 $$
 
   $$ --- $$
@@ -171,7 +171,7 @@ A repository for experimenting with Maths.
 
   We can continue this process for each entry in the dataset to slowly approximate the the `function` we are looking for. In this case we would get something close to $f(x) = 3x + 2$.
 
-
+    The process above is a simplified explanation of how some more complex neural networks operate. It is important to note that a neural network is a means to be able to approximate relationships (functions) between inputs and outputs without needing to implement the realationships by hand. In the simple example above, it would be faster to calculate the linear function from the dataset rather than try to approximate it. This is because linear functions are easy to work with. More complex relationships, say for exaple how the individual pixels relate to the final image in image recognition networks, are not easy calculated. Instead we can approxiamte the relationship by creating a large neural network and feeding them large datasets.
 
  ## Forward Propagation
 

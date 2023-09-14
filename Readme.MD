@@ -19,7 +19,8 @@ A repository for experimenting with Maths.
   - [Convolutions](#convolutions)
 - [Machine Learning](#machine-learning)
   - [Neural Network](#neural-network)
-    - [Introduction](#introduction)
+    - [Introduction - Linear Function Aprroximator](#introduction---linear-function-aprroximator)
+    - [Upgrading the Network - Higher Order Polynomial Relationships](#upgrading-the-network---higher-order-polynomial-relationships)
   - [Forward Propagation](#forward-propagation)
   - [Back Propagation](#back-propagation)
 
@@ -90,7 +91,7 @@ A repository for experimenting with Maths.
 > - [Linear Algebra](#linear-algebra)
 
  ## Neural Network
-  ### Introduction
+  ### Introduction - Linear Function Aprroximator
   ![](.misc/visuals/images/simplestnn.png)
 
   The figure above dipects a simple `neural network` with one input $x$, one weight $w$, and one bias at the output $b$. This can be read as;
@@ -171,7 +172,14 @@ A repository for experimenting with Maths.
 
   We can continue this process for each entry in the dataset to slowly approximate the the `function` we are looking for. In this case we would get something close to $f(x) = 3x + 2$.
 
-    The process above is a simplified explanation of how some more complex neural networks operate. It is important to note that a neural network is a means to be able to approximate relationships (functions) between inputs and outputs without needing to implement the realationships by hand. In the simple example above, it would be faster to calculate the linear function from the dataset rather than try to approximate it. This is because linear functions are easy to work with. More complex relationships, say for exaple how the individual pixels relate to the final image in image recognition networks, are not easy calculated. Instead we can approxiamte the relationship by creating a large neural network and feeding them large datasets.
+  > ### Note
+  > The process above is a simplified explanation of how some more complex neural networks operate. It is important to note that a neural network is a means to be able to approximate relationships (functions) between inputs and outputs without needing to implement the realationships by hand. In the simple example above, it would be faster to calculate the linear function from the dataset rather than try to approximate it. This is because linear functions are easy to work with. More complex relationships - higher order polynomials, trigonometric functions, and even relationship between individual pixels and the resulting image - are not easily calculated. Instead we can approxiamte these relationships by creating a large neural network and feeding them even larger datasets.
+  >
+  > It is important to understand that the neural network above will transform to approximate 1 and only 1 relationship. If given data from two different linear functions, it will be a bad approximation for both.
+  >
+  > The next section will be building the nueral to make it more capable of predicting higher order polynomial relationships
+
+  ### Upgrading the Network - Higher Order Polynomial Relationships
 
  ## Forward Propagation
 

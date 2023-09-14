@@ -19,8 +19,8 @@ A repository for experimenting with Maths.
   - [Convolutions](#convolutions)
 - [Machine Learning](#machine-learning)
   - [Neural Network](#neural-network)
-    - [Introduction - Linear Function Aprroximator](#introduction---linear-function-aprroximator)
-    - [Upgrading the Network - Higher Order Polynomial Relationships](#upgrading-the-network---higher-order-polynomial-relationships)
+    - [Introduction](#introduction)
+    - [Upgrading the Network](#upgrading-the-network)
   - [Forward Propagation](#forward-propagation)
   - [Back Propagation](#back-propagation)
 
@@ -91,8 +91,8 @@ A repository for experimenting with Maths.
 > - [Linear Algebra](#linear-algebra)
 
  ## Neural Network
-  ### Introduction - Linear Function Aprroximator
-  ![](.misc/visuals/images/simplestnn.png)
+  ### Introduction
+  ![](.misc/visuals/images/1w1b.png)
 
   The figure above dipects a simple `neural network` with one input $x$, one weight $w$, and one bias at the output $b$. This can be read as;
 
@@ -179,7 +179,22 @@ A repository for experimenting with Maths.
   >
   > The next section will be building the nueral to make it more capable of predicting higher order polynomial relationships
 
-  ### Upgrading the Network - Higher Order Polynomial Relationships
+  ### Upgrading the Network
+  To start lets make the network capable of approximating second order polynomials. Here is the dataset we will be using;
+
+  | Input - $x$ | Expected Output - $f_e(x)$ |
+  | :---------: | :------------------------: |
+  |      0      |             1              |
+  |      1      |             4              |
+  |      2      |             9              |
+  |      3      |             16             |
+
+  Taking a look at the neural nework above we can see that with only one weight and one bias we can only construct relationships that look like $f(x) = wx + b$. 
+
+  ![](.misc/visuals/images/1w1b1w1b.png)
+
+  
+
 
  ## Forward Propagation
 

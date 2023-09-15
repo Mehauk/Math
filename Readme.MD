@@ -189,10 +189,11 @@ A repository for experimenting with Maths.
   |      2      |             9              |
   |      3      |             16             |
 
-  Taking a look at the neural nework above we can see that with only one weight and one bias we can only construct relationships that look like $f(x) = wx + b$. 
+  Taking a look at the neural nework from the previous section we can see that with only one weight and one bias we can only construct relationships that look like $f(x) = wx + b$. We need to increase the number of variables
 
   ![](.misc/visuals/images/1w1b1w1b.png)
 
+  This can be read as $f(x) = x*w_0$
   
 
 

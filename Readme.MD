@@ -193,9 +193,7 @@ A repository for experimenting with Maths.
 
   ![](.misc/visuals/images/1w1b1w1b.png)
 
-  This can be read as $f(x) = x*w_0$
-  
-
+  This can be read as $f(x) = (x * w_0 + b_0) * w_1 + b_1 = w_0w_1x + b_0w_1 + b_1$. Although we have more variables, the overall structure of the relationship is the same as in the previous network. Let $w_0w_1 = A$ and $b_0w_1 + b_1 = B$ we then have $f(x) = Ax + B$. Still we are only able to represent linear relationships. Instead of increasing the length of the network we can try increasing the width.
 
  ## Forward Propagation
 

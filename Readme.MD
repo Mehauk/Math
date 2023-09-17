@@ -195,6 +195,14 @@ A repository for experimenting with Maths.
 
   This can be read as $f(x) = (x * w_0 + b_0) * w_1 + b_1 = w_0w_1x + b_0w_1 + b_1$. Although we have more variables, the overall structure of the relationship is the same as in the previous network. Let $w_0w_1 = A$ and $b_0w_1 + b_1 = B$ we then have $f(x) = Ax + B$. Still we are only able to represent linear relationships. Instead of increasing the length of the network we can try increasing the width.
 
+  ![](.misc/visuals/images/2w2b.png)
+
+  This can be read as $f(x) = (w_0x + b_0) + (w_1x + b_1) = (w_0 + w_1)x + (b_0 + b_1)$. Again if we let $w_0 +w_1 = A$ and $b_0 + b_1 = B$ we get $f(x) = Ax + B$. Still we are only able to represent linear relationships.
+
+  In fact, no matter how many weights and biases we add, our network will only ever be able to find linear relationships. However, using piecewise linear relationships, we can try and approximate other functions.
+
+  ![](.misc/visuals/images/xxld.png)
+
  ## Forward Propagation
 
  ## Back Propagation

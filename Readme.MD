@@ -10,7 +10,7 @@ A repository for experimenting with Maths.
     - [Matrix Arithmetic](#matrix-arithmetic)
 - [Calculus](#calculus)
   - [Pre-Calc](#pre-calc)
-    - [Functions](#functions)
+    - [`functions`](#functions)
   - [Derivatives](#derivatives)
     - [Extrema](#extrema)
   - [Integrals](#integrals)
@@ -44,8 +44,8 @@ A repository for experimenting with Maths.
 > - Trigonometry
 
  ## Pre-Calc
-  ### Functions
-  > ## Functions can also be represented in code:
+  ### `functions`
+  > ## `functions` can also be represented in code:
   > ```py
   > def some_polynomial_function(x: float) -> float:
   >    return 3*x*x + 7*x + 14
@@ -111,7 +111,7 @@ A repository for experimenting with Maths.
   
   $$ f(x) = 1x + 1 $$
 
-  We can then compare the Error $E$ between the expected result and the calculated result at every $x$. It is arbitrary how the error funtion is contructed so long as it describes the difference between $f(x)$ and $f_e(x)$, so choosing one that is simple to derive is more practical. Our error function will be the square of the differece;
+  We can then compare the Error $E$ between the expected result and the calculated result at every $x$. It is arbitrary how the error funtion is contructed so long as it describes the difference between $f(x)$ and $f_e(x)$, so choosing one that is simple to derive is more practical. Our error `function` will be the square of the differece;
 
   $$ E_x(w, b) = (f_e(x) - f(x))^2 $$
   $$ --- $$
@@ -143,7 +143,7 @@ A repository for experimenting with Maths.
 
   $$ {\delta{E}\over\delta{b}} = -2(f_e(x) - f(x)) $$
 
-  Since we are looking for a minimum of the error function, we can nudge the variables to the right if their respective derivative is negative and left is positive. (A minimum can be found if a function is decreasing to the left and increasing to the right.) This means we can nudge the variables negatively proportional to their partial derivatives to gradually locate a minimum. This process if formally known as [Stochastic Gradient Descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).
+  Since we are looking for a minimum of the error `function`, we can nudge the variables to the right if their respective derivative is negative and left is positive. (A minimum can be found if a `function` is decreasing to the left and increasing to the right.) This means we can nudge the variables negatively proportional to their partial derivatives to gradually locate a minimum. This process if formally known as [Stochastic Gradient Descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent).
 
   $$ {\delta{E_0}\over\delta{w}} = 2(0)(f_e(0) - f(0)) $$
   $$ {\delta{E_0}\over\delta{w}} = 0 $$
@@ -173,9 +173,9 @@ A repository for experimenting with Maths.
   We can continue this process for each entry in the dataset to slowly approximate the the `function` we are looking for. In this case we would get something close to $f(x) = 3x + 2$.
 
   > ### Note
-  > The process above is a simplified explanation of how some more complex neural networks operate. It is important to note that a neural network is a means to be able to approximate relationships (functions) between inputs and outputs without needing to implement the realationships by hand. In the simple example above, it would be faster to calculate the linear function from the dataset rather than try to approximate it. This is because linear functions are easy to work with. More complex relationships - higher order polynomials, trigonometric functions, and even relationship between individual pixels and the resulting image - are not easily calculated. Instead we can approxiamte these relationships by creating a large neural network and feeding them even larger datasets.
+  > The process above is a simplified explanation of how some more complex neural networks operate. It is important to note that a neural network is a means to be able to approximate relationships (`functions`) between inputs and outputs without needing to implement the realationships by hand. In the simple example above, it would be faster to calculate the linear `function` from the dataset rather than try to approximate it. This is because linear `functions` are easy to work with. More complex relationships - higher order polynomials, trigonometric `functions`, and even relationship between individual pixels and the resulting image - are not easily calculated. Instead we can approxiamte these relationships by creating a large neural network and feeding them even larger datasets.
   >
-  > It is important to understand that the neural network above will transform to approximate 1 and only 1 relationship. If given data from two different linear functions, it will be a bad approximation for both.
+  > It is important to understand that the neural network above will transform to approximate 1 and only 1 relationship. If given data from two different linear `functions`, it will be a bad approximation for both.
   >
   > The next section will be building the nueral to make it more capable of predicting higher order polynomial relationships
 
@@ -199,9 +199,11 @@ A repository for experimenting with Maths.
 
   This can be read as $f(x) = (w_0x + b_0) + (w_1x + b_1) = (w_0 + w_1)x + (b_0 + b_1)$. Again if we let $w_0 +w_1 = A$ and $b_0 + b_1 = B$ we get $f(x) = Ax + B$. Still we are only able to represent linear relationships.
 
-  In fact, no matter how many weights and biases we add, our network will only ever be able to find linear relationships. However, using piecewise linear relationships, we can try and approximate other functions.
+  In fact, no matter how many weights and biases we add, our network will only ever be able to find linear relationships. However, we can instead use piecewise linear `functions` to approximate other relationships;
 
   ![](.misc/visuals/images/xxld.png)
+
+  As we are limited in the number of subfunctions we can use to approximate the relationship we have a limitation on prescision and on range.
 
  ## Forward Propagation
 

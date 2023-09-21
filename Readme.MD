@@ -203,8 +203,12 @@ A repository for experimenting with Maths.
 
   ![](.misc/visuals/images/xxld.png) 
 
-  
+  To create a piecewise function we can introduce an `activation function` that controls when a `node` (including all of its weights and biases) is active and when it is not. we will be using the $\arctan$ function due to its familiarity. The $\arctan$ function has the range ${-\pi \over{2}} < \arctan{}x < {\pi \over{2}}$. 
 
  ## Forward Propagation
 
  ## Back Propagation
+
+ tion is as follows:
+
+The step activation functio

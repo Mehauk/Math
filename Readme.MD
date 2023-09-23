@@ -205,8 +205,6 @@ A repository for experimenting with Maths.
 
   To create a piecewise function we can introduce an `activation function` that controls when a `node` (including all of its weights and biases) is active and when it is not.
 
-  <!-- Continue here -->
-
  ## Forward Propagation
 
  ## Back Propagation

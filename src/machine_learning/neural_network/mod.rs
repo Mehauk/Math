@@ -54,26 +54,28 @@ impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
     pub fn _propagate(
         &self,
         input: SMatrix<f64, I, 1>,
-        normalize: fn(&mut f64),
+        activation_function: fn(&mut f64),
     ) -> SMatrix<f64, O, 1> {
         // construct the first layer of nodes to start the forward propagation.
         // LxI * Ix1 => Lx1
         let mut propagating_nodes = self._input_matrix.0 * input + self._input_matrix.1;
-        propagating_nodes.apply(normalize);
+        propagating_nodes.apply(activation_function);
 
         // propagate through each layer in the hidden_layer
         for matrix in self._hidden_layer.iter() {
             // LxL * Lx1 => Lx1
             propagating_nodes = matrix.0 * propagating_nodes + matrix.1;
-            propagating_nodes.apply(normalize);
+            propagating_nodes.apply(activation_function);
         }
 
         // calculate the resulting outputs
         // OxL * Lx1 => Ox1
         let mut output = self._output_matrix.0 * propagating_nodes + self._output_matrix.1;
-        output.apply(normalize);
+        output.apply(activation_function);
         output
     }
+
+    pub fn _calculate_error(&res_matrix: &SMatrix<f64, O, 1>, label: u8) {}
 
     pub fn train(&self, data_set: &DataSet<I>) {}
 

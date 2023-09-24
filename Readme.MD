@@ -174,6 +174,7 @@ A repository for experimenting with Maths.
 
   > ### Note
   > The process above is a simplified explanation of how some more complex neural networks operate. It is important to note that a neural network is a means to be able to approximate relationships (`functions`) between inputs and outputs without needing to implement the realationships by hand. In the simple example above, it would be faster to calculate the linear `function` from the dataset rather than try to approximate it. This is because linear `functions` are easy to work with. More complex relationships - higher order polynomials, trigonometric `functions`, and even relationship between individual pixels and the resulting image - are not easily calculated. Instead we can approxiamte these relationships by creating a large neural network and feeding them even larger datasets.
+  <!-- SHOULD TALK ABOUT MULTIDIMENSIONSAL LEANER? -->
   >
   > It is important to understand that the neural network above will transform to approximate 1 and only 1 relationship. If given data from two different linear `functions`, it will be a bad approximation for both.
   >

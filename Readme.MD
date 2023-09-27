@@ -92,6 +92,7 @@ A repository for experimenting with Maths.
 
  ## Neural Network
   ### Introduction
+  <!-- Is Section wrong, boundary detection? -->
   ![](.misc/visuals/images/1w1b.png)
 
   The figure above dipects a simple `neural network` with one input $x$, one weight $w$, and one bias at the output $b$. This can be read as;

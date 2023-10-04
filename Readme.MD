@@ -228,6 +228,7 @@ A repository for experimenting with Maths.
 
   But, our neural network is still not a good representation of non-linear functions. 
 
+
  ## Forward Propagation
 
  ## Back Propagation

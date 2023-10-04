@@ -199,11 +199,34 @@ A repository for experimenting with Maths.
 
   This can be read as $f(x) + g(x) = h(x) = (w_0x + b_0) + (w_1x + b_1) = (w_0 + w_1)x + (b_0 + b_1)$. Again if we let $w_0 +w_1 = A$ and $b_0 + b_1 = B$ we get $h(x) = Ax + B$. Still we are only able to represent linear relationships.
 
-  In fact, no matter how many weights and biases we add, our network will only ever be able to find linear relationships. However, we can instead use piecewise linear `functions` to approximate other relationships;
+  In fact, no matter how many weights and biases we add, our network will only ever be able to find linear relationships. To add non-linearity to our nerual network, we need to use an `Activation Function`. The activation function controls how active a node is allowed to be. the most simple of these funtions, the `unit step function`, $u(x)$, allows us to create piecewise relationships.
 
-  ![](.misc/visuals/images/xxld.png) 
+  $$
+  u(x) = 
+  \begin{cases}
+  0 & \text{if } x < 0\\
+  1 & \text{if } x \ge 0
+  \end{cases}
+  $$
 
-  To create a piecewise function we can introduce an `activation function` that controls when a `node` (including all of its weights and biases) is active and when it is not.
+  By shifting the step function before multiplying it with another function we can create piecewise functions.
+
+  $$ f(x) = 3x*u(-x) + (2x + 7)*u(x-3)$$ 
+  $$ \text{is equivalent to} $$ 
+  $$ 
+  f(x) =  
+  \begin{cases}
+  3x & \text{if } x \le 0 \\
+  0 & \text{if } 0 < x < 3 \\
+  2x + 7 & \text{if } 3 \ge 0
+  \end{cases}
+  $$
+
+  This particular activation function allows us to aprroximate a relationship for higher order polynomials and other non-linear functions;
+
+  ![](.misc/visuals/images/xxld.png)
+
+  But, our neural network is still not a good representation of non-linear functions. 
 
  ## Forward Propagation
 

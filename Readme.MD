@@ -19,8 +19,9 @@ A repository for experimenting with Maths.
   - [Convolutions](#convolutions)
 - [Machine Learning](#machine-learning)
   - [Neural Network](#neural-network)
-    - [Introduction](#introduction)
+    - [Approximating Relationships](#approximating-relationships)
     - [Upgrading the Network](#upgrading-the-network)
+  - [Boundary Detection](#boundary-detection)
   - [Forward Propagation](#forward-propagation)
   - [Back Propagation](#back-propagation)
 
@@ -91,7 +92,7 @@ A repository for experimenting with Maths.
 > - [Linear Algebra](#linear-algebra)
 
  ## Neural Network
-  ### Introduction
+  ### Approximating Relationships
   ![](.misc/visuals/images/1w1b.png)
 
   The figure above dipects a simple `neural network` with one input $x$, one weight $w$, and one bias at the output $b$. This can be read as;
@@ -222,12 +223,19 @@ A repository for experimenting with Maths.
   \end{cases}
   $$
 
-  This particular activation function allows us to aprroximate a relationship for higher order polynomials and other non-linear functions;
+  This particular activation function allows us to aprroximate a relationship for higher order polynomials and other non-linear functions. But, our neural network is still not a good representation of non-linear functions. We can change this by using a smooth activation function, we will be using the sigmoid $\sigma(x)$ function (it is simple to derivate).
 
-  ![](.misc/visuals/images/xxld.png)
+  For reference;
+  $$ \sigma(x) = {1\over{1 + e^{-x}}} $$
+  $$ \sigma'(x) = \sigma(x)(1-\sigma(x)) $$
 
-  But, our neural network is still not a good representation of non-linear functions. 
+  Below is a comparison of $u(x)$ and $\sigma(x)$ and their approximations of $f(x) =x^2$.
+  |               $u(x)$               | &rarr; |            $\sigma(x)$             |
+  | :--------------------------------: | :----: | :--------------------------------: |
+  |  ![](.misc/visuals/images/u.png)   |        |  ![](.misc/visuals/images/s.png)   |
+  | ![](.misc/visuals/images/xxua.png) |        | ![](.misc/visuals/images/xxsa.png) |
 
+ ## Boundary Detection
 
  ## Forward Propagation
 

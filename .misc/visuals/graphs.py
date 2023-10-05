@@ -19,9 +19,11 @@ class GraphFunctionDots(Scene):
             y_range=(-30, 30, 1),
             )
 
+
         curve = plane.plot(lambda x: x*x - 2)
+        curve2 = plane.plot(lambda x: (x + 0.04)**2 - 2.04)
         curve.color = TEAL
 
         plane.move_to(DOWN*10 + LEFT*10)
 
-        self.add(plane, curve, *lines, *dots)
+        self.add(plane, curve, curve2, *dots)

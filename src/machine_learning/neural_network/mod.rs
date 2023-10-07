@@ -1,4 +1,6 @@
-use nalgebra::SMatrix;
+use std::ops::Mul;
+
+use nalgebra::{Normed, SMatrix};
 
 use super::dataset::DataSet;
 
@@ -75,7 +77,22 @@ impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
         output
     }
 
-    pub fn _calculate_error(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {}
+    pub fn _error(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {
+        let mut expected_matrix: SMatrix<f64, O, 1> = SMatrix::<f64, O, 1>::zeros();
+        expected_matrix[(label as usize, 0)] = 1.0;
+
+        expected_matrix = result_matrix - expected_matrix;
+        expected_matrix.apply(|x: &mut f64| *x = x.powi(2));
+        expected_matrix
+    }
+
+    pub fn _error_derivative(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {
+        let mut expected_matrix: SMatrix<f64, O, 1> = SMatrix::<f64, O, 1>::zeros();
+        expected_matrix[(label as usize, 0)] = 1.0;
+
+        expected_matrix = result_matrix - expected_matrix;
+        expected_matrix.scale(2.0)
+    }
 
     pub fn train(&self, data_set: &DataSet<I>) {}
 

@@ -75,7 +75,7 @@ impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
         output
     }
 
-    pub fn _calculate_error(&res_matrix: &SMatrix<f64, O, 1>, label: u8) {}
+    pub fn _calculate_error(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {}
 
     pub fn train(&self, data_set: &DataSet<I>) {}
 

@@ -1,6 +1,5 @@
-use std::ops::Mul;
 
-use nalgebra::{Normed, SMatrix};
+use nalgebra::SMatrix;
 
 use super::dataset::DataSet;
 
@@ -77,7 +76,11 @@ impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
         output
     }
 
-    pub fn _error(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {
+    /// calculates the cost the nueral network; `C = (R - E)^2`
+    /// - `C` cost Matrix
+    /// - `R` resulting output Matrix of network
+    /// - `E` expected output Matrix contructed from label
+    pub fn _cost(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {
         let mut expected_matrix: SMatrix<f64, O, 1> = SMatrix::<f64, O, 1>::zeros();
         expected_matrix[(label as usize, 0)] = 1.0;
 
@@ -86,7 +89,11 @@ impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
         expected_matrix
     }
 
-    pub fn _error_derivative(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {
+    /// calculates the derivative of the cost; `C' = 2(R - E)
+    /// - `C` cost Matrix
+    /// - `R` resulting output Matrix of network
+    /// - `E` expected output Matrix contructed from label
+    pub fn _cost_derivative(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {
         let mut expected_matrix: SMatrix<f64, O, 1> = SMatrix::<f64, O, 1>::zeros();
         expected_matrix[(label as usize, 0)] = 1.0;
 

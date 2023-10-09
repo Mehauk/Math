@@ -18,28 +18,23 @@ use super::dataset::DataSet;
 ///     - A `OxL` matrix that holds the wights used in calculating the output nodes from the hidden layer.
 ///     - A `Ox1` matrix that holds the biases used in calculating the output nodes from the hidden layer.
 pub struct NueralNetwork<
-    const InputSize: usize,
-    const NodesPerLayer: usize,
-    const Layers: usize,
-    const OutputSize: usize,
+    const INPUT_SIZE: usize,
+    const NODES_PER_LAYER: usize,
+    const LAYERS: usize,
+    const OUTPUT_SIZE: usize,
 > {
     _input_matrix: (
-        SMatrix<f64, NodesPerLayer, InputSize>,
-        SMatrix<f64, NodesPerLayer, 1>,
+        SMatrix<f64, NODES_PER_LAYER, INPUT_SIZE>,
+        SMatrix<f64, NODES_PER_LAYER, 1>,
     ),
     _hidden_layer: Vec<(
-        SMatrix<f64, NodesPerLayer, NodesPerLayer>,
-        SMatrix<f64, NodesPerLayer, 1>,
+        SMatrix<f64, NODES_PER_LAYER, NODES_PER_LAYER>,
+        SMatrix<f64, NODES_PER_LAYER, 1>,
     )>,
     _output_matrix: (
-        SMatrix<f64, OutputSize, NodesPerLayer>,
-        SMatrix<f64, OutputSize, 1>,
+        SMatrix<f64, OUTPUT_SIZE, NODES_PER_LAYER>,
+        SMatrix<f64, OUTPUT_SIZE, 1>,
     ),
-}
-
-struct _NeuralNetworkIntermediateNodes<const I: usize, const L: usize, const O: usize> {
-    _hidden_node_matrices: Vec<SMatrix<f64, L, 1>>,
-    _output_node_matrix: SMatrix<f64, O, 1>,
 }
 
 impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwork<I, N, L, O> {
@@ -97,8 +92,34 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
     fn back_propagate(
         &self,
         input: SMatrix<f64, I, 1>,
+        label: u8,
         activation_function: fn(&mut f64),
-    ) -> (Vec<SMatrix<f64, N, 1>>, SMatrix<f64, O, 1>) {
+    ) -> ([SMatrix<f64, N, 1>; L], SMatrix<f64, O, 1>) {
+        // initialize resulting array;
+        let mut nodes_array: [SMatrix<f64, N, 1>; L] = [SMatrix::zeros(); L];
+
+        // construct the first layer of nodes to start the forward propagation.
+        // LxI * Ix1 => Lx1
+        nodes_array[0] = self._input_matrix.0 * input + self._input_matrix.1;
+        nodes_array[0].apply(activation_function);
+
+        // propagate through each layer in the hidden_layer
+        let mut i: usize = 1;
+        for matrix in self._hidden_layer.iter() {
+            // LxL * Lx1 => Lx1
+            nodes_array[i] = matrix.0 * nodes_array[i - 1] + matrix.1;
+            nodes_array[i].apply(activation_function);
+            i += 1;
+        }
+
+        // calculate the resulting outputs
+        // OxL * Lx1 => Ox1
+        let mut output = self._output_matrix.0 * nodes_array[i - 1] + self._output_matrix.1;
+        output.apply(activation_function);
+        (
+            nodes_array,
+            NueralNetwork::<I, N, L, O>::_cost_derivative(&output, label),
+        )
     }
 
     /// calculates the cost the nueral network; `C = (R - E)^2`

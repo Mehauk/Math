@@ -17,6 +17,6 @@ const OUTPUT_SIZE: usize = 26;
 fn main() -> Result<(), std::io::Error> {
     // 28*28 is the expected image dimensions
     DataSet::<INPUT_SIZE>::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
-    NueralNetwork::<INPUT_SIZE, LAYERS_SIZE, OUTPUT_SIZE>::random(2);
+    NueralNetwork::<INPUT_SIZE, LAYERS_SIZE, 2, OUTPUT_SIZE>::random();
     Ok(())
 }

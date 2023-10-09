@@ -1,4 +1,3 @@
-
 use nalgebra::SMatrix;
 
 use super::dataset::DataSet;
@@ -18,30 +17,49 @@ use super::dataset::DataSet;
 /// - `output_matrix : Tuple(SMatrix, Smatrix)`
 ///     - A `OxL` matrix that holds the wights used in calculating the output nodes from the hidden layer.
 ///     - A `Ox1` matrix that holds the biases used in calculating the output nodes from the hidden layer.
-pub struct NueralNetwork<const I: usize, const L: usize, const O: usize> {
-    _input_matrix: (SMatrix<f64, L, I>, SMatrix<f64, L, 1>),
-    _hidden_layer: Vec<(SMatrix<f64, L, L>, SMatrix<f64, L, 1>)>,
-    _output_matrix: (SMatrix<f64, O, L>, SMatrix<f64, O, 1>),
+pub struct NueralNetwork<
+    const InputSize: usize,
+    const NodesPerLayer: usize,
+    const Layers: usize,
+    const OutputSize: usize,
+> {
+    _input_matrix: (
+        SMatrix<f64, NodesPerLayer, InputSize>,
+        SMatrix<f64, NodesPerLayer, 1>,
+    ),
+    _hidden_layer: Vec<(
+        SMatrix<f64, NodesPerLayer, NodesPerLayer>,
+        SMatrix<f64, NodesPerLayer, 1>,
+    )>,
+    _output_matrix: (
+        SMatrix<f64, OutputSize, NodesPerLayer>,
+        SMatrix<f64, OutputSize, 1>,
+    ),
 }
 
-impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
-    pub fn random(number_of_layers: usize) -> NueralNetwork<I, L, O> {
+struct _NeuralNetworkIntermediateNodes<const I: usize, const L: usize, const O: usize> {
+    _hidden_node_matrices: Vec<SMatrix<f64, L, 1>>,
+    _output_node_matrix: SMatrix<f64, O, 1>,
+}
+
+impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwork<I, N, L, O> {
+    pub fn random() -> NueralNetwork<I, N, L, O> {
         let input_matrix = (
-            SMatrix::<f64, L, I>::from_vec((0..L * I).map(|_| _random()).collect()),
-            SMatrix::<f64, L, 1>::from_vec((0..L * 1).map(|_| _random()).collect()),
+            SMatrix::<f64, N, I>::from_vec((0..N * I).map(|_| _random()).collect()),
+            SMatrix::<f64, N, 1>::from_vec((0..N * 1).map(|_| _random()).collect()),
         );
 
-        let hidden_layer: Vec<(SMatrix<f64, L, L>, SMatrix<f64, L, 1>)> = (0..number_of_layers)
+        let hidden_layer: Vec<(SMatrix<f64, N, N>, SMatrix<f64, N, 1>)> = (0..L)
             .map(|_| {
                 (
-                    SMatrix::<f64, L, L>::from_vec((0..L * L).map(|_| _random()).collect()),
-                    SMatrix::<f64, L, 1>::from_vec((0..L * 1).map(|_| _random()).collect()),
+                    SMatrix::<f64, N, N>::from_vec((0..N * N).map(|_| _random()).collect()),
+                    SMatrix::<f64, N, 1>::from_vec((0..N * 1).map(|_| _random()).collect()),
                 )
             })
             .collect();
 
         let output_matrix = (
-            SMatrix::<f64, O, L>::from_vec((0..O * L).map(|_| _random()).collect()),
+            SMatrix::<f64, O, N>::from_vec((0..O * N).map(|_| _random()).collect()),
             SMatrix::<f64, O, 1>::from_vec((0..O * 1).map(|_| _random()).collect()),
         );
 
@@ -52,7 +70,7 @@ impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
         }
     }
 
-    pub fn _propagate(
+    pub fn propagate(
         &self,
         input: SMatrix<f64, I, 1>,
         activation_function: fn(&mut f64),
@@ -74,6 +92,13 @@ impl<const I: usize, const L: usize, const O: usize> NueralNetwork<I, L, O> {
         let mut output = self._output_matrix.0 * propagating_nodes + self._output_matrix.1;
         output.apply(activation_function);
         output
+    }
+
+    fn back_propagate(
+        &self,
+        input: SMatrix<f64, I, 1>,
+        activation_function: fn(&mut f64),
+    ) -> (Vec<SMatrix<f64, N, 1>>, SMatrix<f64, O, 1>) {
     }
 
     /// calculates the cost the nueral network; `C = (R - E)^2`

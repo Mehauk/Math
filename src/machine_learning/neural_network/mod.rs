@@ -89,7 +89,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         output
     }
 
-    fn back_propagate(
+    fn calculate_nodes(
         &self,
         input: SMatrix<f64, I, 1>,
         label: u8,

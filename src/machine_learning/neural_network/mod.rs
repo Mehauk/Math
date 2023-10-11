@@ -1,5 +1,7 @@
 use nalgebra::SMatrix;
 
+use crate::calculus::functions::{sigmoid, sigmoid_derivative};
+
 use super::dataset::DataSet;
 
 /// Contruct a NeuralNetwork with;
@@ -89,10 +91,9 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         output
     }
 
-    fn calculate_nodes(
+    fn calculate_intermediate_nodes(
         &self,
         input: SMatrix<f64, I, 1>,
-        label: u8,
         activation_function: fn(&mut f64),
     ) -> ([SMatrix<f64, N, 1>; L], SMatrix<f64, O, 1>) {
         // initialize resulting array;
@@ -116,10 +117,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         // OxL * Lx1 => Ox1
         let mut output = self._output_matrix.0 * nodes_array[i - 1] + self._output_matrix.1;
         output.apply(activation_function);
-        (
-            nodes_array,
-            NueralNetwork::<I, N, L, O>::_cost_derivative(&output, label),
-        )
+        (nodes_array, output)
     }
 
     /// calculates the cost the nueral network; `C = (R - E)^2`
@@ -147,7 +145,19 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         expected_matrix.scale(2.0)
     }
 
-    pub fn train(&self, data_set: &DataSet<I>) {}
+    // train using stochastic gradient descent
+    pub fn train(&self, data_set: &DataSet<I>, batch_size: usize) {
+
+        for i in 0..batch_size {
+            let (nodes, output) =
+                self.calculate_intermediate_nodes(data_set.training_data[i].pixels, sigmoid);
+
+            let delta_output_biases: SMatrix<f64, O, 1> =
+                Self::_cost_derivative(&output, data_set.training_data[i].label)
+                    .component_mul(&output.apply_into(sigmoid_derivative));
+            let delta_output_weights: SMatrix<f64, O, N> = delta_output_biases * nodes[L-1].transpose();
+        }
+    }
 
     pub fn test(&self, data_set: &DataSet<I>) {}
 }

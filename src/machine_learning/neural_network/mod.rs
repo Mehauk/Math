@@ -176,23 +176,44 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
     pub fn train(&self, data_set: &DataSet<I>, batch_size: usize) {
         let mut delta_network = NueralNetwork::<I, N, L, O>::zeros();
         for i in 0..batch_size {
-            let (nodes, output) =
-                self.calculate_intermediate_nodes(data_set.training_data[i].pixels, sigmoid);
+            let input = &data_set.training_data[i].pixels;
+            let label = &data_set.training_data[i].label;
+            let (nodes, output_nodes) = self.calculate_intermediate_nodes(*input, sigmoid);
 
-            delta_network._output_matrix.1 =
-                Self::_cost_derivative(&output, data_set.training_data[i].label)
-                    .component_mul(&output.apply_into(sigmoid_derivative));
+            // calculate output bias changes
+            delta_network._output_matrix.1 += Self::_cost_derivative(&output_nodes, *label)
+                .component_mul(&output_nodes.apply_into(sigmoid_derivative));
 
-            delta_network._output_matrix.0 =
+            // calculate output weights changes
+            delta_network._output_matrix.0 +=
                 delta_network._output_matrix.1 * nodes[L - 1].transpose();
 
-            let delta_output_nodes: SMatrix<f64, N, 1> =
+            // calculate delta for previous nodes
+            let mut delta_intermediate_nodes: SMatrix<f64, N, 1> =
                 self._output_matrix.0.transpose() * delta_network._output_matrix.1;
 
             let mut ix = 1;
-            for x in 0..L - 1 {
+            for _ in 0..L - 1 {
                 ix += 1;
+                let mut delta_layer = delta_network._hidden_layer[L - ix + 1];
+
+                // calculate biases changes for selected layer
+                delta_layer.1 += delta_intermediate_nodes
+                    .component_mul(&nodes[L - ix + 1].apply_into(sigmoid_derivative));
+
+                // calculate weight changes for selected layer
+                delta_layer.0 += delta_layer.1 * nodes[L - ix].transpose();
+
+                // calculate delta for previous nodes
+                delta_intermediate_nodes = self._hidden_layer[L - ix].0.transpose() * delta_layer.1;
             }
+
+            // calculate input bias changes
+            delta_network._input_matrix.1 += delta_intermediate_nodes
+                .component_mul(&nodes[0].apply_into(sigmoid_derivative));
+
+            // calculate input weights changes
+            delta_network._input_matrix.0 += delta_network._input_matrix.1 * input.transpose();
         }
     }
 

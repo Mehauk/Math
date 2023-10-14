@@ -1,3 +1,5 @@
+use std::ops::AddAssign;
+
 use nalgebra::SMatrix;
 
 use crate::calculus::functions::{sigmoid, sigmoid_derivative};
@@ -94,6 +96,19 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         }
     }
 
+    fn add(&mut self, other: Self) {
+        self._input_matrix.0 += other._input_matrix.0;
+        self._input_matrix.1 += other._input_matrix.1;
+
+        for (a, b) in self._hidden_layer.iter_mut().zip(other._hidden_layer) {
+            a.0 += b.0;
+            a.1 += b.1;
+        }
+
+        self._output_matrix.0 += other._output_matrix.0;
+        self._output_matrix.1 += other._output_matrix.1;
+    }
+
     pub fn propagate(
         &self,
         input: SMatrix<f64, I, 1>,
@@ -173,8 +188,9 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
     }
 
     // train using stochastic gradient descent
-    pub fn train(&self, data_set: &DataSet<I>, batch_size: usize) {
+    pub fn train(&mut self, data_set: &DataSet<I>, batch_size: usize) {
         let mut delta_network = NueralNetwork::<I, N, L, O>::zeros();
+
         for i in 0..batch_size {
             let input = &data_set.training_data[i].pixels;
             let label = &data_set.training_data[i].label;
@@ -209,12 +225,14 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
             }
 
             // calculate input bias changes
-            delta_network._input_matrix.1 += delta_intermediate_nodes
-                .component_mul(&nodes[0].apply_into(sigmoid_derivative));
+            delta_network._input_matrix.1 +=
+                delta_intermediate_nodes.component_mul(&nodes[0].apply_into(sigmoid_derivative));
 
             // calculate input weights changes
             delta_network._input_matrix.0 += delta_network._input_matrix.1 * input.transpose();
         }
+
+        self.add(delta_network);
     }
 
     pub fn test(&self, data_set: &DataSet<I>) {}

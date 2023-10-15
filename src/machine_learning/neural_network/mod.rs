@@ -189,8 +189,18 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
     // train using stochastic gradient descent
     pub fn train(&mut self, data_set: &DataSet<I>, batch_size: usize) {
-        let mut delta_network = NueralNetwork::<I, N, L, O>::zeros();
+        let data_set_length = data_set.training_data.len();
+        let number_of_batches = data_set_length / batch_size;
+        let remaining_data = data_set_length % batch_size;
 
+        for _ in 0..number_of_batches {
+            self.calculate_and_apply_batch_step(data_set, batch_size)
+        }
+        self.calculate_and_apply_batch_step(data_set, remaining_data)
+    }
+
+    fn calculate_and_apply_batch_step(&mut self, data_set: &DataSet<I>, batch_size: usize) {
+        let mut delta_network = NueralNetwork::<I, N, L, O>::zeros();
         for i in 0..batch_size {
             let input = &data_set.training_data[i].pixels;
             let label = &data_set.training_data[i].label;
@@ -231,11 +241,19 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
             // calculate input weights changes
             delta_network._input_matrix.0 += delta_network._input_matrix.1 * input.transpose();
         }
-
         self.add(delta_network);
     }
 
-    pub fn test(&self, data_set: &DataSet<I>) {}
+    pub fn test(&self, data_set: &DataSet<I>) {
+        let data_set_length = data_set.testing_data.len();
+        let mut total_precentages = 0.0;
+
+        for image in data_set.testing_data.iter() {
+            self.propagate(image.pixels, sigmoid);
+        }
+
+
+    }
 }
 
 /// Return value between `[-1, 1]`

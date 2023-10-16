@@ -1,5 +1,3 @@
-use std::ops::AddAssign;
-
 use nalgebra::SMatrix;
 
 use crate::calculus::functions::{sigmoid, sigmoid_derivative};
@@ -44,22 +42,22 @@ pub struct NueralNetwork<
 impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwork<I, N, L, O> {
     pub fn random() -> NueralNetwork<I, N, L, O> {
         let input_matrix = (
-            SMatrix::<f64, N, I>::from_vec((0..N * I).map(|_| _random()).collect()),
-            SMatrix::<f64, N, 1>::from_vec((0..N * 1).map(|_| _random()).collect()),
+            SMatrix::<f64, N, I>::new_random(),
+            SMatrix::<f64, N, 1>::new_random(),
         );
 
         let hidden_layer: Vec<(SMatrix<f64, N, N>, SMatrix<f64, N, 1>)> = (0..L - 1)
             .map(|_| {
                 (
-                    SMatrix::<f64, N, N>::from_vec((0..N * N).map(|_| _random()).collect()),
-                    SMatrix::<f64, N, 1>::from_vec((0..N * 1).map(|_| _random()).collect()),
+                    SMatrix::<f64, N, N>::new_random(),
+                    SMatrix::<f64, N, 1>::new_random(),
                 )
             })
             .collect();
 
         let output_matrix = (
-            SMatrix::<f64, O, N>::from_vec((0..O * N).map(|_| _random()).collect()),
-            SMatrix::<f64, O, 1>::from_vec((0..O * 1).map(|_| _random()).collect()),
+            SMatrix::<f64, O, N>::new_random(),
+            SMatrix::<f64, O, 1>::new_random(),
         );
 
         NueralNetwork {
@@ -70,24 +68,13 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
     }
 
     pub fn zeros() -> NueralNetwork<I, N, L, O> {
-        let input_matrix = (
-            SMatrix::<f64, N, I>::from_vec((0..N * I).map(|_| 0.0).collect()),
-            SMatrix::<f64, N, 1>::from_vec((0..N * 1).map(|_| 0.0).collect()),
-        );
+        let input_matrix = (SMatrix::<f64, N, I>::zeros(), SMatrix::<f64, N, 1>::zeros());
 
         let hidden_layer: Vec<(SMatrix<f64, N, N>, SMatrix<f64, N, 1>)> = (0..L - 1)
-            .map(|_| {
-                (
-                    SMatrix::<f64, N, N>::from_vec((0..N * N).map(|_| 0.0).collect()),
-                    SMatrix::<f64, N, 1>::from_vec((0..N * 1).map(|_| 0.0).collect()),
-                )
-            })
+            .map(|_| (SMatrix::<f64, N, N>::zeros(), SMatrix::<f64, N, 1>::zeros()))
             .collect();
 
-        let output_matrix = (
-            SMatrix::<f64, O, N>::from_vec((0..O * N).map(|_| 0.0).collect()),
-            SMatrix::<f64, O, 1>::from_vec((0..O * 1).map(|_| 0.0).collect()),
-        );
+        let output_matrix = (SMatrix::<f64, O, N>::zeros(), SMatrix::<f64, O, 1>::zeros());
 
         NueralNetwork {
             _input_matrix: input_matrix,
@@ -168,7 +155,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
     /// - `E` expected output Matrix contructed from label
     pub fn _cost(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {
         let mut expected_matrix: SMatrix<f64, O, 1> = SMatrix::<f64, O, 1>::zeros();
-        expected_matrix[(label as usize, 0)] = 1.0;
+        expected_matrix[(label as usize - 1, 0)] = 1.0;
 
         expected_matrix = result_matrix - expected_matrix;
         expected_matrix.apply(|x: &mut f64| *x = x.powi(2));
@@ -181,7 +168,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
     /// - `E` expected output Matrix contructed from label
     pub fn _cost_derivative(&result_matrix: &SMatrix<f64, O, 1>, label: u8) -> SMatrix<f64, O, 1> {
         let mut expected_matrix: SMatrix<f64, O, 1> = SMatrix::<f64, O, 1>::zeros();
-        expected_matrix[(label as usize, 0)] = 1.0;
+        expected_matrix[(label as usize - 1, 0)] = 1.0;
 
         expected_matrix = result_matrix - expected_matrix;
         expected_matrix.scale(2.0)
@@ -189,14 +176,36 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
     // train using stochastic gradient descent
     pub fn train(&mut self, data_set: &DataSet<I>, batch_size: usize) {
+        println!("Training has commenced.");
         let data_set_length = data_set.training_data.len();
         let number_of_batches = data_set_length / batch_size;
         let remaining_data = data_set_length % batch_size;
 
-        for _ in 0..number_of_batches {
-            self.calculate_and_apply_batch_step(data_set, batch_size)
+        let mut loading_indicator: [char; 10] = ['_'; 10];
+        print!(
+            "\r{} - {:0>3.2}% complete",
+            loading_indicator.iter().collect::<String>(),
+            0.0
+        );
+        for n in 0..number_of_batches {
+            let fraction = n as f64 / number_of_batches as f64;
+            loading_indicator[(fraction * 10.0) as usize] = '█';
+            self.calculate_and_apply_batch_step(data_set, batch_size);
+
+            print!(
+                "\r{} - {:0>3.2}% complete",
+                loading_indicator.iter().collect::<String>(),
+                fraction * 100.0,
+            );
         }
-        self.calculate_and_apply_batch_step(data_set, remaining_data)
+        self.calculate_and_apply_batch_step(data_set, remaining_data);
+
+        loading_indicator[9] = '█';
+        print!(
+            "\r{} - {:0>3.2}% complete",
+            loading_indicator.iter().collect::<String>(),
+            100.0,
+        );
     }
 
     fn calculate_and_apply_batch_step(&mut self, data_set: &DataSet<I>, batch_size: usize) {
@@ -220,18 +229,18 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
             let mut ix = 1;
             for _ in 0..L - 1 {
-                ix += 1;
-                let mut delta_layer = delta_network._hidden_layer[L - ix + 1];
+                let mut delta_layer = delta_network._hidden_layer[L - ix];
 
                 // calculate biases changes for selected layer
                 delta_layer.1 += delta_intermediate_nodes
-                    .component_mul(&nodes[L - ix + 1].apply_into(sigmoid_derivative));
+                    .component_mul(&nodes[L - ix].apply_into(sigmoid_derivative));
 
                 // calculate weight changes for selected layer
-                delta_layer.0 += delta_layer.1 * nodes[L - ix].transpose();
+                delta_layer.0 += delta_layer.1 * nodes[L - ix - 1].transpose();
 
                 // calculate delta for previous nodes
                 delta_intermediate_nodes = self._hidden_layer[L - ix].0.transpose() * delta_layer.1;
+                ix += 1;
             }
 
             // calculate input bias changes
@@ -244,19 +253,17 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         self.add(delta_network);
     }
 
-    pub fn test(&self, data_set: &DataSet<I>) {
-        let data_set_length = data_set.testing_data.len();
-        let mut total_precentages = 0.0;
+    pub fn test(&self, data_set: &DataSet<I>) -> f64 {
+        let data_set_length = data_set.testing_data.len() as f64;
+        let mut total_correct = 0.0;
 
         for image in data_set.testing_data.iter() {
-            self.propagate(image.pixels, sigmoid);
+            let res = self.propagate(image.pixels, sigmoid);
+            if res.argmax().0 == image.label as usize - 1 {
+                total_correct += 1.0;
+            }
         }
 
-
+        total_correct / data_set_length
     }
-}
-
-/// Return value between `[-1, 1]`
-fn _random() -> f64 {
-    rand::random::<f64>() * 2.0 - 1.0
 }

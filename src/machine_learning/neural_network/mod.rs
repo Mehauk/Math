@@ -83,17 +83,17 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         }
     }
 
-    fn add(&mut self, other: Self) {
-        self._input_matrix.0 += other._input_matrix.0;
-        self._input_matrix.1 += other._input_matrix.1;
+    fn subtract(&mut self, other: Self) {
+        self._input_matrix.0 -= other._input_matrix.0;
+        self._input_matrix.1 -= other._input_matrix.1;
 
         for (a, b) in self._hidden_layer.iter_mut().zip(other._hidden_layer) {
-            a.0 += b.0;
-            a.1 += b.1;
+            a.0 -= b.0;
+            a.1 -= b.1;
         }
 
-        self._output_matrix.0 += other._output_matrix.0;
-        self._output_matrix.1 += other._output_matrix.1;
+        self._output_matrix.0 -= other._output_matrix.0;
+        self._output_matrix.1 -= other._output_matrix.1;
     }
 
     pub fn propagate(
@@ -227,20 +227,19 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
             let mut delta_intermediate_nodes: SMatrix<f64, N, 1> =
                 self._output_matrix.0.transpose() * delta_network._output_matrix.1;
 
-            let mut ix = 1;
-            for _ in 0..L - 1 {
-                let mut delta_layer = delta_network._hidden_layer[L - ix];
+            for ix in 0..L - 1 {
+                let mut delta_layer = delta_network._hidden_layer[L - 2 - ix];
 
                 // calculate biases changes for selected layer
                 delta_layer.1 += delta_intermediate_nodes
-                    .component_mul(&nodes[L - ix].apply_into(sigmoid_derivative));
+                    .component_mul(&nodes[L - 1 - ix].apply_into(sigmoid_derivative));
 
                 // calculate weight changes for selected layer
-                delta_layer.0 += delta_layer.1 * nodes[L - ix - 1].transpose();
+                delta_layer.0 += delta_layer.1 * nodes[L - 2 - ix].transpose();
 
                 // calculate delta for previous nodes
-                delta_intermediate_nodes = self._hidden_layer[L - ix].0.transpose() * delta_layer.1;
-                ix += 1;
+                delta_intermediate_nodes =
+                    self._hidden_layer[L - 2 - ix].0.transpose() * delta_layer.1;
             }
 
             // calculate input bias changes
@@ -250,7 +249,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
             // calculate input weights changes
             delta_network._input_matrix.0 += delta_network._input_matrix.1 * input.transpose();
         }
-        self.add(delta_network);
+        self.subtract(delta_network);
     }
 
     pub fn test(&self, data_set: &DataSet<I>) -> f64 {
@@ -259,7 +258,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
         for image in data_set.testing_data.iter() {
             let res = self.propagate(image.pixels, sigmoid);
-            if res.argmax().0 == image.label as usize - 1 {
+            if res.argmax().0 == (image.label as usize - 1) {
                 total_correct += 1.0;
             }
         }

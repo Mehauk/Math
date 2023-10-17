@@ -20,7 +20,7 @@ fn main() -> Result<(), std::io::Error> {
         DataSet::<INPUT_SIZE>::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
     let mut nn = NueralNetwork::<INPUT_SIZE, LAYERS_SIZE, 2, OUTPUT_SIZE>::random();
 
-    print!("\nTesting in Progress");
+    print!("\nTesting in Progress\n");
     println!(
         "Testing completed with {}% accuracy\n",
         nn.test(&ds) * 100.0
@@ -28,7 +28,7 @@ fn main() -> Result<(), std::io::Error> {
     println!("---");
     nn.train(&ds, 100);
     println!("\n---");
-    print!("\nTesting in Progress");
+    print!("\nTesting in Progress\n");
     println!(
         "Testing completed with {}% accuracy\n",
         nn.test(&ds) * 100.0

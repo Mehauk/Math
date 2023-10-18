@@ -305,6 +305,7 @@ dependencies = [
  "image",
  "nalgebra",
  "num-traits",
+ "rand",
 ]
 
 [[package]]

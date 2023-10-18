@@ -189,7 +189,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         );
         for n in 0..number_of_batches {
             let fraction = n as f64 / number_of_batches as f64;
-            loading_indicator[(fraction * 10.0) as usize] = '█';
+            loading_indicator[(fraction * 9.0) as usize] = '█';
             self.calculate_and_apply_batch_step(data_set, batch_size);
 
             print!(
@@ -264,5 +264,49 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         }
 
         total_correct / data_set_length
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::machine_learning::dataset::ImageData;
+
+    #[test]
+    fn test_network_1_2_2_2() {
+        let mut nn = super::NueralNetwork::<1, 1, 2, 2>::random();
+        let ds = super::DataSet::<1> {
+            testing_data: (0..1000)
+                .map(|_| {
+                    let y: f64 = rand::random();
+                    ImageData::<1>::new(
+                        nalgebra::SMatrix::from_vec(vec![y]),
+                        if y < 0.5 { 1 } else { 2 },
+                    )
+                })
+                .collect(),
+            training_data: (0..100)
+                .map(|x: usize| {
+                    let y: f64 = x as f64 / 100.0;
+                    ImageData::<1>::new(
+                        nalgebra::SMatrix::from_vec(vec![y]),
+                        if y < 0.5 { 1 } else { 2 },
+                    )
+                })
+                .collect(),
+        };
+
+        print!("\nTesting in Progress\n");
+        println!(
+            "Testing completed with {}% accuracy\n",
+            nn.test(&ds) * 100.0
+        );
+        println!("---");
+        nn.train(&ds, 100);
+        println!("\n---");
+        print!("\nTesting in Progress\n");
+        println!(
+            "Testing completed with {}% accuracy\n",
+            nn.test(&ds) * 100.0
+        );
     }
 }

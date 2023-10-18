@@ -1,8 +1,6 @@
 use image;
 use nalgebra::SMatrix;
-use std::
-    io::Error
-;
+use std::io::Error;
 
 pub mod mnist;
 
@@ -45,6 +43,14 @@ pub struct ImageData<const I: usize> {
 /// Contructs an image from the parsed ImageData
 /// Usefull for debugging
 impl<const I: usize> ImageData<I> {
+    pub fn new(pixels: SMatrix<f64, I, 1>, label: u8) -> Self {
+        ImageData {
+            pixels,
+            label,
+            _dims: None,
+        }
+    }
+
     fn _show(&self, file_path: &str) {
         if let Some((width, height)) = self._dims {
             let width = width as u32;

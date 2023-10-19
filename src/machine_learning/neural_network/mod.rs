@@ -98,7 +98,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
     pub fn propagate(
         &self,
-        input: SMatrix<f64, I, 1>,
+        input: &SMatrix<f64, I, 1>,
         activation_function: fn(&mut f64),
     ) -> SMatrix<f64, O, 1> {
         // construct the first layer of nodes to start the forward propagation.
@@ -122,7 +122,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
     fn calculate_intermediate_nodes(
         &self,
-        input: SMatrix<f64, I, 1>,
+        input: &SMatrix<f64, I, 1>,
         activation_function: fn(&mut f64),
     ) -> ([SMatrix<f64, N, 1>; L], SMatrix<f64, O, 1>) {
         // initialize resulting array;
@@ -213,7 +213,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         for i in 0..batch_size {
             let input = &data_set.training_data[i].pixels;
             let label = &data_set.training_data[i].label;
-            let (nodes, output_nodes) = self.calculate_intermediate_nodes(*input, sigmoid);
+            let (nodes, output_nodes) = self.calculate_intermediate_nodes(input, sigmoid);
 
             // calculate output bias changes
             delta_network._output_matrix.1 += Self::_cost_derivative(&output_nodes, *label)
@@ -257,7 +257,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         let mut total_correct = 0.0;
 
         for image in data_set.testing_data.iter() {
-            let res = self.propagate(image.pixels, sigmoid);
+            let res = self.propagate(&image.pixels, sigmoid);
             if res.argmax().0 == (image.label as usize - 1) {
                 total_correct += 1.0;
             }
@@ -269,28 +269,45 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
 #[cfg(test)]
 mod tests {
-    use crate::machine_learning::dataset::ImageData;
+    use nalgebra::SMatrix;
+
+    use crate::{
+        calculus::functions::sigmoid,
+        machine_learning::dataset::{DataSet, ImageData},
+    };
+
+    use super::NueralNetwork;
+
+    impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwork<I, N, L, O> {
+        fn display_nodes(&self, input: &SMatrix<f64, I, 1>) {
+            let mut string: String = format!("{:.2} - ", input);
+
+            let (nodes, output) = self.calculate_intermediate_nodes(input, sigmoid);
+
+            for n in nodes {
+                string += &format!("{:.2} - ", n);
+            }
+
+            string += &format!("{:.2}", output);
+
+            println!("{}", string);
+        }
+    }
 
     #[test]
     fn test_network_1_2_2_2() {
-        let mut nn = super::NueralNetwork::<1, 1, 2, 2>::random();
-        let ds = super::DataSet::<1> {
-            testing_data: (0..1000)
+        let mut nn = NueralNetwork::<1, 2, 2, 2>::random();
+        let ds = DataSet::<1> {
+            training_data: (0..1000)
                 .map(|_| {
                     let y: f64 = rand::random();
-                    ImageData::<1>::new(
-                        nalgebra::SMatrix::from_vec(vec![y]),
-                        if y < 0.5 { 1 } else { 2 },
-                    )
+                    ImageData::<1>::new(SMatrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
                 })
                 .collect(),
-            training_data: (0..100)
+            testing_data: (0..100)
                 .map(|x: usize| {
                     let y: f64 = x as f64 / 100.0;
-                    ImageData::<1>::new(
-                        nalgebra::SMatrix::from_vec(vec![y]),
-                        if y < 0.5 { 1 } else { 2 },
-                    )
+                    ImageData::<1>::new(SMatrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
                 })
                 .collect(),
         };
@@ -300,13 +317,15 @@ mod tests {
             "Testing completed with {}% accuracy\n",
             nn.test(&ds) * 100.0
         );
+        nn.display_nodes(&ds.testing_data[88].pixels);
         println!("---");
-        nn.train(&ds, 100);
+        nn.train(&ds, 1);
         println!("\n---");
         print!("\nTesting in Progress\n");
         println!(
             "Testing completed with {}% accuracy\n",
             nn.test(&ds) * 100.0
         );
+        nn.display_nodes(&ds.testing_data[88].pixels);
     }
 }

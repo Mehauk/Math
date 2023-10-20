@@ -280,25 +280,42 @@ mod tests {
 
     impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwork<I, N, L, O> {
         fn display_nodes(&self, input: &SMatrix<f64, I, 1>) {
-            let mut string: String = format!("{:.2} - ", input);
+            let mut string: String = format!("{:.2?} > ", input);
 
-            let (nodes, output) = self.calculate_intermediate_nodes(input, sigmoid);
+            let (_, output) = self.calculate_intermediate_nodes(input, sigmoid);
 
-            for n in nodes {
-                string += &format!("{:.2} - ", n);
+            // for n in nodes {
+            //     string += &format!("{:.2} - ", n);
+            // }
+
+            string += &format!("{:.2?}", output);
+
+            println!("{:.2?}", string);
+        }
+
+        fn test_debug(&self, data_set: &DataSet<I>) -> f64 {
+            let data_set_length = data_set.testing_data.len() as f64;
+            let mut total_correct = 0.0;
+
+            println!("Testing:\n");
+
+            for image in data_set.testing_data.iter() {
+                let res = self.propagate(&image.pixels, sigmoid);
+                print!("{:.2?}>{:.2?} ||| ", image.pixels, res);
+                if res.argmax().0 == (image.label as usize - 1) {
+                    total_correct += 1.0;
+                }
             }
 
-            string += &format!("{:.2}", output);
-
-            println!("{}", string);
+            total_correct / data_set_length
         }
     }
 
     #[test]
     fn test_network_1_2_2_2() {
-        let mut nn = NueralNetwork::<1, 2, 2, 2>::random();
+        let mut nn = NueralNetwork::<1, 1, 2, 2>::random();
         let ds = DataSet::<1> {
-            training_data: (0..1000)
+            training_data: (0..10000)
                 .map(|_| {
                     let y: f64 = rand::random();
                     ImageData::<1>::new(SMatrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
@@ -315,17 +332,21 @@ mod tests {
         print!("\nTesting in Progress\n");
         println!(
             "Testing completed with {}% accuracy\n",
-            nn.test(&ds) * 100.0
+            nn.test_debug(&ds) * 100.0
         );
+        nn.display_nodes(&ds.testing_data[1].pixels);
+        // nn.display_nodes(&ds.testing_data[11].pixels);
         nn.display_nodes(&ds.testing_data[88].pixels);
         println!("---");
-        nn.train(&ds, 1);
+        nn.train(&ds, 5);
         println!("\n---");
         print!("\nTesting in Progress\n");
         println!(
             "Testing completed with {}% accuracy\n",
-            nn.test(&ds) * 100.0
+            nn.test_debug(&ds) * 100.0
         );
+        nn.display_nodes(&ds.testing_data[1].pixels);
+        // nn.display_nodes(&ds.testing_data[11].pixels);
         nn.display_nodes(&ds.testing_data[88].pixels);
     }
 }

@@ -2,7 +2,7 @@ mod calculus;
 mod machine_learning;
 mod utilities;
 
-use std::io::stdin;
+use std::{error::Error, io::stdin};
 
 use machine_learning::{
     dataset::{
@@ -16,12 +16,12 @@ use machine_learning::{
 const LAYERS_SIZE: usize = 8;
 const OUTPUT_SIZE: usize = 26;
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> Result<(), Box<dyn Error>> {
     // 28*28 is the expected image dimensions
     let ds =
         DataSet::<INPUT_SIZE>::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
-
-    let mut input = String::new();
+    let mut nn = NueralNetwork::<INPUT_SIZE, LAYERS_SIZE, 2, OUTPUT_SIZE>::random();
+    let mut input: String;
 
     loop {
         input = String::new();
@@ -31,22 +31,33 @@ fn main() -> Result<(), std::io::Error> {
         println!("4\t- exit");
         println!("");
         stdin().read_line(&mut input)?;
+        let chosen = input.trim().parse::<i8>().unwrap_or(-1);
 
-        let mut nn = NueralNetwork::<INPUT_SIZE, LAYERS_SIZE, 2, OUTPUT_SIZE>::random();
+        match chosen {
+            1 => {
+                nn = NueralNetwork::random();
+            }
 
-        print!("\nTesting in Progress\n");
-        println!(
-            "Testing completed with {}% accuracy\n",
-            nn.test(&ds) * 100.0
-        );
-        println!("---");
-        nn.train(&ds, 100);
-        println!("\n---");
-        print!("\nTesting in Progress\n");
-        println!(
-            "Testing completed with {}% accuracy\n",
-            nn.test(&ds) * 100.0
-        );
+            2 => {
+                println!("Select a batch size (default 100): ");
+                println!("");
+                stdin().read_line(&mut input)?;
+                let batch_size = input.trim().parse::<usize>().unwrap_or(100);
+                nn.train(&ds, batch_size)
+            }
+
+            3 => {
+                println!("Testing in Progress");
+                println!(
+                    "Testing completed with {}% accuracy\n",
+                    nn.test(&ds) * 100.0
+                );
+            }
+
+            4 => break,
+
+            _ => println!("Invalid Selection!"),
+        }
     }
 
     Ok(())

@@ -10,7 +10,7 @@ A repository for experimenting with Maths.
     - [Matrix Arithmetic](#matrix-arithmetic)
 - [Calculus](#calculus)
   - [Pre-Calc](#pre-calc)
-    - [`functions`](#functions)
+    - [Functions](#functions)
   - [Derivatives](#derivatives)
     - [Extrema](#extrema)
   - [Integrals](#integrals)
@@ -45,8 +45,8 @@ A repository for experimenting with Maths.
 > - Trigonometry
 
  ## Pre-Calc
-  ### `functions`
-  > ## `functions` can also be represented in code:
+  ### Functions
+  > ## `Functions` can also be represented in code:
   > ```py
   > def some_polynomial_function(x: float) -> float:
   >    return 3*x*x + 7*x + 14

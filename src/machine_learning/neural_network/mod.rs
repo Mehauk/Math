@@ -182,7 +182,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         let remaining_data = data_set_length % batch_size;
 
         let mut loading_indicator: [char; 10] = ['_'; 10];
-        print!(
+        println!(
             "\r{} - {:0>3.2}% complete",
             loading_indicator.iter().collect::<String>(),
             0.0

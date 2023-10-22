@@ -182,8 +182,9 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         let remaining_data = data_set_length % batch_size;
 
         let mut loading_indicator: [char; 10] = ['_'; 10];
-        println!(
-            "\r{} - {:0>3.2}% complete",
+        println!("");
+        print!(
+            "\rTraining in progress: {} - {:0>3.2}% complete",
             loading_indicator.iter().collect::<String>(),
             0.0
         );
@@ -193,7 +194,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
             self.calculate_and_apply_batch_step(data_set, batch_size);
 
             print!(
-                "\r{} - {:0>3.2}% complete",
+                "\rTraining in progress: {} - {:0>3.2}% complete",
                 loading_indicator.iter().collect::<String>(),
                 fraction * 100.0,
             );
@@ -202,7 +203,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
         loading_indicator[9] = '█';
         print!(
-            "\r{} - {:0>3.2}% complete",
+            "\rTraining in progress: {} - {:0>3.2}% complete\n",
             loading_indicator.iter().collect::<String>(),
             100.0,
         );

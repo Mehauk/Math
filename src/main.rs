@@ -13,7 +13,7 @@ use machine_learning::{
 };
 
 // initialize constant values
-const LAYERS_SIZE: usize = 8;
+const LAYERS_SIZE: usize = 10 ;
 const OUTPUT_SIZE: usize = 26;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -31,6 +31,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("4\t- exit");
         println!("");
         stdin().read_line(&mut input)?;
+        println!("");
         let chosen = input.trim().parse::<i8>().unwrap_or(-1);
 
         match chosen {
@@ -42,12 +43,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                 println!("Select a batch size (default 100): ");
                 println!("");
                 stdin().read_line(&mut input)?;
+                println!("");
                 let batch_size = input.trim().parse::<usize>().unwrap_or(100);
                 nn.train(&ds, batch_size)
             }
 
             3 => {
-                println!("Testing in Progress");
+                println!("Testing in Progress...");
                 println!(
                     "Testing completed with {}% accuracy\n",
                     nn.test(&ds) * 100.0

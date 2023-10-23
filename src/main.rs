@@ -13,7 +13,7 @@ use machine_learning::{
 };
 
 // initialize constant values
-const LAYERS_SIZE: usize = 10 ;
+const LAYERS_SIZE: usize = 10;
 const OUTPUT_SIZE: usize = 26;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -45,7 +45,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 stdin().read_line(&mut input)?;
                 println!("");
                 let batch_size = input.trim().parse::<usize>().unwrap_or(100);
-                nn.train(&ds, batch_size)
+                nn.train(&ds, batch_size);
+                println!("");
             }
 
             3 => {

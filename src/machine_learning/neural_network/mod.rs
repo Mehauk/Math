@@ -84,16 +84,18 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
     }
 
     fn subtract(&mut self, other: Self) {
-        self._input_matrix.0 -= other._input_matrix.0;
-        self._input_matrix.1 -= other._input_matrix.1;
+        let mut m: f64 = rand::random();
+        m = m * 2.0;
+        self._input_matrix.0 -= m * other._input_matrix.0;
+        self._input_matrix.1 -= m * other._input_matrix.1;
 
         for (a, b) in self._hidden_layer.iter_mut().zip(other._hidden_layer) {
-            a.0 -= b.0;
-            a.1 -= b.1;
+            a.0 -= m * b.0;
+            a.1 -= m * b.1;
         }
 
-        self._output_matrix.0 -= other._output_matrix.0;
-        self._output_matrix.1 -= other._output_matrix.1;
+        self._output_matrix.0 -= m * other._output_matrix.0;
+        self._output_matrix.1 -= m * other._output_matrix.1;
     }
 
     pub fn propagate(

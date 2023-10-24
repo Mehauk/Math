@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // 28*28 is the expected image dimensions
     let ds =
         DataSet::<INPUT_SIZE>::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
-    let mut nn = NueralNetwork::<INPUT_SIZE, LAYERS_SIZE, 2, OUTPUT_SIZE>::random();
+    let mut nn = NueralNetwork::<INPUT_SIZE, LAYERS_SIZE, 5, OUTPUT_SIZE>::random();
     let mut input: String;
 
     loop {

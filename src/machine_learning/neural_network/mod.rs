@@ -319,13 +319,13 @@ mod tests {
             training_data: (0..10000)
                 .map(|_| {
                     let y: f64 = rand::random();
-                    ImageData::<1>::new(SMatrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
+                    ImageData::<1>::_new(SMatrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
                 })
                 .collect(),
             testing_data: (0..100)
                 .map(|x: usize| {
                     let y: f64 = x as f64 / 100.0;
-                    ImageData::<1>::new(SMatrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
+                    ImageData::<1>::_new(SMatrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
                 })
                 .collect(),
         };

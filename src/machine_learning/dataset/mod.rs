@@ -43,7 +43,7 @@ pub struct ImageData<const I: usize> {
 /// Contructs an image from the parsed ImageData
 /// Usefull for debugging
 impl<const I: usize> ImageData<I> {
-    pub fn new(pixels: SMatrix<f64, I, 1>, label: u8) -> Self {
+    pub fn _new(pixels: SMatrix<f64, I, 1>, label: u8) -> Self {
         ImageData {
             pixels,
             label,

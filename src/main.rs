@@ -13,8 +13,8 @@ use machine_learning::{
 };
 
 // initialize constant values
-const LAYERS: usize = 2;
-const NODES_PER_LAYER: usize = 10;
+const LAYERS: usize = 1;
+const NODES_PER_LAYER: usize = 16;
 const OUTPUT_SIZE: usize = 26;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
 
             2 => {
-                println!("Select a batch size (default 100): ");
+                println!("Select a batch size (default 100):");
                 println!("");
                 stdin().read_line(&mut input)?;
                 println!("");

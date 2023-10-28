@@ -72,7 +72,7 @@ pub fn parse_mnist<const I: usize>(
         label_file.read_exact(&mut buf)?;
         let label = buf[0];
         image_vector.push(ImageData {
-            pixels: nalgebra::SMatrix::<f64, I, 1>::from_vec(pixels),
+            pixels: nalgebra::DMatrix::<f64>::from_vec(I, 1, pixels),
 
             // 1-26 (inc) -> for letters (a-z)
             // 0-9 (inc) -> for digits

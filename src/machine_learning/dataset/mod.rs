@@ -1,5 +1,5 @@
 use image;
-use nalgebra::SMatrix;
+use nalgebra::DMatrix;
 use std::io::Error;
 
 pub mod mnist;
@@ -33,7 +33,7 @@ pub struct ImageData<const I: usize> {
     /// dimensions calculated at runtime, but operations would be slower.
     ///
     /// values in the matrix are between 0-1 (inc), normalized from u8
-    pub pixels: SMatrix<f64, I, 1>,
+    pub pixels: DMatrix<f64>,
     pub label: u8,
 
     // property used for recontructing the image
@@ -43,7 +43,7 @@ pub struct ImageData<const I: usize> {
 /// Contructs an image from the parsed ImageData
 /// Usefull for debugging
 impl<const I: usize> ImageData<I> {
-    pub fn _new(pixels: SMatrix<f64, I, 1>, label: u8) -> Self {
+    pub fn _new(pixels: DMatrix<f64>, label: u8) -> Self {
         ImageData {
             pixels,
             label,

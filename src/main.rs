@@ -40,8 +40,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
 
             2 => {
-                println!("Select a batch size (default 100):");
-                println!("");
+                println!("Select a batch size (default 100): ");
                 stdin().read_line(&mut input)?;
                 println!("");
                 let batch_size = input.trim().parse::<usize>().unwrap_or(100);

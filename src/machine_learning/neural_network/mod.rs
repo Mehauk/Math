@@ -74,17 +74,17 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         }
     }
 
-    fn subtract(&mut self, other: Self) {
-        self._input_matrix.0 -= other._input_matrix.0;
-        self._input_matrix.1 -= other._input_matrix.1;
+    fn _step(&mut self, other: Self) {
+        self._input_matrix.0 -= other._input_matrix.0 * 0.5;
+        self._input_matrix.1 -= other._input_matrix.1 * 0.5;
 
         for (a, b) in self._hidden_layer.iter_mut().zip(other._hidden_layer) {
-            a.0 -= b.0;
-            a.1 -= b.1;
+            a.0 -= b.0 * 0.5;
+            a.1 -= b.1 * 0.5;
         }
 
-        self._output_matrix.0 -= other._output_matrix.0;
-        self._output_matrix.1 -= other._output_matrix.1;
+        self._output_matrix.0 -= other._output_matrix.0 * 0.5;
+        self._output_matrix.1 -= other._output_matrix.1 * 0.5;
     }
 
     pub fn propagate(
@@ -245,7 +245,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
             // calculate input weights changes
             delta_network._input_matrix.0 += &delta_network._input_matrix.1 * input.transpose();
         }
-        self.subtract(delta_network);
+        self._step(delta_network);
     }
 
     pub fn test(&self, data_set: &DataSet<I>) -> f64 {

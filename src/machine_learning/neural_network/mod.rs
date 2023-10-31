@@ -75,16 +75,17 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
     }
 
     fn _step(&mut self, other: Self) {
-        self._input_matrix.0 -= other._input_matrix.0 * 0.01;
-        self._input_matrix.1 -= other._input_matrix.1 * 0.01;
+        let learning_rate = 0.001;
+        self._input_matrix.0 -= other._input_matrix.0 * learning_rate;
+        self._input_matrix.1 -= other._input_matrix.1 * learning_rate;
 
         for (a, b) in self._hidden_layer.iter_mut().zip(other._hidden_layer) {
-            a.0 -= b.0 * 0.01;
-            a.1 -= b.1 * 0.01;
+            a.0 -= b.0 * learning_rate;
+            a.1 -= b.1 * learning_rate;
         }
 
-        self._output_matrix.0 -= other._output_matrix.0 * 0.01;
-        self._output_matrix.1 -= other._output_matrix.1 * 0.01;
+        self._output_matrix.0 -= other._output_matrix.0 * learning_rate;
+        self._output_matrix.1 -= other._output_matrix.1 * learning_rate;
     }
 
     pub fn propagate(

@@ -74,8 +74,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
         }
     }
 
-    fn _step(&mut self, other: Self) {
-        let learning_rate = 0.001;
+    fn _step(&mut self, other: Self, learning_rate: f64) {
         self._input_matrix.0 -= other._input_matrix.0 * learning_rate;
         self._input_matrix.1 -= other._input_matrix.1 * learning_rate;
 

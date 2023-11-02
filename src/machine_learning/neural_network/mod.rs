@@ -245,7 +245,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
             // calculate input weights changes
             delta_network._input_matrix.0 += &delta_network._input_matrix.1 * input.transpose();
         }
-        self._step(delta_network);
+        self._step(delta_network, 0.01 / batch_size as f64);
     }
 
     pub fn test(&self, data_set: &DataSet<I>) -> f64 {

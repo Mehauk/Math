@@ -297,7 +297,7 @@ mod tests {
 
             for image in data_set.testing_data.iter() {
                 let res = self.propagate(&image.pixels, sigmoid);
-                print!("{:.2?}>{:.2?} ||| ", image.pixels, res);
+                // print!("{:.2?}>{:.2?} ||| ", image.pixels, res);
                 if res.column(0).argmax().0 == (image.label as usize - 1) {
                     total_correct += 1.0;
                 }
@@ -309,7 +309,7 @@ mod tests {
 
     #[test]
     fn test_network_1_2_2_2() {
-        let mut nn = NueralNetwork::<1, 1, 2, 2>::random();
+        let mut nn = NueralNetwork::<1, 4, 2, 2>::random();
         let ds = DataSet::<1> {
             training_data: (0..10000)
                 .map(|_| {
@@ -336,9 +336,9 @@ mod tests {
             "Testing completed with {}% accuracy\n",
             nn.test_debug(&ds) * 100.0
         );
-        nn.display_nodes(&ds.testing_data[1].pixels);
+        // nn.display_nodes(&ds.testing_data[1].pixels);
         // nn.display_nodes(&ds.testing_data[11].pixels);
-        nn.display_nodes(&ds.testing_data[88].pixels);
+        // nn.display_nodes(&ds.testing_data[88].pixels);
         println!("---");
         nn.train(&ds, 5);
         println!("\n---");
@@ -347,8 +347,8 @@ mod tests {
             "Testing completed with {}% accuracy\n",
             nn.test_debug(&ds) * 100.0
         );
-        nn.display_nodes(&ds.testing_data[1].pixels);
+        // nn.display_nodes(&ds.testing_data[1].pixels);
         // nn.display_nodes(&ds.testing_data[11].pixels);
-        nn.display_nodes(&ds.testing_data[88].pixels);
+        // nn.display_nodes(&ds.testing_data[88].pixels);
     }
 }

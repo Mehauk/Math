@@ -275,7 +275,7 @@ mod tests {
     use super::NueralNetwork;
 
     impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwork<I, N, L, O> {
-        fn display_nodes(&self, input: &DMatrix<f64>) {
+        fn _display_nodes(&self, input: &DMatrix<f64>) {
             let mut string: String = format!("{:.2?} > ", input);
 
             let (_, output) = self.calculate_intermediate_nodes(input, sigmoid);
@@ -289,7 +289,7 @@ mod tests {
             println!("{:.2?}", string);
         }
 
-        fn test_debug(&self, data_set: &DataSet<I>) -> f64 {
+        fn _test_debug(&self, data_set: &DataSet<I>) -> f64 {
             let data_set_length = data_set.testing_data.len() as f64;
             let mut total_correct = 0.0;
 
@@ -334,21 +334,21 @@ mod tests {
         print!("\nTesting in Progress\n");
         println!(
             "Testing completed with {}% accuracy\n",
-            nn.test_debug(&ds) * 100.0
+            nn._test_debug(&ds) * 100.0
         );
-        // nn.display_nodes(&ds.testing_data[1].pixels);
-        // nn.display_nodes(&ds.testing_data[11].pixels);
-        // nn.display_nodes(&ds.testing_data[88].pixels);
+        // nn._display_nodes(&ds.testing_data[1].pixels);
+        // nn._display_nodes(&ds.testing_data[11].pixels);
+        // nn._display_nodes(&ds.testing_data[88].pixels);
         println!("---");
         nn.train(&ds, 5);
         println!("\n---");
         print!("\nTesting in Progress\n");
         println!(
             "Testing completed with {}% accuracy\n",
-            nn.test_debug(&ds) * 100.0
+            nn._test_debug(&ds) * 100.0
         );
-        // nn.display_nodes(&ds.testing_data[1].pixels);
-        // nn.display_nodes(&ds.testing_data[11].pixels);
-        // nn.display_nodes(&ds.testing_data[88].pixels);
+        // nn._display_nodes(&ds.testing_data[1].pixels);
+        // nn._display_nodes(&ds.testing_data[11].pixels);
+        // nn._display_nodes(&ds.testing_data[88].pixels);
     }
 }

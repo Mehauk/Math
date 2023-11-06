@@ -309,7 +309,7 @@ mod tests {
 
     #[test]
     fn test_network_1_2_2_2() {
-        let mut nn = NueralNetwork::<1, 4, 2, 2>::random();
+        let mut nn = NueralNetwork::<1, 1, 2, 2>::random();
         let ds = DataSet::<1> {
             training_data: (0..10000)
                 .map(|_| {

@@ -1,4 +1,5 @@
 use nalgebra::DMatrix;
+use rand::prelude::Distribution;
 
 use crate::calculus::functions::{sigmoid, sigmoid_derivative};
 
@@ -32,24 +33,13 @@ pub struct NueralNetwork<
 
 impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwork<I, N, L, O> {
     pub fn random() -> NueralNetwork<I, N, L, O> {
-        let input_matrix = (
-            DMatrix::<f64>::new_random(N, I),
-            DMatrix::<f64>::new_random(N, 1),
-        );
+        let input_matrix = (random_matrix(N, I), DMatrix::<f64>::zeros(N, 1));
 
         let hidden_layer: Vec<(DMatrix<f64>, DMatrix<f64>)> = (0..L - 1)
-            .map(|_| {
-                (
-                    DMatrix::<f64>::new_random(N, N),
-                    DMatrix::<f64>::new_random(N, 1),
-                )
-            })
+            .map(|_| (random_matrix(N, N), DMatrix::<f64>::zeros(N, 1)))
             .collect();
 
-        let output_matrix = (
-            DMatrix::<f64>::new_random(O, N),
-            DMatrix::<f64>::new_random(O, 1),
-        );
+        let output_matrix = (random_matrix(O, N), DMatrix::<f64>::zeros(O, 1));
 
         NueralNetwork {
             _input_matrix: input_matrix,
@@ -263,6 +253,15 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
     }
 }
 
+fn random_matrix(r: usize, c: usize) -> DMatrix<f64> {
+    DMatrix::<f64>::from_distribution(
+        r,
+        c,
+        &rand::distributions::Standard,
+        &mut rand::thread_rng(),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use nalgebra::DMatrix;
@@ -309,7 +308,7 @@ mod tests {
 
     #[test]
     fn test_network_1_2_2_2() {
-        let mut nn = NueralNetwork::<1, 2, 2, 2>::random();
+        let mut nn = NueralNetwork::<1, 1, 2, 2>::random();
         let ds = DataSet::<1> {
             training_data: (0..10000)
                 .map(|_| {
@@ -340,7 +339,7 @@ mod tests {
         // nn._display_nodes(&ds.testing_data[11].pixels);
         // nn._display_nodes(&ds.testing_data[88].pixels);
         println!("---");
-        nn.train(&ds, 5);
+        nn.train(&ds, 16);
         println!("\n---");
         print!("\nTesting in Progress\n");
         println!(

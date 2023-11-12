@@ -13,16 +13,15 @@ use machine_learning::{
 };
 
 // initialize constant values
-const LAYERS_SIZE: usize = 36;
 const OUTPUT_SIZE: usize = 26;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // 28*28 is the expected image dimensions
     let ds =
         DataSet::<INPUT_SIZE>::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
-    let mut nn = NueralNetwork::<INPUT_SIZE, LAYERS_SIZE, 1, OUTPUT_SIZE>::random();
+    let mut nn = NueralNetwork::random([INPUT_SIZE, 16, 16, OUTPUT_SIZE]);
+    
     let mut input: String;
-
     loop {
         input = String::new();
         println!("1\t- reset the neural network");
@@ -36,7 +35,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         match chosen {
             1 => {
-                nn = NueralNetwork::random();
+                nn = NueralNetwork::random([INPUT_SIZE, 16, 16, OUTPUT_SIZE]);
             }
 
             2 => {

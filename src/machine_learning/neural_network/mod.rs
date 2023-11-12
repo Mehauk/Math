@@ -1,104 +1,71 @@
-use nalgebra::DMatrix;
-use rand::prelude::Distribution;
+use nalgebra::{DMatrix, DVector};
 
 use crate::calculus::functions::{sigmoid, sigmoid_derivative};
 
 use super::dataset::DataSet;
 
-/// Contruct a NeuralNetwork with;
-/// - `I` number of inputs
-/// - `L` number of nodes in each hidden_layer
-/// - `O` number of output nodes.
-///
 /// ### Parameters
-/// - `input_matrix : Tuple(DMatrix, Dmatrix)`
-///     - A `IxL` matrix that holds the wights used in calculating the first layer of nodes from the input.
-///     - A `Lx1` matrix that holds the biases used in calculating the first layer of nodes from the input.
-/// - `hidden_layer : Vec<Tuple(DMatrix, Dmatrix)>`
-///     - An arbitrary number of `LxL` weight matrices used in calculating nodes for the next layer.
-///     - An arbitrary number of `Lx1` bias matrices used in calculating nodes for the next layer.
-/// - `output_matrix : Tuple(DMatrix, Dmatrix)`
-///     - A `OxL` matrix that holds the wights used in calculating the output nodes from the hidden layer.
-///     - A `Ox1` matrix that holds the biases used in calculating the output nodes from the hidden layer.
-pub struct NueralNetwork<
-    const INPUT_SIZE: usize,
-    const NODES_PER_LAYER: usize,
-    const LAYERS: usize,
-    const OUTPUT_SIZE: usize,
-> {
-    _input_matrix: (DMatrix<f64>, DMatrix<f64>),
-    _hidden_layer: Vec<(DMatrix<f64>, DMatrix<f64>)>,
-    _output_matrix: (DMatrix<f64>, DMatrix<f64>),
+/// - `_weights` : `Vec<DMatrix<f64>>`
+/// - `hidden_layer` : `Vec<DVector<f64>>`
+pub struct NueralNetwork {
+    _weigths: Vec<DMatrix<f64>>,
+    _biases: Vec<DVector<f64>>,
 }
 
-impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwork<I, N, L, O> {
-    pub fn random() -> NueralNetwork<I, N, L, O> {
-        let input_matrix = (random_matrix(N, I), DMatrix::<f64>::zeros(N, 1));
-
-        let hidden_layer: Vec<(DMatrix<f64>, DMatrix<f64>)> = (0..L - 1)
-            .map(|_| (random_matrix(N, N), DMatrix::<f64>::zeros(N, 1)))
-            .collect();
-
-        let output_matrix = (random_matrix(O, N), DMatrix::<f64>::zeros(O, 1));
+impl NueralNetwork {
+    pub fn random(shape: [usize]) -> NueralNetwork {
+        let length = shape.len();
+        let weigths: Vec<DMatrix<f64>> = shape[1..length]
+            .iter()
+            .zip(shape[0..length - 1])
+            .map(|a, b| random_matrix(a, b));
+        let biases: Vec<DVector<f64>> = shape[1..length].iter().map(|a| random_matrix(a, 1));
 
         NueralNetwork {
-            _input_matrix: input_matrix,
-            _hidden_layer: hidden_layer,
-            _output_matrix: output_matrix,
+            _weigths: weigths,
+            _biases: biases,
         }
     }
 
-    pub fn zeros() -> NueralNetwork<I, N, L, O> {
-        let input_matrix = (DMatrix::<f64>::zeros(N, I), DMatrix::<f64>::zeros(N, 1));
-
-        let hidden_layer: Vec<(DMatrix<f64>, DMatrix<f64>)> = (0..L - 1)
-            .map(|_| (DMatrix::<f64>::zeros(N, N), DMatrix::<f64>::zeros(N, 1)))
-            .collect();
-
-        let output_matrix = (DMatrix::<f64>::zeros(O, N), DMatrix::<f64>::zeros(O, 1));
+    pub fn zeros(shape: [usize]) -> NueralNetwork {
+        let length = shape.len();
+        let weigths: Vec<DMatrix<f64>> = shape[1..length]
+            .iter()
+            .zip(shape[0..length - 1])
+            .map(|a, b| DMatrix::<f64>::zeros(a, b));
+        let biases: Vec<DVector<f64>> =
+            shape[1..length].iter().map(|a| DMatrix::<f64>::zeros(a, 1));
 
         NueralNetwork {
-            _input_matrix: input_matrix,
-            _hidden_layer: hidden_layer,
-            _output_matrix: output_matrix,
+            _weigths: weigths,
+            _biases: biases,
         }
     }
 
     fn _step(&mut self, other: Self, learning_rate: f64) {
-        self._input_matrix.0 -= other._input_matrix.0 * learning_rate;
-        self._input_matrix.1 -= other._input_matrix.1 * learning_rate;
-
-        for (a, b) in self._hidden_layer.iter_mut().zip(other._hidden_layer) {
+        for (a, b) in self._weigths.iter_mut().zip(other._weigths) {
             a.0 -= b.0 * learning_rate;
             a.1 -= b.1 * learning_rate;
         }
 
-        self._output_matrix.0 -= other._output_matrix.0 * learning_rate;
-        self._output_matrix.1 -= other._output_matrix.1 * learning_rate;
+        for (a, b) in self._biases.iter_mut().zip(other._biases) {
+            a.0 -= b.0 * learning_rate;
+            a.1 -= b.1 * learning_rate;
+        }
     }
 
     pub fn propagate(
         &self,
-        input: &DMatrix<f64>,
+        input: &DVector<f64>,
         activation_function: fn(&mut f64),
     ) -> DMatrix<f64> {
         // construct the first layer of nodes to start the forward propagation.
         // LxI * Ix1 => Lx1
-        let mut propagating_nodes = &self._input_matrix.0 * input + &self._input_matrix.1;
-        propagating_nodes.apply(activation_function);
+        let mut propagating_nodes: DVector<f64> = input;
 
-        // propagate through each layer in the hidden_layer
-        for matrix in self._hidden_layer.iter() {
-            // LxL * Lx1 => Lx1
-            propagating_nodes = &matrix.0 * propagating_nodes + &matrix.1;
-            propagating_nodes.apply(activation_function);
+        for (weight_matrix, bias_vector) in self._weigths.iter().zip(self._biases) {
+            propagating_nodes = weight_matrix * input + bias_vector;
         }
-
-        // calculate the resulting outputs
-        // OxL * Lx1 => Ox1
-        let mut output = &self._output_matrix.0 * propagating_nodes + &self._output_matrix.1;
-        output.apply(activation_function);
-        output
     }
 
     fn calculate_intermediate_nodes(
@@ -115,7 +82,7 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
         // construct the first layer of nodes to start the forward propagation.
         // LxI * Ix1 => Lx1
-        nodes_array[0] = &self._input_matrix.0 * input + &self._input_matrix.1;
+        nodes_array[0] = &self_inputt_matrix.0 * input + &self_inputt_matrix.1;
         nodes_array[0].apply(activation_function);
 
         // propagate through each layer in the hidden_layer
@@ -230,10 +197,10 @@ impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwo
 
             // calculate input bias changes
             nodes[0].apply(sigmoid_derivative);
-            delta_network._input_matrix.1 += delta_intermediate_nodes.component_mul(&nodes[0]);
+            delta_network_inputt_matrix.1 += delta_intermediate_nodes.component_mul(&nodes[0]);
 
             // calculate input weights changes
-            delta_network._input_matrix.0 += &delta_network._input_matrix.1 * input.transpose();
+            delta_network_inputt_matrix.0 += &delta_network_inputt_matrix.1 * input.transpose();
         }
         self._step(delta_network, 0.1 / batch_size as f64);
     }
@@ -308,7 +275,7 @@ mod tests {
 
     #[test]
     fn test_network_1_2_2_2() {
-        let mut nn = NueralNetwork::<1, 2, 2, 2>::random();
+        let mut nn = NueralNetwork::<1, 1, 2, 2>::random();
         let ds = DataSet::<1> {
             training_data: (0..10000)
                 .map(|_| {

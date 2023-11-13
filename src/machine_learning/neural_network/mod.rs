@@ -58,47 +58,28 @@ impl NueralNetwork {
         &self,
         input: &DVector<f64>,
         activation_function: fn(&mut f64),
-    ) -> DMatrix<f64> {
-        // construct the first layer of nodes to start the forward propagation.
-        // LxI * Ix1 => Lx1
+    ) -> DVector<f64> {
+
         let mut propagating_nodes: DVector<f64> = input;
 
         for (weight_matrix, bias_vector) in self._weigths.iter().zip(self._biases) {
             propagating_nodes = weight_matrix * input + bias_vector;
         }
+
+        propagating_nodes
     }
 
     fn calculate_intermediate_nodes(
         &self,
         input: &DMatrix<f64>,
         activation_function: fn(&mut f64),
-    ) -> (Vec<DMatrix<f64>>, DMatrix<f64>) {
+    ) -> Vec<DVector<f64>> {
         // initialize resulting array;
-        let mut nodes_array: Vec<DMatrix<f64>> = vec![];
+        let mut nodes_array: Vec<DVector<f64>>;
 
         for _ in 0..L {
             nodes_array.push(DMatrix::zeros(N, 1))
         }
-
-        // construct the first layer of nodes to start the forward propagation.
-        // LxI * Ix1 => Lx1
-        nodes_array[0] = &self_inputt_matrix.0 * input + &self_inputt_matrix.1;
-        nodes_array[0].apply(activation_function);
-
-        // propagate through each layer in the hidden_layer
-        let mut i: usize = 1;
-        for matrix in self._hidden_layer.iter() {
-            // LxL * Lx1 => Lx1
-            nodes_array[i] = &matrix.0 * &nodes_array[i - 1] + &matrix.1;
-            nodes_array[i].apply(activation_function);
-            i += 1;
-        }
-
-        // calculate the resulting outputs
-        // OxL * Lx1 => Ox1
-        let mut output = &self._output_matrix.0 * &nodes_array[i - 1] + &self._output_matrix.1;
-        output.apply(activation_function);
-        (nodes_array, output)
     }
 
     /// calculates the cost the nueral network; `C = (R - E)^2`

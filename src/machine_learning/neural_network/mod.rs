@@ -59,17 +59,16 @@ impl NueralNetwork {
         input: &DVector<f64>,
         activation_function: fn(&mut f64),
     ) -> DVector<f64> {
-
         let mut propagating_nodes: DVector<f64> = input;
 
         for (weight_matrix, bias_vector) in self._weigths.iter().zip(self._biases) {
-            propagating_nodes = weight_matrix * input + bias_vector;
+            propagating_nodes = weight_matrix * propagating_nodes + bias_vector;
         }
 
         propagating_nodes
     }
 
-    fn calculate_intermediate_nodes(
+    fn propagate_returning_all_nodes(
         &self,
         input: &DMatrix<f64>,
         activation_function: fn(&mut f64),
@@ -77,38 +76,36 @@ impl NueralNetwork {
         // initialize resulting array;
         let mut nodes_array: Vec<DVector<f64>>;
 
-        for _ in 0..L {
-            nodes_array.push(DMatrix::zeros(N, 1))
+        let mut propagating_nodes: DVector<f64> = input;
+
+        for (weight_matrix, bias_vector) in self._weigths.iter().zip(self._biases) {
+            nodes_array.push(weight_matrix * propagating_nodes + bias_vector);
+            propagating_nodes = nodes_array.last().unwrap();
         }
+
+        nodes_array
     }
 
     /// calculates the cost the nueral network; `C = (R - E)^2`
     /// - `C` cost Matrix
     /// - `R` resulting output Matrix of network
     /// - `E` expected output Matrix contructed from label
-    pub fn _cost(result_matrix: &DMatrix<f64>, label: u8) -> DMatrix<f64> {
-        let mut expected_matrix: DMatrix<f64> = DMatrix::<f64>::zeros(O, 1);
-        expected_matrix[(label as usize - 1, 0)] = 1.0;
-
-        expected_matrix = result_matrix - expected_matrix;
-        expected_matrix.apply(|x: &mut f64| *x = x.powi(2));
-        expected_matrix
+    pub fn _cost(mut result_matrix: DMatrix<f64>, label: u8) -> DMatrix<f64> {
+        result_matrix[(label as usize - 1, 0)] -= 1.0;
+        result_matrix.apply_into(|x| x*x)
     }
 
     /// calculates the derivative of the cost; `C' = 2(R - E)
     /// - `C` cost Matrix
     /// - `R` resulting output Matrix of network
     /// - `E` expected output Matrix contructed from label
-    pub fn _cost_derivative(result_matrix: &DMatrix<f64>, label: u8) -> DMatrix<f64> {
-        let mut expected_matrix: DMatrix<f64> = DMatrix::<f64>::zeros(O, 1);
-        expected_matrix[(label as usize - 1, 0)] = 1.0;
-
-        expected_matrix = result_matrix - expected_matrix;
-        expected_matrix.scale(2.0)
+    pub fn _cost_derivative(mut result_matrix: DMatrix<f64>, label: u8) -> DMatrix<f64> {
+        result_matrix[(label as usize - 1, 0)] -= 1.0;
+        result_matrix.scale(2.0)
     }
 
     // train using stochastic gradient descent
-    pub fn train(&mut self, data_set: &DataSet<I>, batch_size: usize) {
+    pub fn train(&mut self, data_set: &DataSet, batch_size: usize) {
         println!("Training has commenced.");
         let data_set_length = data_set.training_data.len();
         let number_of_batches = data_set_length / batch_size;
@@ -145,7 +142,7 @@ impl NueralNetwork {
     fn calculate_and_apply_batch_step(&mut self, data_set: &DataSet<I>, batch_size: usize) {
         let mut delta_network = NueralNetwork::<I, N, L, O>::zeros();
         for i in 0..batch_size {
-            let input = &data_set.training_data[i].pixels;
+            let input = &data_set.training_data[i].data;
             let label = &data_set.training_data[i].label;
             let (mut nodes, output_nodes) = self.calculate_intermediate_nodes(input, sigmoid);
 
@@ -191,7 +188,7 @@ impl NueralNetwork {
         let mut total_correct = 0.0;
 
         for image in data_set.testing_data.iter() {
-            let res = self.propagate(&image.pixels, sigmoid);
+            let res = self.propagate(&image.data, sigmoid);
             if res.column(0).argmax().0 == (image.label as usize - 1) {
                 total_correct += 1.0;
             }
@@ -216,7 +213,7 @@ mod tests {
 
     use crate::{
         calculus::functions::sigmoid,
-        machine_learning::dataset::{DataSet, ImageData},
+        machine_learning::dataset::{DataSet, DataVector},
     };
 
     use super::NueralNetwork;
@@ -243,7 +240,7 @@ mod tests {
             println!("Testing:\n");
 
             for image in data_set.testing_data.iter() {
-                let res = self.propagate(&image.pixels, sigmoid);
+                let res = self.propagate(&image.data, sigmoid);
                 // print!("{:.2?}>{:.2?} ||| ", image.pixels, res);
                 if res.column(0).argmax().0 == (image.label as usize - 1) {
                     total_correct += 1.0;
@@ -261,7 +258,7 @@ mod tests {
             training_data: (0..10000)
                 .map(|_| {
                     let y: f64 = rand::random();
-                    ImageData::<1>::_new(
+                    DataVector::<1>::_new(
                         DMatrix::from_vec(1, 1, vec![y]),
                         if y < 0.5 { 1 } else { 2 },
                     )
@@ -270,7 +267,7 @@ mod tests {
             testing_data: (0..100)
                 .map(|x: usize| {
                     let y: f64 = x as f64 / 100.0;
-                    ImageData::<1>::_new(
+                    DataVector::<1>::_new(
                         DMatrix::from_vec(1, 1, vec![y]),
                         if y < 0.5 { 1 } else { 2 },
                     )

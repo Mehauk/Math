@@ -1,20 +1,20 @@
 use image;
-use nalgebra::DMatrix;
+use nalgebra::DVector;
 use std::io::Error;
 
 pub mod mnist;
 
-pub struct DataSet<const I: usize> {
-    pub training_data: Vec<ImageData<I>>,
-    pub testing_data: Vec<ImageData<I>>,
+pub struct DataSet {
+    pub training_data: Vec<DataVector>,
+    pub testing_data: Vec<DataVector>,
 }
 
-impl<const I: usize> DataSet<I> {
+impl DataSet {
     pub fn load_data(
         dataset_path: &str,
         dataset_name: &str,
-        parse_data: impl Fn(&str, &str, &str) -> Result<Vec<ImageData<I>>, Error>,
-    ) -> Result<DataSet<I>, Error> {
+        parse_data: impl Fn(&str, &str, &str) -> Result<Vec<DataVector>, Error>,
+    ) -> Result<DataSet, Error> {
         let _test_data = parse_data(dataset_path, dataset_name, "test")?;
         let _train_data = parse_data(dataset_path, dataset_name, "train")?;
 
@@ -26,14 +26,14 @@ impl<const I: usize> DataSet<I> {
 }
 
 // TODO: convert to Trait?
-pub struct ImageData<const I: usize> {
+pub struct DataVector {
     /// `ArrayStorage` requires constant usize for Row and Column.
     ///
     /// We could also use `VecStorage` to create a matrix with
     /// dimensions calculated at runtime, but operations would be slower.
     ///
     /// values in the matrix are between 0-1 (inc), normalized from u8
-    pub pixels: DMatrix<f64>,
+    pub data: DVector<f64>,
     pub label: u8,
 
     // property used for recontructing the image
@@ -42,10 +42,10 @@ pub struct ImageData<const I: usize> {
 
 /// Contructs an image from the parsed ImageData
 /// Usefull for debugging
-impl<const I: usize> ImageData<I> {
-    pub fn _new(pixels: DMatrix<f64>, label: u8) -> Self {
-        ImageData {
-            pixels,
+impl DataVector {
+    pub fn _new(data: DVector<f64>, label: u8) -> Self {
+        DataVector {
+            data,
             label,
             _dims: None,
         }
@@ -56,7 +56,7 @@ impl<const I: usize> ImageData<I> {
             let width = width as u32;
             let height = height as u32;
             let mut image = image::RgbImage::new(width, height);
-            for (i, e) in self.pixels.iter().enumerate() {
+            for (i, e) in self.data.iter().enumerate() {
                 let p = (e * 255.0) as u8;
                 image.put_pixel(i as u32 / width, i as u32 % height, image::Rgb([p, p, p]));
             }

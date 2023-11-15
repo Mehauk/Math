@@ -57,7 +57,7 @@ pub fn parse_mnist<const I: usize>(
     let (width, height) = (image_sizes[1], image_sizes[2]);
 
     let image_dimensions = (width * height) as usize;
-    let mut image_vector = Vec::<DataVector<I>>::new();
+    let mut image_vector = Vec::<DataVector>::new();
 
     let mut buf: [u8; 1] = [0; 1];
 
@@ -72,7 +72,7 @@ pub fn parse_mnist<const I: usize>(
         label_file.read_exact(&mut buf)?;
         let label = buf[0];
         image_vector.push(DataVector {
-            data: nalgebra::DMatrix::<f64>::from_vec(I, 1, pixels),
+            data: nalgebra::DVector::<f64>::from_vec(pixels),
 
             // 1-26 (inc) -> for letters (a-z)
             // 0-9 (inc) -> for digits

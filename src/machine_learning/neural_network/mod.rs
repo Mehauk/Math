@@ -10,47 +10,53 @@ use super::dataset::DataSet;
 pub struct NueralNetwork {
     _weigths: Vec<DMatrix<f64>>,
     _biases: Vec<DVector<f64>>,
+    _shape: Vec<usize>,
 }
 
 impl NueralNetwork {
-    pub fn random(shape: [usize]) -> NueralNetwork {
+    pub fn random(shape: Vec<usize>) -> NueralNetwork {
         let length = shape.len();
         let weigths: Vec<DMatrix<f64>> = shape[1..length]
             .iter()
-            .zip(shape[0..length - 1])
-            .map(|a, b| random_matrix(a, b));
-        let biases: Vec<DVector<f64>> = shape[1..length].iter().map(|a| random_matrix(a, 1));
+            .zip(&shape[0..length - 1])
+            .map(|(a, b)| random_matrix(*a, *b))
+            .collect();
+        let biases: Vec<DVector<f64>> =
+            shape[1..length].iter().map(|a| random_vector(*a)).collect();
 
         NueralNetwork {
             _weigths: weigths,
             _biases: biases,
+            _shape: shape,
         }
     }
 
-    pub fn zeros(shape: [usize]) -> NueralNetwork {
+    pub fn zeros(shape: Vec<usize>) -> NueralNetwork {
         let length = shape.len();
         let weigths: Vec<DMatrix<f64>> = shape[1..length]
             .iter()
-            .zip(shape[0..length - 1])
-            .map(|a, b| DMatrix::<f64>::zeros(a, b));
-        let biases: Vec<DVector<f64>> =
-            shape[1..length].iter().map(|a| DMatrix::<f64>::zeros(a, 1));
+            .zip(&shape[0..length - 1])
+            .map(|(a, b)| DMatrix::<f64>::zeros(*a, *b))
+            .collect();
+        let biases: Vec<DVector<f64>> = shape[1..length]
+            .iter()
+            .map(|a| DVector::<f64>::zeros(*a))
+            .collect();
 
         NueralNetwork {
             _weigths: weigths,
             _biases: biases,
+            _shape: shape,
         }
     }
 
     fn _step(&mut self, other: Self, learning_rate: f64) {
         for (a, b) in self._weigths.iter_mut().zip(other._weigths) {
-            a.0 -= b.0 * learning_rate;
-            a.1 -= b.1 * learning_rate;
+            *a -= b * learning_rate;
         }
 
         for (a, b) in self._biases.iter_mut().zip(other._biases) {
-            a.0 -= b.0 * learning_rate;
-            a.1 -= b.1 * learning_rate;
+            *a -= b * learning_rate;
         }
     }
 
@@ -59,7 +65,7 @@ impl NueralNetwork {
         input: &DVector<f64>,
         activation_function: fn(&mut f64),
     ) -> DVector<f64> {
-        let mut propagating_nodes: DVector<f64> = input;
+        let mut propagating_nodes: DVector<f64> = *input;
 
         for (weight_matrix, bias_vector) in self._weigths.iter().zip(self._biases) {
             propagating_nodes = weight_matrix * propagating_nodes + bias_vector;
@@ -70,17 +76,17 @@ impl NueralNetwork {
 
     fn propagate_returning_all_nodes(
         &self,
-        input: &DMatrix<f64>,
+        input: &DVector<f64>,
         activation_function: fn(&mut f64),
     ) -> Vec<DVector<f64>> {
         // initialize resulting array;
         let mut nodes_array: Vec<DVector<f64>>;
 
-        let mut propagating_nodes: DVector<f64> = input;
+        let mut propagating_nodes: DVector<f64> = *input;
 
         for (weight_matrix, bias_vector) in self._weigths.iter().zip(self._biases) {
             nodes_array.push(weight_matrix * propagating_nodes + bias_vector);
-            propagating_nodes = nodes_array.last().unwrap();
+            propagating_nodes = *nodes_array.last().unwrap();
         }
 
         nodes_array
@@ -92,7 +98,9 @@ impl NueralNetwork {
     /// - `E` expected output Matrix contructed from label
     pub fn _cost(mut result_matrix: DMatrix<f64>, label: u8) -> DMatrix<f64> {
         result_matrix[(label as usize - 1, 0)] -= 1.0;
-        result_matrix.apply_into(|x| x*x)
+        result_matrix.apply_into(|x| {
+            *x * *x;
+        })
     }
 
     /// calculates the derivative of the cost; `C' = 2(R - E)
@@ -139,8 +147,8 @@ impl NueralNetwork {
         );
     }
 
-    fn calculate_and_apply_batch_step(&mut self, data_set: &DataSet<I>, batch_size: usize) {
-        let mut delta_network = NueralNetwork::<I, N, L, O>::zeros();
+    fn calculate_and_apply_batch_step(&mut self, data_set: &DataSet, batch_size: usize) {
+        let mut delta_network = NueralNetwork::zeros(self._shape);
         for i in 0..batch_size {
             let input = &data_set.training_data[i].data;
             let label = &data_set.training_data[i].label;
@@ -183,7 +191,7 @@ impl NueralNetwork {
         self._step(delta_network, 0.1 / batch_size as f64);
     }
 
-    pub fn test(&self, data_set: &DataSet<I>) -> f64 {
+    pub fn test(&self, data_set: &DataSet) -> f64 {
         let data_set_length = data_set.testing_data.len() as f64;
         let mut total_correct = 0.0;
 
@@ -207,9 +215,13 @@ fn random_matrix(r: usize, c: usize) -> DMatrix<f64> {
     )
 }
 
+fn random_vector(r: usize) -> DVector<f64> {
+    DVector::<f64>::from_distribution(r, &rand::distributions::Standard, &mut rand::thread_rng())
+}
+
 #[cfg(test)]
 mod tests {
-    use nalgebra::DMatrix;
+    use nalgebra::DVector;
 
     use crate::{
         calculus::functions::sigmoid,
@@ -218,22 +230,22 @@ mod tests {
 
     use super::NueralNetwork;
 
-    impl<const I: usize, const N: usize, const L: usize, const O: usize> NueralNetwork<I, N, L, O> {
-        fn _display_nodes(&self, input: &DMatrix<f64>) {
+    impl NueralNetwork {
+        fn _display_nodes(&self, input: &DVector<f64>) {
             let mut string: String = format!("{:.2?} > ", input);
 
-            let (_, output) = self.calculate_intermediate_nodes(input, sigmoid);
+            let nodes = self.propagate_returning_all_nodes(input, sigmoid);
 
             // for n in nodes {
             //     string += &format!("{:.2} - ", n);
             // }
 
-            string += &format!("{:.2?}", output);
+            string += &format!("{:.2?}", nodes.last());
 
             println!("{:.2?}", string);
         }
 
-        fn _test_debug(&self, data_set: &DataSet<I>) -> f64 {
+        fn _test_debug(&self, data_set: &DataSet) -> f64 {
             let data_set_length = data_set.testing_data.len() as f64;
             let mut total_correct = 0.0;
 
@@ -253,24 +265,18 @@ mod tests {
 
     #[test]
     fn test_network_1_2_2_2() {
-        let mut nn = NueralNetwork::<1, 1, 2, 2>::random();
-        let ds = DataSet::<1> {
+        let mut nn = NueralNetwork::random(vec![2, 2, 2]);
+        let ds = DataSet {
             training_data: (0..10000)
                 .map(|_| {
                     let y: f64 = rand::random();
-                    DataVector::<1>::_new(
-                        DMatrix::from_vec(1, 1, vec![y]),
-                        if y < 0.5 { 1 } else { 2 },
-                    )
+                    DataVector::_new(DVector::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
                 })
                 .collect(),
             testing_data: (0..100)
                 .map(|x: usize| {
                     let y: f64 = x as f64 / 100.0;
-                    DataVector::<1>::_new(
-                        DMatrix::from_vec(1, 1, vec![y]),
-                        if y < 0.5 { 1 } else { 2 },
-                    )
+                    DataVector::_new(DVector::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
                 })
                 .collect(),
         };

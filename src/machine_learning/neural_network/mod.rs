@@ -152,7 +152,7 @@ impl NueralNetwork {
         for i in 0..batch_size {
             let input = &data_set.training_data[i].data;
             let label = &data_set.training_data[i].label;
-            let (mut nodes, output_nodes) = self.calculate_intermediate_nodes(input, sigmoid);
+            let mut nodes = self.propagate_returning_all_nodes(input, sigmoid);
 
             // calculate output bias changes
             delta_network._output_matrix.1 += Self::_cost_derivative(&output_nodes, *label)

@@ -16,9 +16,9 @@ pub const INPUT_SIZE: usize = 28 * 28;
 ///
 /// ### Example
 /// ```
-/// parse_mnist::<{INPUT_SIZE}, 1>("src/assets/machine_learning/", "letters", "train")
+/// parse_mnist("src/assets/machine_learning/", "letters", "train")
 /// ```
-pub fn parse_mnist<const I: usize>(
+pub fn parse_mnist(
     dataset_path: &str,
     dataset_name: &str,
     ext: &str,

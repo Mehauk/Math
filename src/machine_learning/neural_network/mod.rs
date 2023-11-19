@@ -103,7 +103,7 @@ impl NueralNetwork {
     pub fn _cost(mut result_matrix: DMatrix<f64>, label: u8) -> DMatrix<f64> {
         result_matrix[(label as usize - 1, 0)] -= 1.0;
         result_matrix.apply_into(|x| {
-            *x * *x;
+            *x *= *x;
         })
     }
 
@@ -235,42 +235,16 @@ mod tests {
 
     use super::NueralNetwork;
 
-    impl NueralNetwork {
-        fn _display_nodes(&self, input: &DVector<f64>) {
-            let mut string: String = format!("{:.2?} > ", input);
-
-            let nodes = self.propagate_returning_all_nodes(input, sigmoid);
-
-            // for n in nodes {
-            //     string += &format!("{:.2} - ", n);
-            // }
-
-            string += &format!("{:.2?}", nodes.last());
-
-            println!("{:.2?}", string);
+    fn init_network() -> (NueralNetwork, DataSet) {
+        let mut nn = NueralNetwork::zeros(vec![1, 2, 2]);
+        for bv in nn._biases.iter_mut() {
+            bv.add_scalar_mut(0.1);
         }
 
-        fn _test_debug(&self, data_set: &DataSet) -> f64 {
-            let data_set_length = data_set.testing_data.len() as f64;
-            let mut total_correct = 0.0;
-
-            println!("Testing:\n");
-
-            for image in data_set.testing_data.iter() {
-                let res = self.propagate(&image.data, sigmoid);
-                // print!("{:.2?}>{:.2?} ||| ", image.pixels, res);
-                if res.column(0).argmax().0 == (image.label as usize - 1) {
-                    total_correct += 1.0;
-                }
-            }
-
-            total_correct / data_set_length
+        for wv in nn._weigths.iter_mut() {
+            wv.add_scalar_mut(0.1);
         }
-    }
 
-    #[test]
-    fn test_network_1_2_2_2() {
-        let mut nn = NueralNetwork::random(vec![2, 2, 2]);
         let ds = DataSet {
             training_data: (0..10000)
                 .map(|_| {
@@ -286,24 +260,30 @@ mod tests {
                 .collect(),
         };
 
-        print!("\nTesting in Progress\n");
-        println!(
-            "Testing completed with {}% accuracy\n",
-            nn._test_debug(&ds) * 100.0
-        );
-        // nn._display_nodes(&ds.testing_data[1].pixels);
-        // nn._display_nodes(&ds.testing_data[11].pixels);
-        // nn._display_nodes(&ds.testing_data[88].pixels);
-        println!("---");
-        nn.train(&ds, 16);
-        println!("\n---");
-        print!("\nTesting in Progress\n");
-        println!(
-            "Testing completed with {}% accuracy\n",
-            nn._test_debug(&ds) * 100.0
-        );
-        // nn._display_nodes(&ds.testing_data[1].pixels);
-        // nn._display_nodes(&ds.testing_data[11].pixels);
-        // nn._display_nodes(&ds.testing_data[88].pixels);
+        return (nn, ds);
+    }
+
+    #[test]
+    fn test_both_propagation_methods_are_equivalent() {
+        let (nn, ds) = init_network();
+
+        let x = nn
+            .propagate_returning_all_nodes(&ds.training_data.first().unwrap().data, sigmoid)
+            .last()
+            .unwrap()
+            .clone();
+        let y = nn.propagate(&ds.training_data.first().unwrap().data, sigmoid);
+
+        assert_eq!(x, y);
+    }
+
+    #[test]
+    fn test_multiple_propagation_calls() {
+        let (nn, ds) = init_network();
+
+        let y = nn.propagate(&ds.training_data.first().unwrap().data, sigmoid);
+        let x = nn.propagate(&ds.training_data.first().unwrap().data, sigmoid);
+
+        assert_eq!(x, y);
     }
 }

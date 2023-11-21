@@ -76,6 +76,7 @@ impl NueralNetwork {
         x
     }
 
+    /// Returns a vector of intermediate node_vectors including the output vector and excluding the input vector
     fn propagate_returning_all_nodes(
         &self,
         input: &DVector<f64>,
@@ -152,48 +153,48 @@ impl NueralNetwork {
     }
 
     fn calculate_and_apply_batch_step(&mut self, data_set: &DataSet, batch_size: usize) {
-        // let mut delta_network = NueralNetwork::zeros(self._shape);
-        // for i in 0..batch_size {
-        //     let input = &data_set.training_data[i].data;
-        //     let label = &data_set.training_data[i].label;
-        //     let mut nodes = self.propagate_returning_all_nodes(input, sigmoid);
+        let mut delta_network = NueralNetwork::zeros(self._shape);
+        for i in 0..batch_size {
+            let input = &data_set.training_data[i].data;
+            let label = &data_set.training_data[i].label;
+            let mut nodes = self.propagate_returning_all_nodes(input, sigmoid);
 
-        //     // change all below
-        //     // calculate output bias changes
-        //     delta_network._output_matrix.1 += Self::_cost_derivative(&output_nodes, *label)
-        //         .component_mul(&output_nodes.apply_into(sigmoid_derivative));
+            // change all below
+            // calculate output bias changes
+            delta_network._output_matrix.1 += Self::_cost_derivative(&output_nodes, *label)
+                .component_mul(&output_nodes.apply_into(sigmoid_derivative));
 
-        //     // calculate output weights changes
-        //     delta_network._output_matrix.0 +=
-        //         &delta_network._output_matrix.1 * nodes[L - 1].transpose();
+            // calculate output weights changes
+            delta_network._output_matrix.0 +=
+                &delta_network._output_matrix.1 * nodes[L - 1].transpose();
 
-        //     // calculate delta for previous nodes
-        //     let mut delta_intermediate_nodes: DMatrix<f64> =
-        //         self._output_matrix.0.transpose() * &delta_network._output_matrix.1;
+            // calculate delta for previous nodes
+            let mut delta_intermediate_nodes: DMatrix<f64> =
+                self._output_matrix.0.transpose() * &delta_network._output_matrix.1;
 
-        //     for ix in 0..L - 1 {
-        //         let delta_layer = &mut delta_network._hidden_layer[L - 2 - ix];
+            for ix in 0..L - 1 {
+                let delta_layer = &mut delta_network._hidden_layer[L - 2 - ix];
 
-        //         // calculate biases changes for selected layer
-        //         nodes[L - 1 - ix].apply(sigmoid_derivative);
-        //         delta_layer.1 += delta_intermediate_nodes.component_mul(&nodes[0]);
+                // calculate biases changes for selected layer
+                nodes[L - 1 - ix].apply(sigmoid_derivative);
+                delta_layer.1 += delta_intermediate_nodes.component_mul(&nodes[0]);
 
-        //         // calculate weight changes for selected layer
-        //         delta_layer.0 += &delta_layer.1 * nodes[L - 2 - ix].transpose();
+                // calculate weight changes for selected layer
+                delta_layer.0 += &delta_layer.1 * nodes[L - 2 - ix].transpose();
 
-        //         // calculate delta for previous nodes
-        //         delta_intermediate_nodes =
-        //             self._hidden_layer[L - 2 - ix].0.transpose() * &delta_layer.1;
-        //     }
+                // calculate delta for previous nodes
+                delta_intermediate_nodes =
+                    self._hidden_layer[L - 2 - ix].0.transpose() * &delta_layer.1;
+            }
 
-        //     // calculate input bias changes
-        //     nodes[0].apply(sigmoid_derivative);
-        //     delta_network_inputt_matrix.1 += delta_intermediate_nodes.component_mul(&nodes[0]);
+            // calculate input bias changes
+            nodes[0].apply(sigmoid_derivative);
+            delta_network_inputt_matrix.1 += delta_intermediate_nodes.component_mul(&nodes[0]);
 
-        //     // calculate input weights changes
-        //     delta_network_inputt_matrix.0 += &delta_network_inputt_matrix.1 * input.transpose();
-        // }
-        // self._step(delta_network, 0.1 / batch_size as f64);
+            // calculate input weights changes
+            delta_network_inputt_matrix.0 += &delta_network_inputt_matrix.1 * input.transpose();
+        }
+        self._step(delta_network, 0.1 / batch_size as f64);
     }
 
     pub fn test(&self, data_set: &DataSet) -> f64 {

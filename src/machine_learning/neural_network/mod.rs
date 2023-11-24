@@ -159,6 +159,7 @@ impl NueralNetwork {
             let label = &data_set.training_data[i].label;
             let mut nodes = self.propagate_returning_all_nodes(input, sigmoid);
 
+            // change all below
             // calculate output bias changes
             delta_network._output_matrix.1 += Self::_cost_derivative(&output_nodes, *label)
                 .component_mul(&output_nodes.apply_into(sigmoid_derivative));

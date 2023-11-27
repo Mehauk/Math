@@ -153,6 +153,7 @@ impl NueralNetwork {
     }
 
     fn calculate_and_apply_batch_step(&mut self, data_set: &DataSet, batch_size: usize) {
+        // todo: fix this
         // let mut delta_network = NueralNetwork::zeros(self._shape);
         // for i in 0..batch_size {
         //     let input = &data_set.training_data[i].data;

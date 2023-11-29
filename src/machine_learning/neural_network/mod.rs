@@ -1,6 +1,6 @@
 use nalgebra::{DMatrix, DVector};
 
-use crate::calculus::functions::{sigmoid, sigmoid_derivative};
+use crate::calculus::functions::sigmoid;
 
 use super::dataset::DataSet;
 
@@ -101,20 +101,20 @@ impl NueralNetwork {
     /// - `C` cost Matrix
     /// - `R` resulting output Matrix of network
     /// - `E` expected output Matrix contructed from label
-    pub fn _cost(mut result_matrix: DMatrix<f64>, label: u8) -> DMatrix<f64> {
-        result_matrix[(label as usize - 1, 0)] -= 1.0;
-        result_matrix.apply_into(|x| {
-            *x *= *x;
-        })
+    pub fn _cost(result_matrix: &DVector<f64>, label: u8) -> DVector<f64> {
+        let mut m = result_matrix.clone();
+        m[(label as usize - 1, 0)] -= 1.0;
+        m.apply_into(|x| *x *= *x)
     }
 
     /// calculates the derivative of the cost; `C' = 2(R - E)
     /// - `C` cost Matrix
     /// - `R` resulting output Matrix of network
     /// - `E` expected output Matrix contructed from label
-    pub fn _cost_derivative(mut result_matrix: DMatrix<f64>, label: u8) -> DMatrix<f64> {
-        result_matrix[(label as usize - 1, 0)] -= 1.0;
-        result_matrix.scale(2.0)
+    pub fn _cost_derivative(result_matrix: &DVector<f64>, label: u8) -> DVector<f64> {
+        let mut m = result_matrix.clone();
+        m[(label as usize - 1, 0)] -= 1.0;
+        m.scale(2.0)
     }
 
     // train using stochastic gradient descent
@@ -154,46 +154,8 @@ impl NueralNetwork {
 
     fn calculate_and_apply_batch_step(&mut self, data_set: &DataSet, batch_size: usize) {
         // todo: fix this
-        let mut delta_network = NueralNetwork::zeros(self._shape);
-        for i in 0..batch_size {
-            let input = &data_set.training_data[i].data;
-            let label = &data_set.training_data[i].label;
-            let mut nodes = self.propagate_returning_all_nodes(input, sigmoid);
-
-            // calculate output bias changes
-            delta_network._output_matrix.1 += Self::_cost_derivative(&output_nodes, *label)
-                .component_mul(&output_nodes.apply_into(sigmoid_derivative));
-
-            // calculate output weights changes
-            delta_network._output_matrix.0 +=
-                &delta_network._output_matrix.1 * nodes[L - 1].transpose();
-
-            // calculate delta for previous nodes
-            let mut delta_intermediate_nodes: DMatrix<f64> =
-                self._output_matrix.0.transpose() * &delta_network._output_matrix.1;
-
-            for ix in 0..L - 1 {
-                let delta_layer = &mut delta_network._hidden_layer[L - 2 - ix];
-
-                // calculate biases changes for selected layer
-                nodes[L - 1 - ix].apply(sigmoid_derivative);
-                delta_layer.1 += delta_intermediate_nodes.component_mul(&nodes[0]);
-
-                // calculate weight changes for selected layer
-                delta_layer.0 += &delta_layer.1 * nodes[L - 2 - ix].transpose();
-
-                // calculate delta for previous nodes
-                delta_intermediate_nodes =
-                    self._hidden_layer[L - 2 - ix].0.transpose() * &delta_layer.1;
-            }
-
-            // calculate input bias changes
-            nodes[0].apply(sigmoid_derivative);
-            delta_network_inputt_matrix.1 += delta_intermediate_nodes.component_mul(&nodes[0]);
-
-            // calculate input weights changes
-            delta_network_inputt_matrix.0 += &delta_network_inputt_matrix.1 * input.transpose();
-        }
+        let mut delta_network = NueralNetwork::zeros(self._shape.clone());
+        for i in 0..batch_size {}
         self._step(delta_network, 0.1 / batch_size as f64);
     }
 
@@ -275,11 +237,6 @@ mod tests {
             .clone();
         let y = nn.propagate(&ds.training_data.first().unwrap().data, sigmoid);
 
-        println!(
-            "{:#?}\n{:#?}",
-            &ds.testing_data.first().unwrap().data,
-            nn.propagate_returning_all_nodes(&ds.testing_data.first().unwrap().data, sigmoid)
-        );
         assert_eq!(x, y);
     }
 
@@ -291,5 +248,25 @@ mod tests {
         let x = nn.propagate(&ds.training_data.first().unwrap().data, sigmoid);
 
         assert_eq!(x, y);
+    }
+
+    #[test]
+    fn test_cost() {
+        let (nn, ds) = init_network();
+
+        let output = nn.propagate(&ds.testing_data.first().unwrap().data, sigmoid);
+
+        println!("{:#?}", NueralNetwork::_cost(&output, 1));
+    }
+
+    #[test]
+    fn test_cost_derivative() {
+        let (nn, ds) = init_network();
+
+        let output = nn.propagate(&ds.testing_data.first().unwrap().data, sigmoid);
+        let derivative = NueralNetwork::_cost_derivative(&output, 1);
+
+        assert!(derivative[0] - 1.1 < 0.01);
+        assert!(derivative[1] + 0.9 < 0.01);
     }
 }

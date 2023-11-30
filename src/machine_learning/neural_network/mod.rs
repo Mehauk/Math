@@ -1,6 +1,6 @@
 use nalgebra::{DMatrix, DVector};
 
-use crate::calculus::functions::sigmoid;
+use crate::calculus::functions::{sigmoid, sigmoid_derivative};
 
 use super::dataset::DataSet;
 
@@ -134,7 +134,7 @@ impl NueralNetwork {
         for n in 0..number_of_batches {
             let fraction = n as f64 / number_of_batches as f64;
             loading_indicator[(fraction * 9.0) as usize] = '█';
-            self.calculate_and_apply_batch_step(data_set, batch_size);
+            // self.calculate_and_apply_batch_step(data_set, batch_size);
 
             print!(
                 "\rTraining in progress: {} - {:0>3.2}% complete",
@@ -142,7 +142,7 @@ impl NueralNetwork {
                 fraction * 100.0,
             );
         }
-        self.calculate_and_apply_batch_step(data_set, remaining_data);
+        // self.calculate_and_apply_batch_step(data_set, remaining_data);
 
         loading_indicator[9] = '█';
         print!(
@@ -152,10 +152,31 @@ impl NueralNetwork {
         );
     }
 
-    fn calculate_and_apply_batch_step(&mut self, data_set: &DataSet, batch_size: usize) {
-        // todo: fix this
+    fn calculate_batch_step(&mut self, data_set: &DataSet, batch_size: usize) {
+        // todo: fix this and add activation/derivative abstraction
         let mut delta_network = NueralNetwork::zeros(self._shape.clone());
-        for i in 0..batch_size {}
+        for i in 0..batch_size {
+            let training_data = &data_set.training_data[i];
+            let nodes = self.propagate_returning_all_nodes(&training_data.data, sigmoid);
+            let network_length = nodes.len();
+
+            let delta_cost_by_delta_nodes =
+                NueralNetwork::_cost_derivative(&nodes[network_length - 1], training_data.label);
+            let delta_cost_by_delta_activation = delta_cost_by_delta_nodes.component_mul(
+                &delta_cost_by_delta_nodes
+                    .clone()
+                    .apply_into(sigmoid_derivative),
+            );
+            let delta_cost_by_delta_biases = delta_cost_by_delta_activation;
+
+            println!(
+                "{:#?}",
+                &delta_cost_by_delta_nodes
+                    .clone()
+                    .apply_into(sigmoid_derivative)
+            );
+            println!("{:#?}", delta_cost_by_delta_biases);
+        }
         self._step(delta_network, 0.1 / batch_size as f64);
     }
 
@@ -210,8 +231,8 @@ mod tests {
 
         let ds = DataSet {
             training_data: (0..10000)
-                .map(|_| {
-                    let y: f64 = rand::random();
+                .map(|x| {
+                    let y: f64 = rand::random::<f64>() * x as f64 / (x + 1) as f64;
                     DataVector::_new(DVector::from_vec(vec![y]), if y < 0.5 { 1 } else { 2 })
                 })
                 .collect(),
@@ -268,5 +289,11 @@ mod tests {
 
         assert!(derivative[0] - 1.1 < 0.01);
         assert!(derivative[1] + 0.9 < 0.01);
+    }
+
+    #[test]
+    fn test_fake() {
+        let (mut nn, ds) = init_network();
+        nn.calculate_batch_step(&ds, 1);
     }
 }

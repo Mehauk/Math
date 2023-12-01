@@ -42,7 +42,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 stdin().read_line(&mut input)?;
                 println!("");
                 let batch_size = input.trim().parse::<usize>().unwrap_or(100);
-                nn.train(&ds, batch_size);
+                nn.train(&ds, batch_size, 1.0);
                 println!("");
             }
 

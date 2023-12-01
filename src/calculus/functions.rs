@@ -1,13 +1,13 @@
 // Nomalization Functions
 
-use std::f64::consts::E;
+use std::f64::consts::{E, PI};
 
 pub fn _normalized_arctan(t: &mut f64) {
-    *t = t.atan() / (std::f64::consts::PI / 2.0);
+    *t = t.atan() / (PI / 2.0);
 }
 
 pub fn _normalized_arctan_derivative(t: &mut f64) {
-    *t = (1.0 / (t.powi(2) + 1.0)) / (std::f64::consts::PI / 2.0);
+    *t = (1.0 / (t.powi(2) + 1.0)) / (PI / 2.0);
 }
 
 pub fn sigmoid(t: &mut f64) {

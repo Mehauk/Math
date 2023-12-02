@@ -1,6 +1,6 @@
 use nalgebra::{DMatrix, DVector};
 
-use crate::calculus::functions::{sigmoid, sigmoid_derivative};
+use crate::calculus::functions::{sigmoid, sigmoid_derivative, Function};
 
 use super::dataset::DataSet;
 
@@ -104,7 +104,7 @@ impl NueralNetwork {
     /// - `E` expected output Matrix contructed from label
     pub fn _cost(result_matrix: &DVector<f64>, label: u8) -> DVector<f64> {
         let mut m = result_matrix.clone();
-        m[(label as usize - 1, 0)] -= 1.0;
+        m[(label as usize, 0)] -= 1.0;
         m.apply_into(|x| *x *= *x)
     }
 
@@ -114,7 +114,7 @@ impl NueralNetwork {
     /// - `E` expected output Matrix contructed from label
     pub fn _cost_derivative(result_matrix: &DVector<f64>, label: u8) -> DVector<f64> {
         let mut m = result_matrix.clone();
-        m[(label as usize - 1, 0)] -= 1.0;
+        m[(label as usize, 0)] -= 1.0;
         m.scale(2.0)
     }
 
@@ -170,12 +170,13 @@ impl NueralNetwork {
         data_set: &DataSet,
         batch_start: usize,
         batch_end: usize,
+        activation_function: Function,
     ) -> Option<Self> {
         // todo: fix this and add activation/derivative abstraction
         let mut delta_network = NueralNetwork::zeros(self._shape.clone());
         for i in batch_start..batch_end {
             let training_data = &data_set.training_data[i];
-            let mut nodes = self.propagate_returning_all_nodes(&training_data.data, sigmoid);
+            let mut nodes = self.propagate_returning_all_nodes(&training_data.data, activation_function.calc);
 
             let nodes_cur = nodes.pop()?;
             let mut index = nodes.len();
@@ -221,7 +222,7 @@ impl NueralNetwork {
 
         for image in data_set.testing_data.iter() {
             let res = self.propagate(&image.data, sigmoid);
-            if res.column(0).argmax().0 == (image.label as usize - 1) {
+            if res.column(0).argmax().0 == (image.label as usize) {
                 total_correct += 1.0;
             }
         }
@@ -268,13 +269,13 @@ mod tests {
             training_data: (0..10000)
                 .map(|x| {
                     let y: f64 = rand::random::<f64>() * x as f64 / (x + 1) as f64;
-                    DataVector::_new(DVector::from_vec(vec![y]), if y < 0.5 { 2 } else { 1 })
+                    DataVector::_new(DVector::from_vec(vec![y]), if y < 0.5 { 1 } else { 0 })
                 })
                 .collect(),
             testing_data: (0..100)
                 .map(|x: usize| {
                     let y: f64 = x as f64 / 100.0;
-                    DataVector::_new(DVector::from_vec(vec![y]), if y < 0.5 { 2 } else { 1 })
+                    DataVector::_new(DVector::from_vec(vec![y]), if y < 0.5 { 1 } else { 0 })
                 })
                 .collect(),
         };
@@ -311,7 +312,7 @@ mod tests {
         let (nn, ds) = init_network(vec![1, 2, 2]);
 
         let output = nn.propagate(&ds.testing_data.first().unwrap().data, sigmoid);
-        let cost = NueralNetwork::_cost(&output, 2);
+        let cost = NueralNetwork::_cost(&output, 1);
 
         assert!(cost[0] - 0.3 < 0.01);
         assert!(cost[1] - 0.2 < 0.01);
@@ -322,7 +323,7 @@ mod tests {
         let (nn, ds) = init_network(vec![1, 2, 2]);
 
         let output = nn.propagate(&ds.testing_data.first().unwrap().data, sigmoid);
-        let derivative = NueralNetwork::_cost_derivative(&output, 2);
+        let derivative = NueralNetwork::_cost_derivative(&output, 1);
 
         assert!(derivative[0] - 1.1 < 0.01);
         assert!(derivative[1] + 0.9 < 0.01);

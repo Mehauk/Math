@@ -76,7 +76,7 @@ pub fn parse_mnist(
 
             // 1-26 (inc) -> for letters (a-z)
             // 0-9 (inc) -> for digits
-            label,
+            label: label - 1,
             _dims: Some((width, height)),
         });
 

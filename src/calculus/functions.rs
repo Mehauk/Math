@@ -3,7 +3,7 @@
 use std::f64::consts::{E, PI};
 pub struct Function {
     pub calc: Box<dyn FnMut(&mut f64) -> ()>,
-    pub derive: Box<dyn FnMut(&mut f64) -> ()>,
+    derive: Box<dyn FnMut(&mut f64) -> ()>,
 }
 
 pub fn _normalized_arctan(t: &mut f64) {

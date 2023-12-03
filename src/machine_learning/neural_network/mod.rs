@@ -170,13 +170,13 @@ impl NueralNetwork {
         data_set: &DataSet,
         batch_start: usize,
         batch_end: usize,
-        activation_function: Function,
+        mut activation_function: Function,
     ) -> Option<Self> {
         // todo: fix this and add activation/derivative abstraction
         let mut delta_network = NueralNetwork::zeros(self._shape.clone());
         for i in batch_start..batch_end {
             let training_data = &data_set.training_data[i];
-            let mut nodes = self.propagate_returning_all_nodes(&training_data.data, activation_function.calc);
+            let mut nodes = self.propagate_returning_all_nodes(&training_data.data, |&mut x| (activation_function.calc)(&mut x));
 
             let nodes_cur = nodes.pop()?;
             let mut index = nodes.len();

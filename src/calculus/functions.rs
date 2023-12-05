@@ -2,33 +2,9 @@
 
 use std::f64::consts::{E, PI};
 
-pub trait Function {
-    fn calc(&self, x: &mut f64);
-    fn derive(&self, x: &mut f64);
-}
-
-pub struct Sigmoid {}
-
-impl Function for Sigmoid {
-    fn calc(&self, x: &mut f64) {
-        _sigmoid(x)
-    }
-
-    fn derive(&self, x: &mut f64) {
-        _sigmoid_derivative(x)
-    }
-}
-
-pub struct NormalizedArctan {}
-
-impl Function for NormalizedArctan {
-    fn calc(&self, x: &mut f64) {
-        _normalized_arctan(x)
-    }
-
-    fn derive(&self, x: &mut f64) {
-        _normalized_arctan_derivative(x)
-    }
+pub struct Function {
+    pub calc: fn(&mut f64),
+    pub derive: fn(&mut f64),
 }
 
 pub fn _normalized_arctan(t: &mut f64) {

@@ -7,20 +7,35 @@ pub struct Function {
     pub derive: fn(&mut f64),
 }
 
-pub fn _normalized_arctan(t: &mut f64) {
-    let x = _normalized_arctan;
+impl Function {
+    pub fn sigmoid() -> Self {
+        Function {
+            calc: sigmoid,
+            derive: sigmoid_derivative,
+        }
+    }
+
+    pub fn _normal_arctan() -> Self {
+        Function {
+            calc: _normalized_arctan,
+            derive: _normalized_arctan_derivative,
+        }
+    }
+}
+
+fn _normalized_arctan(t: &mut f64) {
     *t = t.atan() / (PI / 2.0);
 }
 
-pub fn _normalized_arctan_derivative(t: &mut f64) {
+fn _normalized_arctan_derivative(t: &mut f64) {
     *t = (1.0 / (t.powi(2) + 1.0)) / (PI / 2.0);
 }
 
-pub fn _sigmoid(t: &mut f64) {
+fn sigmoid(t: &mut f64) {
     *t = 1.0 / (1.0 + E.powf(-*t))
 }
 
-pub fn _sigmoid_derivative(t: &mut f64) {
+fn sigmoid_derivative(t: &mut f64) {
     // _sigmoid(t); // wont be necessary as sigmoid will already be calculated
     *t = *t * (1.0 - *t);
 }

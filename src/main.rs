@@ -4,7 +4,6 @@ mod utilities;
 
 use std::{error::Error, io::stdin};
 
-use calculus::functions::{_sigmoid, _sigmoid_derivative};
 use machine_learning::{
     dataset::{
         mnist::{parse_mnist, INPUT_SIZE},
@@ -23,10 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let ds = DataSet::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
     let mut nn = NueralNetwork::random(vec![INPUT_SIZE, 16, 16, OUTPUT_SIZE]);
 
-    let sigmoid = Function {
-        calc: _sigmoid,
-        derive: _sigmoid_derivative,
-    };
+    let sigmoid = Function::sigmoid();
 
     let mut input: String;
     loop {

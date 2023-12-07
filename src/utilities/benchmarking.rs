@@ -1,6 +1,6 @@
 use std::time::SystemTime;
 
-use crate::calculus::functions::_sigmoid;
+use crate::calculus::functions::Function;
 
 pub fn _time_it<T>(func: impl FnOnce() -> T) {
     let s = SystemTime::now();
@@ -28,7 +28,7 @@ pub fn _matrix_calculations_comparison() {
     println!("\nNalgebra element wise manipulation:");
     println!("---------");
     println!("Matrix sigmoid derivative element wise");
-    _time_it(|| nmsq.apply(_sigmoid));
+    _time_it(|| nmsq.apply(Function::sigmoid().calc));
     println!("---");
     println!("Matrix sigmoid derivative by Matrix Arithmetic");
     _time_it(|| nmsq2.component_mul_assign(&(ones - nmsq2)));

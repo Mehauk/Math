@@ -51,7 +51,7 @@ impl NueralNetwork {
         }
     }
 
-    fn _step(&mut self, other: Self, learning_rate: f64) {
+    fn step(&mut self, other: Self, learning_rate: f64) {
         for (a, b) in self._weigths.iter_mut().zip(other._weigths) {
             *a -= b * learning_rate;
         }
@@ -112,7 +112,7 @@ impl NueralNetwork {
     /// - `C` cost Matrix
     /// - `R` resulting output Matrix of network
     /// - `E` expected output Matrix contructed from label
-    pub fn _cost_derivative(result_matrix: &DVector<f64>, label: u8) -> DVector<f64> {
+    pub fn cost_derivative(result_matrix: &DVector<f64>, label: u8) -> DVector<f64> {
         let mut m = result_matrix.clone();
         m[(label as usize, 0)] -= 1.0;
         m.scale(2.0)
@@ -141,8 +141,8 @@ impl NueralNetwork {
         for n in 0..number_of_batches {
             let fraction = n as f64 / number_of_batches as f64;
             loading_indicator[(fraction * 9.0) as usize] = '█';
-            self._step(
-                self._calculate_batch_step(
+            self.step(
+                self.calculate_batch_step(
                     data_set,
                     n * batch_size,
                     (n + 1) * batch_size,
@@ -158,8 +158,8 @@ impl NueralNetwork {
                 fraction * 100.0,
             );
         }
-        self._step(
-            self._calculate_batch_step(
+        self.step(
+            self.calculate_batch_step(
                 data_set,
                 number_of_batches * batch_size,
                 number_of_batches * batch_size + remaining_data,
@@ -177,7 +177,7 @@ impl NueralNetwork {
         );
     }
 
-    fn _calculate_batch_step(
+    fn calculate_batch_step(
         &self,
         data_set: &DataSet,
         batch_start: usize,
@@ -195,7 +195,7 @@ impl NueralNetwork {
             let mut index = nodes.len();
 
             let mut delta_cost_by_delta_nodes =
-                NueralNetwork::_cost_derivative(&nodes_cur, training_data.label);
+                NueralNetwork::cost_derivative(&nodes_cur, training_data.label);
 
             let mut delta_cost_by_delta_activation =
                 nodes_cur.apply_into(activation_function.derive);
@@ -263,7 +263,7 @@ mod tests {
     use nalgebra::DVector;
 
     use crate::{
-        calculus::functions::{Function, _sigmoid, _sigmoid_derivative},
+        calculus::functions::Function,
         machine_learning::dataset::{DataSet, DataVector},
     };
 
@@ -301,12 +301,14 @@ mod tests {
     fn test_both_propagation_methods_are_equivalent() {
         let (nn, ds) = init_network(vec![1, 2, 2]);
 
+        let f = Function::sigmoid();
+
         let x = nn
-            .propagate_returning_all_nodes(&ds.training_data.first().unwrap().data, _sigmoid)
+            .propagate_returning_all_nodes(&ds.training_data.first().unwrap().data, f.calc)
             .last()
             .unwrap()
             .clone();
-        let y = nn.propagate(&ds.training_data.first().unwrap().data, _sigmoid);
+        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.calc);
 
         assert_eq!(x, y);
     }
@@ -314,9 +316,10 @@ mod tests {
     #[test]
     fn test_multiple_propagation_calls() {
         let (nn, ds) = init_network(vec![1, 2, 2]);
+        let f = Function::sigmoid();
 
-        let y = nn.propagate(&ds.training_data.first().unwrap().data, _sigmoid);
-        let x = nn.propagate(&ds.training_data.first().unwrap().data, _sigmoid);
+        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.calc);
+        let x = nn.propagate(&ds.training_data.first().unwrap().data, f.calc);
 
         assert_eq!(x, y);
     }
@@ -324,8 +327,9 @@ mod tests {
     #[test]
     fn test_cost() {
         let (nn, ds) = init_network(vec![1, 2, 2]);
+        let f = Function::sigmoid();
 
-        let output = nn.propagate(&ds.testing_data.first().unwrap().data, _sigmoid);
+        let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.calc);
         let cost = NueralNetwork::_cost(&output, 1);
 
         assert!(cost[0] - 0.3 < 0.01);
@@ -335,9 +339,10 @@ mod tests {
     #[test]
     fn test_cost_derivative() {
         let (nn, ds) = init_network(vec![1, 2, 2]);
+        let f = Function::sigmoid();
 
-        let output = nn.propagate(&ds.testing_data.first().unwrap().data, _sigmoid);
-        let derivative = NueralNetwork::_cost_derivative(&output, 1);
+        let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.calc);
+        let derivative = NueralNetwork::cost_derivative(&output, 1);
 
         assert!(derivative[0] - 1.1 < 0.01);
         assert!(derivative[1] + 0.9 < 0.01);
@@ -346,15 +351,7 @@ mod tests {
     #[test]
     fn test_batch_step() {
         let (nn, ds) = init_network(vec![1, 2, 2]);
-        let batch_step = nn._calculate_batch_step(
-            &ds,
-            0,
-            1,
-            &Function {
-                calc: _sigmoid,
-                derive: _sigmoid_derivative,
-            },
-        );
+        let batch_step = nn.calculate_batch_step(&ds, 0, 1, &Function::sigmoid());
 
         match batch_step {
             Some(step) => {
@@ -377,21 +374,46 @@ mod tests {
     }
 
     #[test]
-    fn test() {
+    fn test_training_sigmoid() {
         let (mut nn, ds) = init_network(vec![1, 3, 2]);
 
-        let func = Function {
-            calc: _sigmoid,
-            derive: _sigmoid_derivative,
-        };
+        let func = Function::sigmoid();
 
-        println!("pre--train::{}", nn.test(&ds, &func,));
         nn.train(&ds, 1, 1.0, &func);
-        println!("post-train::{}", nn.test(&ds, &func));
 
-        println!(
-            "check 0.7 ::{}",
-            nn.propagate(&DVector::from_vec(vec![0.7]), _sigmoid)
-        )
+        assert!(
+            0 == nn
+                .propagate(&DVector::from_vec(vec![0.7]), func.calc)
+                .argmax()
+                .0
+        );
+        assert!(
+            1 == nn
+                .propagate(&DVector::from_vec(vec![0.4]), func.calc)
+                .argmax()
+                .0
+        );
+    }
+
+    #[test]
+    fn test_training_normal_arctan() {
+        let (mut nn, ds) = init_network(vec![1, 3, 2]);
+
+        let func = Function::_normal_arctan();
+
+        nn.train(&ds, 1, 1.0, &func);
+
+        assert!(
+            0 == nn
+                .propagate(&DVector::from_vec(vec![0.7]), func.calc)
+                .argmax()
+                .0
+        );
+        assert!(
+            1 == nn
+                .propagate(&DVector::from_vec(vec![0.4]), func.calc)
+                .argmax()
+                .0
+        );
     }
 }

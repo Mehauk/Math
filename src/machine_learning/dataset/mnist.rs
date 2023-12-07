@@ -1,6 +1,7 @@
 use std::{
     fs::File,
     io::{Error, Read},
+    process::exit,
 };
 
 use super::DataVector;
@@ -71,14 +72,20 @@ pub fn parse_mnist(
 
         label_file.read_exact(&mut buf)?;
         let label = buf[0];
-        image_vector.push(DataVector {
+        let d = DataVector {
             data: nalgebra::DVector::<f64>::from_vec(pixels),
 
             // 1-26 (inc) -> for letters (a-z)
             // 0-9 (inc) -> for digits
             label: label - 1,
             _dims: Some((width, height)),
-        });
+        };
+
+        if i == 2000 {
+            d._show("C:\\Users\\Noor\\Documents\\rust_ground\\.misc\\visuals\\images\\a.png");
+            image_vector.push(d);
+            exit(0);
+        }
 
         let fraction = ((i + 1) as f32) / (image_sizes[0] as f32) * 100.0;
         let mut loading_indicator: [char; 10] = ['_'; 10];

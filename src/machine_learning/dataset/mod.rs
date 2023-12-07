@@ -51,7 +51,7 @@ impl DataVector {
         }
     }
 
-    fn _show(&self, file_path: &str) {
+    pub fn _show(&self, file_path: &str) {
         if let Some((width, height)) = self._dims {
             let width = width as u32;
             let height = height as u32;

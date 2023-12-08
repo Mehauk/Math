@@ -321,6 +321,8 @@ mod tests {
         let y = nn.propagate(&ds.training_data.first().unwrap().data, f.calc);
         let x = nn.propagate(&ds.training_data.first().unwrap().data, f.calc);
 
+        assert!(x.len() == 2);
+        assert!(y.len() == 2);
         assert_eq!(x, y);
     }
 

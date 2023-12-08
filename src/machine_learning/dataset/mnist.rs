@@ -67,7 +67,7 @@ pub fn parse_mnist(
         let mut pixels = Vec::<f64>::new();
         for _ in 0..image_dimensions {
             image_file.read_exact(&mut buf)?;
-            pixels.push(buf[0] as f64 / 255.0);
+            pixels.push((buf[0] as f64) / 255.0);
         }
 
         label_file.read_exact(&mut buf)?;
@@ -81,11 +81,8 @@ pub fn parse_mnist(
             _dims: Some((width, height)),
         };
 
-        if i == 2000 {
-            d._show("C:\\Users\\Noor\\Documents\\rust_ground\\.misc\\visuals\\images\\a.png");
-            image_vector.push(d);
-            exit(0);
-        }
+        // d._show("C:\\Users\\Noor\\Documents\\rust_ground\\.misc\\visuals\\images\\a.png");
+        image_vector.push(d);
 
         let fraction = ((i + 1) as f32) / (image_sizes[0] as f32) * 100.0;
         let mut loading_indicator: [char; 10] = ['_'; 10];
@@ -94,7 +91,7 @@ pub fn parse_mnist(
         }
         print!(
             "\rcurrent({:?}) - {}  {}/{}  {:.2}%     ",
-            _letter_from_number(&label),
+            letter_from_number(label - 1),
             loading_indicator.iter().collect::<String>(),
             i + 1,
             image_sizes[0],
@@ -106,9 +103,9 @@ pub fn parse_mnist(
     Ok(image_vector)
 }
 
-fn _letter_from_number(n: &u8) -> Option<char> {
+fn letter_from_number(n: u8) -> Option<char> {
     let (a, b) = (b'a', b'b');
-    let c = a + (b - a) * (n - 1);
+    let c = a + (b - a) * n;
     if c <= b'z' {
         return Some(c as char);
     }

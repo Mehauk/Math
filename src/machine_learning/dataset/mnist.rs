@@ -1,7 +1,6 @@
 use std::{
     fs::File,
     io::{Error, Read},
-    process::exit,
 };
 
 use super::DataVector;

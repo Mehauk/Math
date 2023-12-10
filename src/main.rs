@@ -20,7 +20,7 @@ const OUTPUT_SIZE: usize = 26;
 fn main() -> Result<(), Box<dyn Error>> {
     // 28*28 is the expected image dimensions
     let ds = DataSet::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
-    let mut nn = NueralNetwork::random(vec![INPUT_SIZE, 16, 16, OUTPUT_SIZE]);
+    let mut nn = NueralNetwork::random(vec![INPUT_SIZE, 20, 20, OUTPUT_SIZE]);
 
     let sigmoid = Function::sigmoid();
 
@@ -42,15 +42,16 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
 
             2 => {
-                println!("Select a batch size (default 100): ");
-                stdin().read_line(&mut input)?;
+                println!("Select a batch size (default 16): ");
                 println!("");
-                let batch_size = input.trim().parse::<usize>().unwrap_or(100);
-                nn.train(&ds, batch_size, 1.0, &sigmoid);
+                input = String::new();
+                stdin().read_line(&mut input)?;
+                let batch_size = input.trim().parse::<u32>().unwrap_or(16);
+                nn.train(&ds, batch_size as usize, 1.0, &sigmoid);
                 println!("");
             }
 
-            3 => {
+            3 => { 
                 println!("Testing in Progress...");
                 println!(
                     "Testing completed with {}% accuracy\n",

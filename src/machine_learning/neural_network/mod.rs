@@ -401,7 +401,7 @@ mod tests {
     fn test_training_normal_arctan() {
         let (mut nn, ds) = init_network(vec![1, 3, 2]);
 
-        let func = Function::_normal_arctan();
+        let func = Function::normal_arctan();
 
         nn.train(&ds, 1, 1.0, &func);
 

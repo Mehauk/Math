@@ -15,19 +15,19 @@ impl Function {
         }
     }
 
-    pub fn _normal_arctan() -> Self {
+    pub fn normal_arctan() -> Self {
         Function {
-            calc: _normalized_arctan,
-            derive: _normalized_arctan_derivative,
+            calc: normalized_arctan,
+            derive: normalized_arctan_derivative,
         }
     }
 }
 
-fn _normalized_arctan(t: &mut f64) {
+fn normalized_arctan(t: &mut f64) {
     *t = t.atan() / (PI / 2.0);
 }
 
-fn _normalized_arctan_derivative(t: &mut f64) {
+fn normalized_arctan_derivative(t: &mut f64) {
     *t = (1.0 / (t.powi(2) + 1.0)) / (PI / 2.0);
 }
 

@@ -23,6 +23,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut nn = NueralNetwork::random(vec![INPUT_SIZE, 20, 20, OUTPUT_SIZE]);
 
     let mut activation_function = Function::sigmoid();
+    choose_activation_function(&mut activation_function);
 
     let mut input: String;
     loop {
@@ -38,20 +39,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         match chosen {
             1 => {
-                nn = NueralNetwork::random(vec![INPUT_SIZE, 16, 16, OUTPUT_SIZE]);
-                println!("Choose an activation function (default sigmoid)");
-                println!("1\t- sigmoid");
-                println!("2\t- normal_arctan");
-                println!("");
-                input = String::new();
-                stdin().read_line(&mut input)?;
-                let function_choice = input.trim().parse::<u32>().unwrap_or(16);
-                match function_choice {
-                    1 => activation_function = Function::sigmoid(),
-                    2 => activation_function = Function::normal_arctan(),
-
-                    _ => activation_function = Function::sigmoid(),
-                }
+                nn = NueralNetwork::random(vec![INPUT_SIZE, 20, 20, OUTPUT_SIZE]);
+                choose_activation_function(&mut activation_function);
             }
 
             2 => {
@@ -60,7 +49,18 @@ fn main() -> Result<(), Box<dyn Error>> {
                 input = String::new();
                 stdin().read_line(&mut input)?;
                 let batch_size = input.trim().parse::<u32>().unwrap_or(16);
-                nn.train(&ds, batch_size as usize, 0.1, &activation_function);
+
+                println!("Select a learning rate (default 1.0): ");
+                println!("");
+                input = String::new();
+                stdin().read_line(&mut input)?;
+                let learning_rate = input.trim().parse::<f64>().unwrap_or(1.0);
+                nn.train(
+                    &ds,
+                    batch_size as usize,
+                    learning_rate,
+                    &activation_function,
+                );
                 println!("");
             }
 
@@ -79,4 +79,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     Ok(())
+}
+
+fn choose_activation_function(activation_function: &mut Function) {
+    let mut input = String::new();
+    println!("Choose an activation function (default sigmoid)");
+    println!("1\t- sigmoid");
+    println!("2\t- normal_arctan");
+    println!("");
+    stdin().read_line(&mut input).unwrap_or_default();
+    let function_choice = input.trim().parse::<u32>().unwrap_or(16);
+    match function_choice {
+        1 => *activation_function = Function::sigmoid(),
+        2 => *activation_function = Function::normal_arctan(),
+
+        _ => *activation_function = Function::sigmoid(),
+    }
 }

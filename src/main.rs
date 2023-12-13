@@ -20,7 +20,7 @@ const OUTPUT_SIZE: usize = 26;
 fn main() -> Result<(), Box<dyn Error>> {
     // 28*28 is the expected image dimensions
     let ds = DataSet::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
-    let mut nn = NueralNetwork::random(vec![INPUT_SIZE, 20, 20, OUTPUT_SIZE]);
+    let mut nn = create_nn();
 
     let mut activation_function = Function::sigmoid();
     choose_activation_function(&mut activation_function);
@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         match chosen {
             1 => {
-                nn = NueralNetwork::random(vec![INPUT_SIZE, 20, 20, OUTPUT_SIZE]);
+                nn = create_nn();
                 choose_activation_function(&mut activation_function);
             }
 
@@ -95,4 +95,17 @@ fn choose_activation_function(activation_function: &mut Function) {
 
         _ => *activation_function = Function::sigmoid(),
     }
+}
+
+fn create_nn() -> NueralNetwork {
+    let mut v = vec![INPUT_SIZE];
+
+    let mut input = String::new();
+    println!("Define the shape of the network with csv for sizes");
+    println!("");
+    stdin().read_line(&mut input).unwrap_or_default();
+    input.trim().split_whitespace();
+
+    v.push(OUTPUT_SIZE);
+    NueralNetwork::random(v)
 }

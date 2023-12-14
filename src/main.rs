@@ -104,7 +104,11 @@ fn create_nn() -> NueralNetwork {
     println!("Define the shape of the network with csv for sizes");
     println!("");
     stdin().read_line(&mut input).unwrap_or_default();
-    input.trim().split_whitespace();
+    let mut iter = input.trim().split_whitespace();
+
+    while let Some(cur) = iter.next() {
+        v.push(cur.parse::<usize>().unwrap_or(10))
+    }
 
     v.push(OUTPUT_SIZE);
     NueralNetwork::random(v)

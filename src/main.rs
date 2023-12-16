@@ -101,7 +101,7 @@ fn create_nn() -> NueralNetwork {
     let mut v = vec![INPUT_SIZE];
 
     let mut input = String::new();
-    println!("Define the shape of the network with ssv:");
+    println!("Define the shape of the network with space separated values:");
     println!("");
     stdin().read_line(&mut input).unwrap_or_default();
     let mut iter = input.trim().split_whitespace();

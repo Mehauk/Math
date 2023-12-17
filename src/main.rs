@@ -83,7 +83,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn choose_activation_function(activation_function: &mut Function) {
     let mut input = String::new();
-    println!("Choose an activation function (default sigmoid)");
+    println!("Choose an activation function (default sigmoid):");
     println!("1\t- sigmoid");
     println!("2\t- normal_arctan");
     println!("");

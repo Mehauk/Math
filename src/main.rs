@@ -44,13 +44,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
 
             2 => {
-                println!("Select a batch size (default 16): ");
+                println!("Select a batch size (default 16):");
                 println!("");
                 input = String::new();
                 stdin().read_line(&mut input)?;
                 let batch_size = input.trim().parse::<u32>().unwrap_or(16);
 
-                println!("Select a learning rate (default 1.0): ");
+                println!("Select a learning rate (default 1.0):");
                 println!("");
                 input = String::new();
                 stdin().read_line(&mut input)?;

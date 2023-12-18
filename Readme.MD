@@ -69,8 +69,8 @@ A repository for experimenting with Maths.
   > 
   > However The domain of an `i32` is: 
   > $$ {D: \lbrace x| -2^{31} \le x <2^{31} | x \in \mathbb{I} \rbrace} $$
-  > Additionaly an input of ${x = 1}$ would return $0.5$, but since an `i32` 
-  > cannot represent fractional values, it would return $0$;
+  > Therefor an input of ${x = 1}$ would return $0.5$, but since an `i32` 
+  > cannot represent fractional values, it would return $0$.
 
  ## Derivatives
   ### Extrema

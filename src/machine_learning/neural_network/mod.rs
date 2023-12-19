@@ -132,7 +132,6 @@ impl NueralNetwork {
         let remaining_data = data_set_length % batch_size;
 
         let mut loading_indicator: [char; 10] = ['_'; 10];
-        println!("{}", number_of_batches);
         print!(
             "\rTraining in progress: {} - {:0>3.2}% complete",
             loading_indicator.iter().collect::<String>(),

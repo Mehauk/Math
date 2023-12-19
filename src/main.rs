@@ -85,14 +85,19 @@ fn choose_activation_function(activation_function: &mut Function) {
     let mut input = String::new();
     println!("Choose an activation function (default sigmoid):");
     println!("1\t- sigmoid");
-    println!("2\t- normal_arctan");
+    println!("2\t- arctan");
+    println!("3\t- normal_arctan");
+    println!("4\t- relu");
+    println!("5\t- leaky_relu");
     println!("");
     stdin().read_line(&mut input).unwrap_or_default();
     let function_choice = input.trim().parse::<u32>().unwrap_or(16);
     match function_choice {
         1 => *activation_function = Function::sigmoid(),
-        2 => *activation_function = Function::normal_arctan(),
-
+        2 => *activation_function = Function::arctan(),
+        3 => *activation_function = Function::normal_arctan(),
+        4 => *activation_function = Function::relu(),
+        5 => *activation_function = Function::leaky_relu(),
         _ => *activation_function = Function::sigmoid(),
     }
 }

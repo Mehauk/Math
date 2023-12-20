@@ -196,7 +196,7 @@ impl NueralNetwork {
             let mut delta_cost_by_delta_nodes =
                 NueralNetwork::cost_derivative(&nodes_cur, training_data.label);
 
-            let mut delta_cost_by_delta_activation =
+            let mut delta_nodes_by_delta_activation =
                 nodes_cur.apply_into(activation_function.derive);
 
             loop {
@@ -205,7 +205,7 @@ impl NueralNetwork {
 
                 // calculate and store bias delta for each layer
                 let delta_cost_by_delta_biases =
-                    delta_cost_by_delta_nodes.component_mul(&delta_cost_by_delta_activation);
+                    delta_cost_by_delta_nodes.component_mul(&delta_nodes_by_delta_activation);
                 delta_network._biases[index] = delta_cost_by_delta_biases;
 
                 // calculate and store weight delta for each layer
@@ -217,7 +217,7 @@ impl NueralNetwork {
                 delta_cost_by_delta_nodes = weights_cur.transpose() * &delta_network._biases[index];
 
                 // calculate new activation function delta
-                delta_cost_by_delta_activation = nodes_cur.apply_into(activation_function.derive);
+                delta_nodes_by_delta_activation = nodes_cur.apply_into(activation_function.derive);
 
                 if index == 0 {
                     break;

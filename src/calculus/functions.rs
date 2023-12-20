@@ -65,7 +65,7 @@ fn sigmoid(t: &mut f64) {
 }
 
 fn sigmoid_derivative(t: &mut f64) {
-    // sigmoid(t); // wont be necessary as sigmoid will already be calculated
+    sigmoid(t); // wont be necessary as sigmoid will already be calculated
     *t = *t * (1.0 - *t);
 }
 

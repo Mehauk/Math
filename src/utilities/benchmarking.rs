@@ -28,7 +28,7 @@ pub fn _matrix_calculations_comparison() {
     println!("\nNalgebra element wise manipulation:");
     println!("---------");
     println!("Matrix sigmoid derivative element wise");
-    _time_it(|| nmsq.apply(Function::sigmoid().calc));
+    _time_it(|| nmsq.apply(Function::sigmoid().activate));
     println!("---");
     println!("Matrix sigmoid derivative by Matrix Arithmetic");
     _time_it(|| nmsq2.component_mul_assign(&(ones - nmsq2)));

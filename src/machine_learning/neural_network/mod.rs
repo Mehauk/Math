@@ -78,7 +78,7 @@ impl NueralNetwork {
     }
 
     /// Returns a vector of intermediate node_vectors including the output vector and excluding the input vector
-    fn propagate_returning_all_nodes(
+    fn propagate_returning_all_nodes_prior_to_activation(
         &self,
         input: &DVector<f64>,
         activation_function: fn(&mut f64),
@@ -86,13 +86,15 @@ impl NueralNetwork {
         // initialize resulting array;
         let mut nodes_array: Vec<DVector<f64>> = vec![];
 
-        let mut propagating_nodes: &DVector<f64> = input;
+        let mut propagating_nodes: DVector<f64> = input.clone();
 
         for (weight_matrix, bias_vector) in self._weigths.iter().zip(&self._biases) {
-            nodes_array.push(
-                (weight_matrix * propagating_nodes + bias_vector).apply_into(activation_function),
-            );
-            propagating_nodes = nodes_array.last().unwrap();
+            nodes_array.push(weight_matrix * propagating_nodes + bias_vector);
+            propagating_nodes = nodes_array
+                .last()
+                .unwrap()
+                .clone()
+                .apply_into(activation_function);
         }
 
         nodes_array
@@ -187,14 +189,18 @@ impl NueralNetwork {
         let mut delta_network = NueralNetwork::zeros(self._shape.clone());
         for i in batch_start..batch_end {
             let training_data = &data_set.training_data[i];
-            let mut nodes =
-                self.propagate_returning_all_nodes(&training_data.data, activation_function.calc);
+            let mut nodes = self.propagate_returning_all_nodes_prior_to_activation(
+                &training_data.data,
+                activation_function.activate,
+            );
 
             let nodes_cur = nodes.pop()?;
             let mut index = nodes.len();
 
-            let mut delta_cost_by_delta_nodes =
-                NueralNetwork::cost_derivative(&nodes_cur, training_data.label);
+            let mut delta_cost_by_delta_nodes = NueralNetwork::cost_derivative(
+                &nodes_cur.clone().apply_into(activation_function.activate),
+                training_data.label,
+            );
 
             let mut delta_nodes_by_delta_activation =
                 nodes_cur.apply_into(activation_function.derive);
@@ -209,8 +215,11 @@ impl NueralNetwork {
                 delta_network._biases[index] = delta_cost_by_delta_biases;
 
                 // calculate and store weight delta for each layer
-                let delta_cost_by_delta_weights =
-                    &delta_network._biases[index] * nodes_cur.transpose();
+                let delta_cost_by_delta_weights = &delta_network._biases[index]
+                    * nodes_cur
+                        .clone()
+                        .apply_into(activation_function.activate)
+                        .transpose();
                 delta_network._weigths[index] = delta_cost_by_delta_weights;
 
                 // calculate new delta for nodes
@@ -234,7 +243,7 @@ impl NueralNetwork {
         let mut total_correct = 0.0;
 
         for image in data_set.testing_data.iter() {
-            let res = self.propagate(&image.data, activation_function.calc);
+            let res = self.propagate(&image.data, activation_function.activate);
             if res.column(0).argmax().0 == (image.label as usize) {
                 total_correct += 1.0;
             }
@@ -303,11 +312,15 @@ mod tests {
         let f = Function::sigmoid();
 
         let x = nn
-            .propagate_returning_all_nodes(&ds.training_data.first().unwrap().data, f.calc)
+            .propagate_returning_all_nodes_prior_to_activation(
+                &ds.training_data.first().unwrap().data,
+                f.activate,
+            )
             .last()
             .unwrap()
-            .clone();
-        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.calc);
+            .clone()
+            .apply_into(f.activate);
+        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.activate);
 
         assert_eq!(x, y);
     }
@@ -317,8 +330,8 @@ mod tests {
         let (nn, ds) = init_network(vec![1, 2, 2]);
         let f = Function::sigmoid();
 
-        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.calc);
-        let x = nn.propagate(&ds.training_data.first().unwrap().data, f.calc);
+        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.activate);
+        let x = nn.propagate(&ds.training_data.first().unwrap().data, f.activate);
 
         assert!(x.len() == 2);
         assert!(y.len() == 2);
@@ -330,7 +343,7 @@ mod tests {
         let (nn, ds) = init_network(vec![1, 2, 2]);
         let f = Function::sigmoid();
 
-        let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.calc);
+        let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
         let cost = NueralNetwork::_cost(&output, 1);
 
         assert!(cost[0] - 0.3 < 0.01);
@@ -342,7 +355,7 @@ mod tests {
         let (nn, ds) = init_network(vec![1, 2, 2]);
         let f = Function::sigmoid();
 
-        let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.calc);
+        let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
         let derivative = NueralNetwork::cost_derivative(&output, 1);
 
         assert!(derivative[0] - 1.1 < 0.01);
@@ -384,13 +397,13 @@ mod tests {
 
         assert!(
             0 == nn
-                .propagate(&DVector::from_vec(vec![0.7]), func.calc)
+                .propagate(&DVector::from_vec(vec![0.7]), func.activate)
                 .argmax()
                 .0
         );
         assert!(
             1 == nn
-                .propagate(&DVector::from_vec(vec![0.4]), func.calc)
+                .propagate(&DVector::from_vec(vec![0.4]), func.activate)
                 .argmax()
                 .0
         );
@@ -406,13 +419,13 @@ mod tests {
 
         assert!(
             0 == nn
-                .propagate(&DVector::from_vec(vec![0.7]), func.calc)
+                .propagate(&DVector::from_vec(vec![0.7]), func.activate)
                 .argmax()
                 .0
         );
         assert!(
             1 == nn
-                .propagate(&DVector::from_vec(vec![0.4]), func.calc)
+                .propagate(&DVector::from_vec(vec![0.4]), func.activate)
                 .argmax()
                 .0
         );

@@ -3,42 +3,42 @@
 use std::f64::consts::{E, PI};
 
 pub struct Function {
-    pub calc: fn(&mut f64),
+    pub activate: fn(&mut f64),
     pub derive: fn(&mut f64),
 }
 
 impl Function {
     pub fn sigmoid() -> Self {
         Function {
-            calc: sigmoid,
+            activate: sigmoid,
             derive: sigmoid_derivative,
         }
     }
 
     pub fn arctan() -> Self {
         Function {
-            calc: arctan,
+            activate: arctan,
             derive: arctan_derivative,
         }
     }
 
     pub fn normal_arctan() -> Self {
         Function {
-            calc: normalized_arctan,
+            activate: normalized_arctan,
             derive: normalized_arctan_derivative,
         }
     }
 
     pub fn relu() -> Self {
         Function {
-            calc: relu,
+            activate: relu,
             derive: relu_derivative,
         }
     }
 
     pub fn leaky_relu() -> Self {
         Function {
-            calc: leaky_relu,
+            activate: leaky_relu,
             derive: leaky_relu_derivative,
         }
     }
@@ -65,7 +65,7 @@ fn sigmoid(t: &mut f64) {
 }
 
 fn sigmoid_derivative(t: &mut f64) {
-    sigmoid(t); // wont be necessary as sigmoid will already be calculated
+    sigmoid(t);
     *t = *t * (1.0 - *t);
 }
 

@@ -167,7 +167,7 @@ impl NueralNetwork {
                 activation_function,
             )
             .unwrap(),
-            learning_rate / remaining_data as f64,
+            learning_rate / batch_size as f64,
         );
 
         loading_indicator[9] = '█';
@@ -185,7 +185,6 @@ impl NueralNetwork {
         batch_end: usize,
         activation_function: &Function,
     ) -> Option<Self> {
-        // todo: fix this and add activation/derivative abstraction
         let mut delta_network = NueralNetwork::zeros(self._shape.clone());
         for i in batch_start..batch_end {
             let training_data = &data_set.training_data[i];
@@ -220,6 +219,13 @@ impl NueralNetwork {
                         .clone()
                         .apply_into(activation_function.activate)
                         .transpose();
+
+                if index == 0 {
+                    delta_network._weigths[index] =
+                        &delta_network._biases[index] * nodes_cur.transpose();
+                    break;
+                }
+
                 delta_network._weigths[index] = delta_cost_by_delta_weights;
 
                 // calculate new delta for nodes
@@ -228,9 +234,6 @@ impl NueralNetwork {
                 // calculate new activation function delta
                 delta_nodes_by_delta_activation = nodes_cur.apply_into(activation_function.derive);
 
-                if index == 0 {
-                    break;
-                }
                 index -= 1;
             }
         }
@@ -391,19 +394,19 @@ mod tests {
     fn test_training_sigmoid() {
         let (mut nn, ds) = init_network(vec![1, 3, 2]);
 
-        let func = Function::sigmoid();
+        let f = Function::sigmoid();
 
-        nn.train(&ds, 1, 1.0, &func);
+        nn.train(&ds, 1, 1.0, &f);
 
         assert!(
             0 == nn
-                .propagate(&DVector::from_vec(vec![0.7]), func.activate)
+                .propagate(&DVector::from_vec(vec![0.7]), f.activate)
                 .argmax()
                 .0
         );
         assert!(
             1 == nn
-                .propagate(&DVector::from_vec(vec![0.4]), func.activate)
+                .propagate(&DVector::from_vec(vec![0.4]), f.activate)
                 .argmax()
                 .0
         );
@@ -413,19 +416,19 @@ mod tests {
     fn test_training_normal_arctan() {
         let (mut nn, ds) = init_network(vec![1, 3, 2]);
 
-        let func = Function::normal_arctan();
+        let f = Function::normal_arctan();
 
-        nn.train(&ds, 1, 1.0, &func);
+        nn.train(&ds, 1, 1.0, &f);
 
         assert!(
             0 == nn
-                .propagate(&DVector::from_vec(vec![0.7]), func.activate)
+                .propagate(&DVector::from_vec(vec![0.7]), f.activate)
                 .argmax()
                 .0
         );
         assert!(
             1 == nn
-                .propagate(&DVector::from_vec(vec![0.4]), func.activate)
+                .propagate(&DVector::from_vec(vec![0.4]), f.activate)
                 .argmax()
                 .0
         );

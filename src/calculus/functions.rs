@@ -57,6 +57,7 @@ fn normalized_arctan(t: &mut f64) {
 }
 
 fn normalized_arctan_derivative(t: &mut f64) {
+    // normalized_arctan(t); //why???? does not work without this
     *t = (1.0 / (t.powi(2) + 1.0)) / (PI / 2.0);
 }
 

@@ -150,7 +150,7 @@ impl NueralNetwork {
                     activation_function,
                 )
                 .unwrap(),
-                learning_rate / batch_size as f64,
+                learning_rate,
             );
 
             print!(
@@ -167,7 +167,7 @@ impl NueralNetwork {
                 activation_function,
             )
             .unwrap(),
-            learning_rate / batch_size as f64,
+            learning_rate,
         );
 
         loading_indicator[9] = '█';

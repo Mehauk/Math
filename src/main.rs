@@ -45,16 +45,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             2 => {
                 println!("Select a batch size (default 16):");
-                println!("");
                 input = String::new();
                 stdin().read_line(&mut input)?;
+                println!("");
                 let batch_size = input.trim().parse::<u32>().unwrap_or(16);
 
                 println!("Select a learning rate (default 1.0):");
-                println!("");
                 input = String::new();
                 stdin().read_line(&mut input)?;
                 let learning_rate = input.trim().parse::<f64>().unwrap_or(1.0);
+                println!("");
                 nn.train(
                     &ds,
                     batch_size as usize,
@@ -91,6 +91,7 @@ fn choose_activation_function(activation_function: &mut Function) {
     println!("5\t- leaky_relu");
     println!("");
     stdin().read_line(&mut input).unwrap_or_default();
+    println!("");
     let function_choice = input.trim().parse::<u32>().unwrap_or(16);
     match function_choice {
         1 => *activation_function = Function::sigmoid(),
@@ -107,8 +108,8 @@ fn create_nn() -> NueralNetwork {
 
     let mut input = String::new();
     println!("Define the shape of the network with space separated values:");
-    println!("");
     stdin().read_line(&mut input).unwrap_or_default();
+    println!("");
     let mut iter = input.trim().split_whitespace();
 
     while let Some(cur) = iter.next() {

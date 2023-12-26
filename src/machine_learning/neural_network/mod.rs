@@ -1,10 +1,11 @@
 use nalgebra::{DMatrix, DVector};
+use serde::{Deserialize, Serialize};
 
 use crate::calculus::functions::Function;
 
 use super::dataset::DataSet;
 
-#[derive(Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 /// ### Parameters
 /// - `_weights` : `Vec<DMatrix<f64>>`
 /// - `hidden_layer` : `Vec<DVector<f64>>`
@@ -132,8 +133,6 @@ impl NueralNetwork {
         let data_set_length = data_set.training_data.len();
         let number_of_batches = data_set_length / batch_size;
         let remaining_data = data_set_length % batch_size;
-
-        println!("REMAINDERL: {remaining_data}");
 
         let mut loading_indicator: [char; 10] = ['_'; 10];
         print!(

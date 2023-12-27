@@ -2,14 +2,14 @@ mod calculus;
 mod machine_learning;
 mod utilities;
 
-use std::{error::Error, io::stdin};
+use std::{fs, io::stdin, io::Error};
 
 use machine_learning::{
     dataset::{
         mnist::{parse_mnist, INPUT_SIZE},
         DataSet,
     },
-    neural_network::NueralNetwork,
+    neural_network::NeuralNetwork,
 };
 
 use crate::calculus::functions::Function;
@@ -17,7 +17,7 @@ use crate::calculus::functions::Function;
 // initialize constant values
 const OUTPUT_SIZE: usize = 26;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Error> {
     // 28*28 is the expected image dimensions
     let ds = DataSet::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
     let mut nn = create_nn();
@@ -103,7 +103,7 @@ fn choose_activation_function(activation_function: &mut Function) {
     }
 }
 
-fn create_nn() -> NueralNetwork {
+fn create_nn() -> NeuralNetwork {
     let mut v = vec![INPUT_SIZE];
 
     let mut input = String::new();
@@ -117,5 +117,14 @@ fn create_nn() -> NueralNetwork {
     }
 
     v.push(OUTPUT_SIZE);
-    NueralNetwork::random(v)
+    NeuralNetwork::random(v)
 }
+
+fn save_nn(file_path: &str) -> Result<(), Error> {
+    // let mut contents = String::new();
+
+    fs::write(file_path, contents)?;
+    Ok(())
+}
+
+fn load_nn(file_path: &str) -> NeuralNetwork {}

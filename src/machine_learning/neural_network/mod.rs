@@ -1,39 +1,41 @@
 use nalgebra::{DMatrix, DVector};
-use serde::{Deserialize, Serialize};
 
 use crate::calculus::functions::Function;
 
 use super::dataset::DataSet;
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Debug)]
 /// ### Parameters
 /// - `_weights` : `Vec<DMatrix<f64>>`
 /// - `hidden_layer` : `Vec<DVector<f64>>`
-pub struct NueralNetwork {
+pub struct NeuralNetwork {
     _weigths: Vec<DMatrix<f64>>,
     _biases: Vec<DVector<f64>>,
     _shape: Vec<usize>,
 }
 
-impl NueralNetwork {
-    pub fn random(shape: Vec<usize>) -> NueralNetwork {
+// NN contructors / destructors
+impl NeuralNetwork {
+    pub fn random(shape: Vec<usize>) -> NeuralNetwork {
         let length = shape.len();
         let weigths: Vec<DMatrix<f64>> = shape[1..length]
             .iter()
             .zip(&shape[0..length - 1])
-            .map(|(a, b)| random_matrix(*a, *b))
+            .map(|(a, b)| DMatrix::new_random(*a, *b))
             .collect();
-        let biases: Vec<DVector<f64>> =
-            shape[1..length].iter().map(|a| random_vector(*a)).collect();
+        let biases: Vec<DVector<f64>> = shape[1..length]
+            .iter()
+            .map(|a| DVector::new_random(*a))
+            .collect();
 
-        NueralNetwork {
+        NeuralNetwork {
             _weigths: weigths,
             _biases: biases,
             _shape: shape,
         }
     }
 
-    pub fn zeros(shape: Vec<usize>) -> NueralNetwork {
+    pub fn zeros(shape: Vec<usize>) -> NeuralNetwork {
         let length = shape.len();
         let weigths: Vec<DMatrix<f64>> = shape[1..length]
             .iter()
@@ -45,13 +47,16 @@ impl NueralNetwork {
             .map(|a| DVector::<f64>::zeros(*a))
             .collect();
 
-        NueralNetwork {
+        NeuralNetwork {
             _weigths: weigths,
             _biases: biases,
             _shape: shape,
         }
     }
+}
 
+// NN Methods
+impl NeuralNetwork {
     fn step(&mut self, other: Self, learning_rate: f64) {
         for (a, b) in self._weigths.iter_mut().zip(other._weigths) {
             *a -= b * learning_rate;
@@ -186,7 +191,7 @@ impl NueralNetwork {
         batch_end: usize,
         activation_function: &Function,
     ) -> Option<Self> {
-        let mut delta_network = NueralNetwork::zeros(self._shape.clone());
+        let mut delta_network = NeuralNetwork::zeros(self._shape.clone());
         for i in batch_start..batch_end {
             let training_data = &data_set.training_data[i];
             let mut nodes = self.propagate_returning_all_nodes_prior_to_activation(
@@ -197,7 +202,7 @@ impl NueralNetwork {
             let nodes_cur = nodes.pop()?;
             let mut index = nodes.len();
 
-            let mut delta_cost_by_delta_nodes = NueralNetwork::cost_derivative(
+            let mut delta_cost_by_delta_nodes = NeuralNetwork::cost_derivative(
                 &nodes_cur.clone().apply_into(activation_function.activate),
                 training_data.label,
             );
@@ -257,19 +262,6 @@ impl NueralNetwork {
     }
 }
 
-fn random_matrix(r: usize, c: usize) -> DMatrix<f64> {
-    DMatrix::<f64>::from_distribution(
-        r,
-        c,
-        &rand::distributions::Standard,
-        &mut rand::thread_rng(),
-    )
-}
-
-fn random_vector(r: usize) -> DVector<f64> {
-    DVector::<f64>::from_distribution(r, &rand::distributions::Standard, &mut rand::thread_rng())
-}
-
 #[cfg(test)]
 mod tests {
     use nalgebra::DVector;
@@ -279,10 +271,10 @@ mod tests {
         machine_learning::dataset::{DataSet, DataVector},
     };
 
-    use super::NueralNetwork;
+    use super::NeuralNetwork;
 
-    fn init_network(v: Vec<usize>) -> (NueralNetwork, DataSet) {
-        let mut nn = NueralNetwork::zeros(v);
+    fn init_network(v: Vec<usize>) -> (NeuralNetwork, DataSet) {
+        let mut nn = NeuralNetwork::zeros(v);
         for bv in nn._biases.iter_mut() {
             bv.add_scalar_mut(0.1);
         }
@@ -348,7 +340,7 @@ mod tests {
         let f = Function::sigmoid();
 
         let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
-        let cost = NueralNetwork::_cost(&output, 1);
+        let cost = NeuralNetwork::_cost(&output, 1);
 
         assert!(cost[0] - 0.3 < 0.01);
         assert!(cost[1] - 0.2 < 0.01);
@@ -360,7 +352,7 @@ mod tests {
         let f = Function::sigmoid();
 
         let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
-        let derivative = NueralNetwork::cost_derivative(&output, 1);
+        let derivative = NeuralNetwork::cost_derivative(&output, 1);
 
         assert!(derivative[0] - 1.1 < 0.01);
         assert!(derivative[1] + 0.9 < 0.01);

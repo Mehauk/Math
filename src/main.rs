@@ -2,7 +2,7 @@ mod calculus;
 mod machine_learning;
 mod utilities;
 
-use std::{fs, io::stdin, io::Error};
+use std::{io::stdin, io::Error};
 
 use machine_learning::{
     dataset::{
@@ -119,12 +119,3 @@ fn create_nn() -> NeuralNetwork {
     v.push(OUTPUT_SIZE);
     NeuralNetwork::random(v)
 }
-
-fn save_nn(file_path: &str) -> Result<(), Error> {
-    // let mut contents = String::new();
-
-    fs::write(file_path, contents)?;
-    Ok(())
-}
-
-fn load_nn(file_path: &str) -> NeuralNetwork {}

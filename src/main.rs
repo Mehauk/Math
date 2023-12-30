@@ -19,7 +19,7 @@ const OUTPUT_SIZE: usize = 26;
 
 fn main() -> Result<(), Error> {
     // 28*28 is the expected image dimensions
-    let ds = DataSet::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
+    let mut ds = DataSet::load_data("src/assets/machine_learning/", "letters", parse_mnist)?;
     let mut nn = create_nn();
 
     let mut activation_function = Function::sigmoid();
@@ -28,6 +28,7 @@ fn main() -> Result<(), Error> {
     let mut input: String;
     loop {
         input = String::new();
+        println!("0\t- load the last untrained network");
         println!("1\t- reset the neural network");
         println!("2\t- train the network");
         println!("3\t- test the network");
@@ -38,6 +39,10 @@ fn main() -> Result<(), Error> {
         let chosen = input.trim().parse::<i8>().unwrap_or(-1);
 
         match chosen {
+            0 => {
+                nn = NeuralNetwork::load("output/random_network.nn").unwrap_or_else(|_| create_nn())
+            }
+
             1 => {
                 nn = create_nn();
                 choose_activation_function(&mut activation_function);
@@ -54,6 +59,11 @@ fn main() -> Result<(), Error> {
                 input = String::new();
                 stdin().read_line(&mut input)?;
                 let learning_rate = input.trim().parse::<f64>().unwrap_or(1.0);
+
+                // randomize training data
+                ds.training_data
+                    .sort_by(|_, _| rand::random::<f32>().partial_cmp(&0.5).unwrap());
+
                 println!("");
                 nn.train(
                     &ds,
@@ -117,5 +127,9 @@ fn create_nn() -> NeuralNetwork {
     }
 
     v.push(OUTPUT_SIZE);
-    NeuralNetwork::random(v)
+    let n = NeuralNetwork::random(v);
+
+    let _ = n.save("output/random_network.nn");
+
+    n
 }

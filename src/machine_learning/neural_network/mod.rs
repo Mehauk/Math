@@ -64,7 +64,8 @@ impl NeuralNetwork {
             ._shape
             .iter()
             .map(|x| x.to_string())
-            .collect::<String>();
+            .collect::<Vec<String>>()
+            .join(",");
         contents += "\n\n";
 
         for w in self._weigths.iter() {
@@ -98,17 +99,23 @@ impl NeuralNetwork {
             .to_string();
         }
 
+        contents += "\n";
+
         std::fs::write(file_path, contents)?;
         Ok(())
     }
 
     pub fn load(file_path: &str) -> Result<NeuralNetwork, Box<dyn Error>> {
-        let contents = std::str::from_utf8(&std::fs::read(file_path)?)?;
+        let binding = std::fs::read(file_path)?;
+        let contents = std::str::from_utf8(&binding)?;
 
-        let c_split = contents.split("\n\n");
+        let mut c_split = contents.split("\n\n");
         let shape = c_split
             .next()
-            .ok_or("File was not properly formatted, or was empty")?;
+            .ok_or("File was not properly formatted, or was empty")?
+            .split(",")
+            .map(|x| x.parse().unwrap_or(1))
+            .collect::<Vec<usize>>();
         let w = c_split
             .next()
             .ok_or("File was not properly formatted, or was empty")?;
@@ -118,22 +125,37 @@ impl NeuralNetwork {
 
         let mut weights: Vec<DMatrix<f64>> = Vec::new();
         for w_line in w.split("\n") {
-            let iter = w_line.split(" - ");
-            let shape = iter.next().ok_or("Incorrect Format")?.split(",");
+            let mut iter = w_line.split(" - ");
+            let mut shape = iter.next().ok_or("Incorrect Format weights")?.split(",");
             let vals = iter
                 .next()
-                .ok_or("Incorrect Format")?
+                .ok_or("Incorrect Format for wieght values")?
                 .split(",")
                 .map(|x| x.parse().unwrap_or_default());
             weights.push(DMatrix::<f64>::from_iterator(
-                shape.next().ok_or("Incorrect Format")?.parse()?,
-                shape.next().ok_or("Incorrect Format")?.parse()?,
+                shape
+                    .next()
+                    .ok_or("Incorrect Format for weights rows")?
+                    .parse()?,
+                shape
+                    .next()
+                    .ok_or("Incorrect Format for weights cols")?
+                    .parse()?,
                 vals,
             ))
         }
 
-        let mut weights: Vec<DVector<f64>> = Vec::new();
-        for b_line in b.split("\n") {}
+        let mut biases: Vec<DVector<f64>> = Vec::new();
+        for b_line in b.split("\n") {
+            let mut iter = b_line.split(" - ");
+            let shape = iter.next().ok_or("Incorrect Format biases")?;
+            let vals = iter
+                .next()
+                .ok_or("Incorrect Format for bias values")?
+                .split(",")
+                .map(|x| x.parse().unwrap_or_default());
+            biases.push(DVector::<f64>::from_iterator(shape.parse()?, vals))
+        }
 
         Ok(NeuralNetwork {
             _weigths: weights,
@@ -145,12 +167,11 @@ impl NeuralNetwork {
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use nalgebra::DVector;
 
-    use crate::{
-        calculus::functions::Function,
-        machine_learning::dataset::{DataSet, DataVector},
-    };
+    use crate::machine_learning::dataset::{DataSet, DataVector};
 
     use super::NeuralNetwork;
 
@@ -191,5 +212,6 @@ mod tests {
         let snn = NeuralNetwork::load(file).unwrap();
 
         assert!(snn == nn);
+        fs::remove_file(file).unwrap();
     }
 }

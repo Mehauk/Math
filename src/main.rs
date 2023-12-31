@@ -49,7 +49,13 @@ fn main() -> Result<(), Error> {
             }
 
             2 => {
-                println!("Select a batch size (default 16):");
+                println!("Select the number of epochs to train for (default 30):");
+                input = String::new();
+                stdin().read_line(&mut input)?;
+                println!("");
+                let epochs = input.trim().parse::<u32>().unwrap_or(30);
+
+                println!("Select a batch size (default 10):");
                 input = String::new();
                 stdin().read_line(&mut input)?;
                 println!("");
@@ -60,24 +66,32 @@ fn main() -> Result<(), Error> {
                 stdin().read_line(&mut input)?;
                 let learning_rate = input.trim().parse::<f64>().unwrap_or(1.0);
 
-                // randomize training data
-                ds.training_data
-                    .sort_by(|_, _| rand::random::<f32>().partial_cmp(&0.5).unwrap());
+                for epi in 0..epochs {
+                    // randomize training data
+                    ds.training_data
+                        .sort_by(|_, _| rand::random::<f32>().partial_cmp(&0.5).unwrap());
 
-                println!("");
-                nn.train(
-                    &ds,
-                    batch_size as usize,
-                    learning_rate,
-                    &activation_function,
-                );
+                    println!("training {}", epi);
+                    nn.train(
+                        &ds,
+                        batch_size as usize,
+                        learning_rate,
+                        &activation_function,
+                    );
+
+                    println!("Testing in Progress...");
+                    print!(
+                        "\rTesting completed with {}% accuracy\n",
+                        nn.test(&ds, &activation_function) * 100.0
+                    );
+                }
                 println!("");
             }
 
             3 => {
                 println!("Testing in Progress...");
-                println!(
-                    "Testing completed with {}% accuracy\n",
+                print!(
+                    "\rTesting completed with {}% accuracy\n",
                     nn.test(&ds, &activation_function) * 100.0
                 );
             }

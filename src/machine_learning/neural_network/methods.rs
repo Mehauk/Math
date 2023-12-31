@@ -83,7 +83,6 @@ impl NeuralNetwork {
         learning_rate: f64,
         activation_function: &Function,
     ) {
-        println!("Training has commenced.");
         let data_set_length = data_set.training_data.len();
         let number_of_batches = data_set_length / batch_size;
         let remaining_data = data_set_length % batch_size;

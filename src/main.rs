@@ -79,7 +79,7 @@ fn main() -> Result<(), Error> {
                         &activation_function,
                     );
 
-                    println!("Testing in Progress...");
+                    print!("Testing in Progress...");
                     print!(
                         "\rTesting completed with {}% accuracy\n",
                         nn.test(&ds, &activation_function) * 100.0
@@ -89,7 +89,7 @@ fn main() -> Result<(), Error> {
             }
 
             3 => {
-                println!("Testing in Progress...");
+                print!("Testing in Progress...");
                 print!(
                     "\rTesting completed with {}% accuracy\n",
                     nn.test(&ds, &activation_function) * 100.0

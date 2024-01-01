@@ -1,4 +1,5 @@
-- [ ] add Saving and loading network
+- [x] add Saving and loading network
 - [ ] try adding arctan to every calculation?
-- [ ] randomize testing data and run multiple times
+- [x] randomize testing data and run multiple times
 - [ ] remove training prints?
+- [ ] Switch from Nalgebra to ndArray? implement matrix mult, transpose, and comp mult manually?

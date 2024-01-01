@@ -1,6 +1,7 @@
 use std::{error::Error, io};
 
 use nalgebra::{DMatrix, DVector};
+use rand::{distributions::Uniform, thread_rng};
 
 pub mod methods;
 
@@ -21,11 +22,13 @@ impl NeuralNetwork {
         let weigths: Vec<DMatrix<f64>> = shape[1..length]
             .iter()
             .zip(&shape[0..length - 1])
-            .map(|(a, b)| DMatrix::new_random(*a, *b))
+            .map(|(a, b)| {
+                DMatrix::from_distribution(*a, *b, &Uniform::new(-1.0, 1.0), &mut thread_rng())
+            })
             .collect();
         let biases: Vec<DVector<f64>> = shape[1..length]
             .iter()
-            .map(|a| DVector::new_random(*a))
+            .map(|a| DVector::from_distribution(*a, &Uniform::new(-1.0, 1.0), &mut thread_rng()))
             .collect();
 
         NeuralNetwork {

@@ -104,7 +104,7 @@ impl NeuralNetwork {
                     activation_function,
                 )
                 .unwrap(),
-                learning_rate,
+                learning_rate / batch_size as f64,
             );
 
             print!(
@@ -121,7 +121,7 @@ impl NeuralNetwork {
                 activation_function,
             )
             .unwrap(),
-            learning_rate,
+            learning_rate / batch_size as f64,
         );
 
         loading_indicator[9] = '█';

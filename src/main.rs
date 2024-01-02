@@ -28,21 +28,18 @@ fn main() -> Result<(), Error> {
     let mut input: String;
     loop {
         input = String::new();
-        println!("0\t- load the last untrained network");
         println!("1\t- reset the neural network");
         println!("2\t- train the network");
         println!("3\t- test the network");
-        println!("4\t- exit");
+        println!("4\t- save the network");
+        println!("5\t- load the network");
+        println!("0\t- exit");
         println!("");
         stdin().read_line(&mut input)?;
         println!("");
         let chosen = input.trim().parse::<i8>().unwrap_or(-1);
 
         match chosen {
-            0 => {
-                nn = NeuralNetwork::load("output/random_network.nn").unwrap_or_else(|_| create_nn())
-            }
-
             1 => {
                 nn = create_nn();
                 choose_activation_function(&mut activation_function);
@@ -96,7 +93,13 @@ fn main() -> Result<(), Error> {
                 );
             }
 
-            4 => break,
+            4 => _ = nn.save("output/random_network.nn"),
+
+            5 => {
+                nn = NeuralNetwork::load("output/random_network.nn").unwrap_or_else(|_| create_nn())
+            }
+
+            0 => break,
 
             _ => println!("Invalid Selection!"),
         }
@@ -141,9 +144,5 @@ fn create_nn() -> NeuralNetwork {
     }
 
     v.push(OUTPUT_SIZE);
-    let n = NeuralNetwork::random(v);
-
-    let _ = n.save("output/random_network.nn");
-
-    n
+    NeuralNetwork::random(v)
 }

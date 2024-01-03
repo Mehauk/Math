@@ -25,6 +25,7 @@ fn main() -> Result<(), Error> {
     let mut activation_function = Function::sigmoid();
     choose_activation_function(&mut activation_function);
 
+    // TODO: Rework CLI
     let mut input: String;
     loop {
         input = String::new();

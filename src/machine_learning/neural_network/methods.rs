@@ -113,16 +113,19 @@ impl NeuralNetwork {
                 fraction * 100.0,
             );
         }
-        self.step(
-            self.calculate_batch_step(
-                data_set,
-                number_of_batches * batch_size,
-                number_of_batches * batch_size + remaining_data,
-                activation_function,
-            )
-            .unwrap(),
-            learning_rate / batch_size as f64,
-        );
+
+        if remaining_data > 0 {
+            self.step(
+                self.calculate_batch_step(
+                    data_set,
+                    number_of_batches * batch_size,
+                    number_of_batches * batch_size + remaining_data,
+                    activation_function,
+                )
+                .unwrap(),
+                learning_rate / remaining_data as f64,
+            );
+        }
 
         loading_indicator[9] = '█';
         print!(

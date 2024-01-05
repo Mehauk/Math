@@ -15,6 +15,13 @@ impl Function {
         }
     }
 
+    pub fn swish() -> Self {
+        Function {
+            activate: swish,
+            derive: swish_derivative,
+        }
+    }
+
     pub fn arctan() -> Self {
         Function {
             activate: arctan,
@@ -43,6 +50,22 @@ impl Function {
         }
     }
 }
+fn sigmoid(t: &mut f64) {
+    *t = 1.0 / (1.0 + E.powf(-*t))
+}
+
+fn sigmoid_derivative(t: &mut f64) {
+    sigmoid(t);
+    *t = *t * (1.0 - *t);
+}
+
+fn swish(t: &mut f64) {
+    *t = *t / (1.0 + E.powf(-*t))
+}
+
+fn swish_derivative(t: &mut f64) {
+    *t = (1.0 + E.powf(-*t) + *t * E.powf(-*t)) / (1.0 + E.powf(-*t)).powf(2.0)
+}
 
 fn arctan(t: &mut f64) {
     *t = t.atan();
@@ -59,15 +82,6 @@ fn normalized_arctan(t: &mut f64) {
 fn normalized_arctan_derivative(t: &mut f64) {
     // normalized_arctan(t); //why???? does not work without this
     *t = (1.0 / (t.powi(2) + 1.0)) / (PI / 2.0);
-}
-
-fn sigmoid(t: &mut f64) {
-    *t = 1.0 / (1.0 + E.powf(-*t))
-}
-
-fn sigmoid_derivative(t: &mut f64) {
-    sigmoid(t);
-    *t = *t * (1.0 - *t);
 }
 
 fn relu(t: &mut f64) {

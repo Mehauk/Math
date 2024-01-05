@@ -117,16 +117,18 @@ fn choose_activation_function(activation_function: &mut Function) {
     println!("3\t- normal_arctan");
     println!("4\t- relu");
     println!("5\t- leaky_relu");
+    println!("6\t- swish");
     println!("");
     stdin().read_line(&mut input).unwrap_or_default();
     println!("");
     let function_choice = input.trim().parse::<u32>().unwrap_or(16);
     match function_choice {
         1 => *activation_function = Function::sigmoid(),
-        2 => *activation_function = Function::arctan(),
-        3 => *activation_function = Function::normal_arctan(),
-        4 => *activation_function = Function::relu(),
-        5 => *activation_function = Function::leaky_relu(),
+        2 => *activation_function = Function::swish(),
+        3 => *activation_function = Function::arctan(),
+        4 => *activation_function = Function::normal_arctan(),
+        5 => *activation_function = Function::relu(),
+        6 => *activation_function = Function::leaky_relu(),
         _ => *activation_function = Function::sigmoid(),
     }
 }

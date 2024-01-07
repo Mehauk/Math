@@ -113,11 +113,11 @@ fn choose_activation_function(activation_function: &mut Function) {
     let mut input = String::new();
     println!("Choose an activation function (default sigmoid):");
     println!("1\t- sigmoid");
-    println!("2\t- arctan");
-    println!("3\t- normal_arctan");
-    println!("4\t- relu");
-    println!("5\t- leaky_relu");
-    println!("6\t- swish");
+    println!("2\t- swish");
+    println!("3\t- arctan");
+    println!("4\t- normal_arctan");
+    println!("5\t- relu");
+    println!("6\t- leaky_relu");
     println!("");
     stdin().read_line(&mut input).unwrap_or_default();
     println!("");

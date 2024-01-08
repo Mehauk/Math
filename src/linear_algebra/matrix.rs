@@ -5,23 +5,23 @@ use std::{
     ptr::swap_nonoverlapping,
 };
 
-pub struct CustomMatrix {
+pub struct Matrix {
     m: usize,
     n: usize,
     arr: Vec<f64>,
 }
 
-impl CustomMatrix {
+impl Matrix {
     fn new(m: usize, n: usize) -> Self {
         let v = vec![0.0; n * m];
-        CustomMatrix { m, n, arr: v }
+        Matrix { m, n, arr: v }
     }
 
     pub fn from(m: usize, n: usize, mut arr: Vec<f64>) -> Self {
         while arr.len() < m * n {
             arr.push(0.0);
         }
-        CustomMatrix { m, n, arr }
+        Matrix { m, n, arr }
     }
 
     pub fn random(m: usize, n: usize, min: f64, max: f64) -> Self {
@@ -31,11 +31,11 @@ impl CustomMatrix {
             let v1: f64 = rand::thread_rng().sample(&range);
             v.insert(i, v1);
         }
-        CustomMatrix { m, n, arr: v }
+        Matrix { m, n, arr: v }
     }
 
     pub fn identity(m: usize, n: usize) -> Self {
-        let mut matrix: CustomMatrix = CustomMatrix::new(m, n);
+        let mut matrix: Matrix = Matrix::new(m, n);
 
         let mut i = 0;
         for x in 0..m {
@@ -44,14 +44,6 @@ impl CustomMatrix {
         }
 
         matrix
-    }
-
-    pub fn copy(&self) -> Self {
-        CustomMatrix {
-            m: self.m,
-            n: self.n,
-            arr: self.arr.to_owned(),
-        }
     }
 
     fn determinant(&self) -> f64 {
@@ -77,7 +69,7 @@ impl CustomMatrix {
                     }
                 }
 
-                let mat = CustomMatrix {
+                let mat = Matrix {
                     m: self.m - 1,
                     n: self.n - 1,
                     arr,
@@ -99,12 +91,12 @@ impl CustomMatrix {
         }
     }
 
-    pub fn invert(mut self) -> Option<CustomMatrix> {
+    pub fn invert(mut self) -> Option<Matrix> {
         if self.n != self.m {
             return None;
         }
 
-        let mut identity: CustomMatrix = CustomMatrix::identity(self.m, self.n);
+        let mut identity: Matrix = Matrix::identity(self.m, self.n);
 
         // find determinant
         if self.determinant() == f64::default() {
@@ -168,7 +160,7 @@ impl CustomMatrix {
                 v.push(self.arr[i + x * self.n]);
             }
         }
-        CustomMatrix {
+        Matrix {
             m: self.n,
             n: self.m,
             arr: v,
@@ -216,7 +208,7 @@ impl CustomMatrix {
     }
 }
 
-impl Index<(usize, usize)> for CustomMatrix {
+impl Index<(usize, usize)> for Matrix {
     type Output = f64;
 
     fn index(&self, index: (usize, usize)) -> &f64 {
@@ -224,7 +216,7 @@ impl Index<(usize, usize)> for CustomMatrix {
     }
 }
 
-impl Add for CustomMatrix {
+impl Add for Matrix {
     type Output = Option<Self>;
 
     fn add(mut self, rhs: Self) -> Self::Output {
@@ -240,7 +232,7 @@ impl Add for CustomMatrix {
     }
 }
 
-impl Sub for CustomMatrix {
+impl Sub for Matrix {
     type Output = Option<Self>;
 
     fn sub(mut self, rhs: Self) -> Self::Output {
@@ -256,17 +248,17 @@ impl Sub for CustomMatrix {
     }
 }
 
-impl Mul<CustomMatrix> for f64 {
-    type Output = CustomMatrix;
+impl Mul<Matrix> for f64 {
+    type Output = Matrix;
 
-    fn mul(self, mut rhs: CustomMatrix) -> Self::Output {
+    fn mul(self, mut rhs: Matrix) -> Self::Output {
         rhs.arr.iter_mut().for_each(|e| *e *= self);
         rhs
     }
 }
 
-impl Mul<f64> for CustomMatrix {
-    type Output = CustomMatrix;
+impl Mul<f64> for Matrix {
+    type Output = Matrix;
 
     fn mul(mut self, rhs: f64) -> Self::Output {
         self.arr.iter_mut().for_each(|e| *e *= rhs);
@@ -274,8 +266,8 @@ impl Mul<f64> for CustomMatrix {
     }
 }
 
-impl Div<f64> for CustomMatrix {
-    type Output = CustomMatrix;
+impl Div<f64> for Matrix {
+    type Output = Matrix;
 
     fn div(mut self, rhs: f64) -> Self::Output {
         self.arr.iter_mut().for_each(|e| *e /= rhs);
@@ -283,7 +275,7 @@ impl Div<f64> for CustomMatrix {
     }
 }
 
-impl Mul for CustomMatrix {
+impl Mul for Matrix {
     type Output = Option<Self>;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -304,7 +296,7 @@ impl Mul for CustomMatrix {
             }
         }
 
-        Some(CustomMatrix {
+        Some(Matrix {
             m: self.m,
             n: rhs.n,
             arr: v,
@@ -312,7 +304,7 @@ impl Mul for CustomMatrix {
     }
 }
 
-impl Display for CustomMatrix {
+impl Display for Matrix {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut s = String::from("");
 
@@ -330,7 +322,7 @@ impl Display for CustomMatrix {
     }
 }
 
-impl Debug for CustomMatrix {
+impl Debug for Matrix {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut s = String::from("");
 

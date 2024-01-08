@@ -1,4 +1,5 @@
 mod calculus;
+mod linear_algebra;
 mod machine_learning;
 mod utilities;
 

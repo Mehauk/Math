@@ -1,6 +1,7 @@
 use image;
-use nalgebra::DVector;
 use std::io::Error;
+
+use crate::linear_algebra::Matrix;
 
 pub mod mnist;
 
@@ -33,7 +34,7 @@ pub struct DataVector {
     /// dimensions calculated at runtime, but operations would be slower.
     ///
     /// values in the matrix are between 0-1 (inc), normalized from u8
-    pub data: DVector<f64>,
+    pub data: Matrix,
     pub label: u8,
 
     // property used for recontructing the image
@@ -43,7 +44,7 @@ pub struct DataVector {
 /// Contructs an image from the parsed ImageData
 /// Usefull for debugging
 impl DataVector {
-    pub fn _new(data: DVector<f64>, label: u8) -> Self {
+    pub fn _new(data: Matrix, label: u8) -> Self {
         DataVector {
             data,
             label,

@@ -1,17 +1,18 @@
 use std::{error::Error, io};
 
-use nalgebra::{DMatrix, DVector};
 use rand::{distributions::Uniform, thread_rng};
+
+use crate::linear_algebra::Matrix;
 
 pub mod methods;
 
 #[derive(Debug, PartialEq)]
 /// ### Parameters
-/// - `_weights` : `Vec<DMatrix<f64>>`
-/// - `hidden_layer` : `Vec<DVector<f64>>`
+/// - `_weights` : `Vec<Matrix>`
+/// - `hidden_layer` : `Vec<Matrix>`
 pub struct NeuralNetwork {
-    _weigths: Vec<DMatrix<f64>>,
-    _biases: Vec<DVector<f64>>,
+    _weigths: Vec<Matrix>,
+    _biases: Vec<Matrix>,
     _shape: Vec<usize>,
 }
 
@@ -19,16 +20,16 @@ pub struct NeuralNetwork {
 impl NeuralNetwork {
     pub fn random(shape: Vec<usize>) -> NeuralNetwork {
         let length = shape.len();
-        let weigths: Vec<DMatrix<f64>> = shape[1..length]
+        let weigths: Vec<Matrix> = shape[1..length]
             .iter()
             .zip(&shape[0..length - 1])
             .map(|(a, b)| {
-                DMatrix::from_distribution(*a, *b, &Uniform::new(-1.0, 1.0), &mut thread_rng())
+                Matrix::from_distribution(*a, *b, &Uniform::new(-1.0, 1.0), &mut thread_rng())
             })
             .collect();
-        let biases: Vec<DVector<f64>> = shape[1..length]
+        let biases: Vec<Matrix> = shape[1..length]
             .iter()
-            .map(|a| DVector::from_distribution(*a, &Uniform::new(-1.0, 1.0), &mut thread_rng()))
+            .map(|a| Matrix::from_distribution(*a, &Uniform::new(-1.0, 1.0), &mut thread_rng()))
             .collect();
 
         NeuralNetwork {
@@ -40,14 +41,14 @@ impl NeuralNetwork {
 
     pub fn zeros(shape: Vec<usize>) -> NeuralNetwork {
         let length = shape.len();
-        let weigths: Vec<DMatrix<f64>> = shape[1..length]
+        let weigths: Vec<Matrix> = shape[1..length]
             .iter()
             .zip(&shape[0..length - 1])
-            .map(|(a, b)| DMatrix::<f64>::zeros(*a, *b))
+            .map(|(a, b)| Matrix::<f64>::zeros(*a, *b))
             .collect();
-        let biases: Vec<DVector<f64>> = shape[1..length]
+        let biases: Vec<Matrix> = shape[1..length]
             .iter()
-            .map(|a| DVector::<f64>::zeros(*a))
+            .map(|a| Matrix::<f64>::zeros(*a))
             .collect();
 
         NeuralNetwork {
@@ -126,7 +127,7 @@ impl NeuralNetwork {
             .next()
             .ok_or("File was not properly formatted, or was empty")?;
 
-        let mut weights: Vec<DMatrix<f64>> = Vec::new();
+        let mut weights: Vec<Matrix> = Vec::new();
         for w_line in w.split("\n") {
             let mut iter = w_line.split(" - ");
             let mut shape = iter.next().ok_or("Incorrect Format weights")?.split(",");
@@ -135,7 +136,7 @@ impl NeuralNetwork {
                 .ok_or("Incorrect Format for wieght values")?
                 .split(",")
                 .map(|x| x.parse().unwrap_or_default());
-            weights.push(DMatrix::<f64>::from_iterator(
+            weights.push(Matrix::<f64>::from_iterator(
                 shape
                     .next()
                     .ok_or("Incorrect Format for weights rows")?
@@ -148,7 +149,7 @@ impl NeuralNetwork {
             ))
         }
 
-        let mut biases: Vec<DVector<f64>> = Vec::new();
+        let mut biases: Vec<Matrix> = Vec::new();
         for b_line in b.split("\n") {
             let mut iter = b_line.split(" - ");
             let shape = iter.next().ok_or("Incorrect Format biases")?;
@@ -157,7 +158,7 @@ impl NeuralNetwork {
                 .ok_or("Incorrect Format for bias values")?
                 .split(",")
                 .map(|x| x.parse().unwrap_or_default());
-            biases.push(DVector::<f64>::from_iterator(shape.parse()?, vals))
+            biases.push(Matrix::<f64>::from_iterator(shape.parse()?, vals))
         }
 
         Ok(NeuralNetwork {
@@ -172,7 +173,7 @@ impl NeuralNetwork {
 mod tests {
     use std::fs;
 
-    use nalgebra::DVector;
+    use nalgebra::Matrix;
 
     use crate::machine_learning::dataset::{DataSet, DataVector};
 
@@ -192,13 +193,13 @@ mod tests {
             training_data: (0..10000)
                 .map(|x| {
                     let y: f64 = rand::random::<f64>() * x as f64 / (x + 1) as f64;
-                    DataVector::_new(DVector::from_vec(vec![y]), if y < 0.5 { 1 } else { 0 })
+                    DataVector::_new(Matrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 0 })
                 })
                 .collect(),
             testing_data: (0..100)
                 .map(|x: usize| {
                     let y: f64 = x as f64 / 100.0;
-                    DataVector::_new(DVector::from_vec(vec![y]), if y < 0.5 { 1 } else { 0 })
+                    DataVector::_new(Matrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 0 })
                 })
                 .collect(),
         };

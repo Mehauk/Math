@@ -1,6 +1,6 @@
 use std::{error::Error, io};
 
-use rand::{distributions::Uniform, thread_rng};
+use rand::distributions::Uniform;
 
 use crate::linear_algebra::Matrix;
 
@@ -23,13 +23,11 @@ impl NeuralNetwork {
         let weigths: Vec<Matrix> = shape[1..length]
             .iter()
             .zip(&shape[0..length - 1])
-            .map(|(a, b)| {
-                Matrix::from_distribution(*a, *b, &Uniform::new(-1.0, 1.0), &mut thread_rng())
-            })
+            .map(|(a, b)| Matrix::from_distribution(*a, *b, &Uniform::new(-1.0, 1.0)))
             .collect();
         let biases: Vec<Matrix> = shape[1..length]
             .iter()
-            .map(|a| Matrix::from_distribution(*a, &Uniform::new(-1.0, 1.0), &mut thread_rng()))
+            .map(|a| Matrix::from_distribution(*a, 1, &Uniform::new(-1.0, 1.0)))
             .collect();
 
         NeuralNetwork {
@@ -44,11 +42,11 @@ impl NeuralNetwork {
         let weigths: Vec<Matrix> = shape[1..length]
             .iter()
             .zip(&shape[0..length - 1])
-            .map(|(a, b)| Matrix::<f64>::zeros(*a, *b))
+            .map(|(a, b)| Matrix::zeros(*a, *b))
             .collect();
         let biases: Vec<Matrix> = shape[1..length]
             .iter()
-            .map(|a| Matrix::<f64>::zeros(*a))
+            .map(|a| Matrix::zeros(*a, 1))
             .collect();
 
         NeuralNetwork {

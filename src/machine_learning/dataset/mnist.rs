@@ -3,6 +3,8 @@ use std::{
     io::{Error, Read},
 };
 
+use crate::linear_algebra::Matrix;
+
 use super::DataVector;
 
 pub const INPUT_SIZE: usize = 28 * 28;
@@ -72,7 +74,7 @@ pub fn parse_mnist(
         label_file.read_exact(&mut buf)?;
         let label = buf[0];
         let d = DataVector {
-            data: nalgebra::DVector::<f64>::from_vec(pixels),
+            data: Matrix::from_vec(pixels.len(), 1, pixels),
 
             // 1-26 (inc) -> for letters (a-z)
             // 0-9 (inc) -> for digits

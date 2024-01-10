@@ -1,4 +1,4 @@
-use rand::{distributions::Uniform, Rng};
+use rand::{distributions::Distribution, Rng};
 
 pub mod methods;
 pub mod trait_impls;
@@ -11,30 +11,27 @@ pub struct Matrix {
 }
 
 impl Matrix {
-    fn new(m: usize, n: usize) -> Self {
+    pub fn zeros(m: usize, n: usize) -> Self {
         let v = vec![0.0; n * m];
         Matrix { m, n, arr: v }
     }
 
-    pub fn from(m: usize, n: usize, mut arr: Vec<f64>) -> Self {
+    pub fn from_vec(m: usize, n: usize, mut arr: Vec<f64>) -> Self {
         while arr.len() < m * n {
             arr.push(0.0);
         }
         Matrix { m, n, arr }
     }
 
-    pub fn random(m: usize, n: usize, min: f64, max: f64) -> Self {
-        let mut v: Vec<f64> = vec![];
-        let range = Uniform::new(min, max);
-        for i in 0..m * n {
-            let v1: f64 = rand::thread_rng().sample(&range);
-            v.insert(i, v1);
-        }
+    pub fn from_distribution(m: usize, n: usize, distribution: &impl Distribution<f64>) -> Self {
+        let mut v: Vec<f64> = (0..m * n)
+            .map(|_| rand::thread_rng().sample(&distribution))
+            .collect();
         Matrix { m, n, arr: v }
     }
 
     pub fn identity(m: usize, n: usize) -> Self {
-        let mut matrix: Matrix = Matrix::new(m, n);
+        let mut matrix: Matrix = Matrix::zeros(m, n);
 
         let mut i = 0;
         for x in 0..m {

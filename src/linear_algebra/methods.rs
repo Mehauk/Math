@@ -6,14 +6,14 @@ use super::Matrix;
 impl Matrix {
     pub fn transpose(&self) -> Self {
         let mut v: Vec<f64> = vec![];
-        for i in 0..self.n {
-            for x in 0..self.m {
-                v.push(self.arr[i + x * self.n]);
+        for i in 0..self.c {
+            for x in 0..self.r {
+                v.push(self.arr[i + x * self.c]);
             }
         }
         Matrix {
-            m: self.n,
-            n: self.m,
+            r: self.c,
+            c: self.r,
             arr: v,
         }
     }
@@ -40,7 +40,7 @@ impl Matrix {
 
                 let mut arr: Vec<f64> = vec![];
 
-                for x in 0..self.n {
+                for x in 0..self.c {
                     if x != i {
                         if let Some(c) = self.get_col(x) {
                             arr.append(&mut c[1..c.len()].to_vec());
@@ -49,8 +49,8 @@ impl Matrix {
                 }
 
                 let mat = Matrix {
-                    m: self.m - 1,
-                    n: self.n - 1,
+                    r: self.r - 1,
+                    c: self.c - 1,
                     arr,
                 };
 
@@ -65,17 +65,17 @@ impl Matrix {
             swap_nonoverlapping(
                 self.get_row_mut(i0).unwrap().as_mut_ptr(),
                 self.get_row_mut(i1).unwrap().as_mut_ptr(),
-                self.n,
+                self.c,
             )
         }
     }
 
     pub fn invert(mut self) -> Option<Matrix> {
-        if self.n != self.m {
+        if self.c != self.r {
             return None;
         }
 
-        let mut identity: Matrix = Matrix::identity(self.m, self.n);
+        let mut identity: Matrix = Matrix::identity(self.r, self.c);
 
         // find determinant
         if self.determinant() == f64::default() {
@@ -83,10 +83,10 @@ impl Matrix {
         }
 
         // swap rows
-        for i in 0..self.n {
+        for i in 0..self.c {
             if let Some(c) = self.get_col(i) {
                 let mut i2 = i;
-                for x in i..self.m {
+                for x in i..self.r {
                     if c[x] != 0.0 {
                         i2 = x;
                         break;
@@ -110,7 +110,7 @@ impl Matrix {
 
             if let (Some(r), Some(ri)) = (self.get_row(i), identity.get_row(i)) {
                 // reduce all other values in column to zero
-                for x in 0..self.m {
+                for x in 0..self.r {
                     if i != x {
                         if let (Some(rc), Some(rci)) =
                             (self.get_row_mut(x), identity.get_row_mut(x))
@@ -133,42 +133,58 @@ impl Matrix {
     }
 
     pub fn get_row(&self, i: usize) -> Option<Vec<f64>> {
-        if i >= self.m {
+        if i >= self.r {
             return None;
         }
 
-        let start: usize = self.n * i;
-        let v = self.arr[start..start + self.n].to_owned();
+        let start: usize = self.c * i;
+        let v = self.arr[start..start + self.c].to_owned();
 
         Some(v)
     }
 
     pub fn get_col(&self, i: usize) -> Option<Vec<f64>> {
-        if i >= self.n {
+        if i >= self.c {
             return None;
         }
 
         let mut v = vec![];
 
-        for x in 0..self.m {
-            v.push(self.arr[i + x * self.n]);
+        for x in 0..self.r {
+            v.push(self.arr[i + x * self.c]);
         }
 
         Some(v)
     }
 
     fn get_row_mut(&mut self, i: usize) -> Option<&mut [f64]> {
-        if i >= self.m {
+        if i >= self.r {
             return None;
         }
 
-        let start: usize = self.n * i;
-        let v = &mut self.arr[start..start + self.n];
+        let start: usize = self.c * i;
+        let v = &mut self.arr[start..start + self.c];
 
         Some(v)
     }
 
     fn size(&self) -> usize {
-        self.m * self.n
+        self.r * self.c
+    }
+}
+
+// Serialize
+impl Matrix {
+    pub fn to_str(&self) -> &str {
+        &format!(
+            "{},{} - {}\n",
+            self.r,
+            self.c,
+            self.arr
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>()
+                .join(","),
+        )
     }
 }

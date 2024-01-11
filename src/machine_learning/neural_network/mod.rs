@@ -55,6 +55,25 @@ impl NeuralNetwork {
             _shape: shape,
         }
     }
+
+    pub fn scalar(shape: Vec<usize>, scale: f64) -> NeuralNetwork {
+        let length = shape.len();
+        let weigths: Vec<Matrix> = shape[1..length]
+            .iter()
+            .zip(&shape[0..length - 1])
+            .map(|(a, b)| Matrix::from_value(*a, *b, scale))
+            .collect();
+        let biases: Vec<Matrix> = shape[1..length]
+            .iter()
+            .map(|a| Matrix::from_value(*a, 1, scale))
+            .collect();
+
+        NeuralNetwork {
+            _weigths: weigths,
+            _biases: biases,
+            _shape: shape,
+        }
+    }
 }
 
 // NN save / load
@@ -71,34 +90,13 @@ impl NeuralNetwork {
         contents += "\n\n";
 
         for w in self._weigths.iter() {
-            contents += &format!(
-                "{},{} - {}\n",
-                w.shape().0,
-                w.shape().1,
-                w.data
-                    .as_vec()
-                    .iter()
-                    .map(|x| x.to_string())
-                    .collect::<Vec<String>>()
-                    .join(","),
-            )
-            .to_string();
+            contents += w.to_str();
         }
 
         contents += "\n";
 
         for b in self._biases.iter() {
-            contents += &format!(
-                "{} - {}\n",
-                b.shape().0,
-                b.data
-                    .as_vec()
-                    .iter()
-                    .map(|x| x.to_string())
-                    .collect::<Vec<String>>()
-                    .join(","),
-            )
-            .to_string();
+            contents += b.to_str();
         }
 
         contents += "\n";
@@ -129,12 +127,12 @@ impl NeuralNetwork {
         for w_line in w.split("\n") {
             let mut iter = w_line.split(" - ");
             let mut shape = iter.next().ok_or("Incorrect Format weights")?.split(",");
-            let vals = iter
+            let mut vals = iter
                 .next()
                 .ok_or("Incorrect Format for wieght values")?
                 .split(",")
                 .map(|x| x.parse().unwrap_or_default());
-            weights.push(Matrix::<f64>::from_iterator(
+            weights.push(Matrix::from_iterator(
                 shape
                     .next()
                     .ok_or("Incorrect Format for weights rows")?
@@ -143,20 +141,30 @@ impl NeuralNetwork {
                     .next()
                     .ok_or("Incorrect Format for weights cols")?
                     .parse()?,
-                vals,
+                &mut vals,
             ))
         }
 
         let mut biases: Vec<Matrix> = Vec::new();
         for b_line in b.split("\n") {
             let mut iter = b_line.split(" - ");
-            let shape = iter.next().ok_or("Incorrect Format biases")?;
-            let vals = iter
+            let mut shape = iter.next().ok_or("Incorrect Format biases")?.split(",");
+            let mut vals = iter
                 .next()
                 .ok_or("Incorrect Format for bias values")?
                 .split(",")
                 .map(|x| x.parse().unwrap_or_default());
-            biases.push(Matrix::<f64>::from_iterator(shape.parse()?, vals))
+            biases.push(Matrix::from_iterator(
+                shape
+                    .next()
+                    .ok_or("Incorrect Format for weights rows")?
+                    .parse()?,
+                shape
+                    .next()
+                    .ok_or("Incorrect Format for weights cols")?
+                    .parse()?,
+                &mut vals,
+            ))
         }
 
         Ok(NeuralNetwork {
@@ -171,33 +179,27 @@ impl NeuralNetwork {
 mod tests {
     use std::fs;
 
-    use nalgebra::Matrix;
-
-    use crate::machine_learning::dataset::{DataSet, DataVector};
+    use crate::{
+        linear_algebra::Matrix,
+        machine_learning::dataset::{DataSet, DataVector},
+    };
 
     use super::NeuralNetwork;
 
     pub fn init_network(v: Vec<usize>) -> (NeuralNetwork, DataSet) {
-        let mut nn = NeuralNetwork::zeros(v);
-        for bv in nn._biases.iter_mut() {
-            bv.add_scalar_mut(0.1);
-        }
-
-        for wv in nn._weigths.iter_mut() {
-            wv.add_scalar_mut(0.1);
-        }
+        let mut nn = NeuralNetwork::scalar(v, 0.1);
 
         let ds = DataSet {
             training_data: (0..10000)
                 .map(|x| {
                     let y: f64 = rand::random::<f64>() * x as f64 / (x + 1) as f64;
-                    DataVector::_new(Matrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 0 })
+                    DataVector::_new(Matrix::from_vec(1, 1, vec![y]), if y < 0.5 { 1 } else { 0 })
                 })
                 .collect(),
             testing_data: (0..100)
                 .map(|x: usize| {
                     let y: f64 = x as f64 / 100.0;
-                    DataVector::_new(Matrix::from_vec(vec![y]), if y < 0.5 { 1 } else { 0 })
+                    DataVector::_new(Matrix::from_vec(1, 1, vec![y]), if y < 0.5 { 1 } else { 0 })
                 })
                 .collect(),
         };

@@ -1,6 +1,6 @@
 use std::{
     fmt::{Debug, Display},
-    ops::{Add, Div, Index, Mul, Sub},
+    ops::{Add, Div, Index, Mul, Sub, SubAssign},
 };
 
 use super::Matrix;
@@ -45,6 +45,12 @@ impl Sub for Matrix {
     }
 }
 
+impl SubAssign for Matrix {
+    fn sub_assign(&mut self, rhs: Self) {
+        self = *self - rhs;
+    }
+}
+
 impl Mul<Matrix> for f64 {
     type Output = Matrix;
 
@@ -72,8 +78,8 @@ impl Div<f64> for Matrix {
     }
 }
 
-impl Mul for Matrix {
-    type Output = Option<Self>;
+impl Mul<Self> for &Matrix {
+    type Output = Option<Matrix>;
 
     fn mul(self, rhs: Self) -> Self::Output {
         if self.c != rhs.r {

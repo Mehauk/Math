@@ -1,6 +1,6 @@
-use nalgebra::DVector;
-
-use crate::{calculus::functions::Function, machine_learning::dataset::DataSet};
+use crate::{
+    calculus::functions::Function, linear_algebra::Matrix, machine_learning::dataset::DataSet,
+};
 
 use super::NeuralNetwork;
 
@@ -16,13 +16,9 @@ impl NeuralNetwork {
         }
     }
 
-    pub fn propagate(
-        &self,
-        input: &DVector<f64>,
-        activation_function: fn(&mut f64),
-    ) -> DVector<f64> {
-        let mut propagating_nodes: &DVector<f64> = input;
-        let mut x = DVector::zeros(0);
+    pub fn propagate(&self, input: &Matrix, activation_function: fn(&mut f64)) -> Matrix {
+        let mut propagating_nodes: &Matrix = input;
+        let mut x = Matrix::zeros(0, 0);
 
         for (weight_matrix, bias_vector) in self._weigths.iter().zip(&self._biases) {
             x = (weight_matrix * propagating_nodes + bias_vector).apply_into(activation_function);
@@ -35,13 +31,13 @@ impl NeuralNetwork {
     /// Returns a vector of intermediate node_vectors including the output vector and excluding the input vector
     fn propagate_returning_all_nodes_prior_to_activation(
         &self,
-        input: &DVector<f64>,
+        input: &Matrix,
         activation_function: fn(&mut f64),
-    ) -> Vec<DVector<f64>> {
+    ) -> Vec<Matrix> {
         // initialize resulting array;
-        let mut nodes_array: Vec<DVector<f64>> = vec![];
+        let mut nodes_array: Vec<Matrix> = vec![];
 
-        let mut propagating_nodes: DVector<f64> = input.clone();
+        let mut propagating_nodes: Matrix = input.clone();
 
         for (weight_matrix, bias_vector) in self._weigths.iter().zip(&self._biases) {
             nodes_array.push(weight_matrix * propagating_nodes + bias_vector);
@@ -59,7 +55,7 @@ impl NeuralNetwork {
     /// - `C` cost Matrix
     /// - `R` resulting output Matrix of network
     /// - `E` expected output Matrix contructed from label
-    pub fn _cost(result_matrix: &DVector<f64>, label: u8) -> DVector<f64> {
+    pub fn _cost(result_matrix: &Matrix, label: u8) -> Matrix {
         let mut m = result_matrix.clone();
         m[(label as usize, 0)] -= 1.0;
         m.apply_into(|x| *x *= *x)
@@ -69,7 +65,7 @@ impl NeuralNetwork {
     /// - `C` cost Matrix
     /// - `R` resulting output Matrix of network
     /// - `E` expected output Matrix contructed from label
-    pub fn cost_derivative(result_matrix: &DVector<f64>, label: u8) -> DVector<f64> {
+    pub fn cost_derivative(result_matrix: &Matrix, label: u8) -> Matrix {
         let mut m = result_matrix.clone();
         m[(label as usize, 0)] -= 1.0;
         m.scale(2.0)
@@ -215,10 +211,9 @@ impl NeuralNetwork {
 
 #[cfg(test)]
 mod tests {
-    use nalgebra::DVector;
-
     use crate::{
-        calculus::functions::Function, machine_learning::neural_network::tests::init_network,
+        calculus::functions::Function, linear_algebra::Matrix,
+        machine_learning::neural_network::tests::init_network,
     };
 
     use super::NeuralNetwork;
@@ -315,13 +310,13 @@ mod tests {
 
         assert!(
             0 == nn
-                .propagate(&DVector::from_vec(vec![0.7]), f.activate)
+                .propagate(&Matrix::from_vec(1, 1, vec![0.7]), f.activate)
                 .argmax()
                 .0
         );
         assert!(
             1 == nn
-                .propagate(&DVector::from_vec(vec![0.4]), f.activate)
+                .propagate(&Matrix::from_vec(1, 1, vec![0.4]), f.activate)
                 .argmax()
                 .0
         );
@@ -337,13 +332,13 @@ mod tests {
 
         assert!(
             0 == nn
-                .propagate(&DVector::from_vec(vec![0.7]), f.activate)
+                .propagate(&Matrix::from_vec(1, 1, vec![0.7]), f.activate)
                 .argmax()
                 .0
         );
         assert!(
             1 == nn
-                .propagate(&DVector::from_vec(vec![0.4]), f.activate)
+                .propagate(&Matrix::from_vec(1, 1, vec![0.4]), f.activate)
                 .argmax()
                 .0
         );

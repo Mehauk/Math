@@ -1,6 +1,6 @@
 use std::{
     fmt::{Debug, Display},
-    ops::{Add, Div, Index, Mul, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, Index, Mul, Sub, SubAssign},
 };
 
 use super::Matrix;
@@ -13,41 +13,47 @@ impl Index<(usize, usize)> for Matrix {
     }
 }
 
-impl Add for Matrix {
-    type Output = Option<Self>;
+impl Add<&Matrix> for Matrix {
+    type Output = Self;
 
-    fn add(mut self, rhs: Self) -> Self::Output {
+    fn add(mut self, rhs: &Self) -> Self::Output {
         if rhs.r != self.r || rhs.c != self.c {
-            return None;
+            panic!("Cannot add matrices of different shape");
         }
 
         for i in 0..self.r * self.c {
             self.arr[i] += rhs.arr[i];
         }
 
-        Some(self)
+        self
     }
 }
 
-impl Sub for Matrix {
-    type Output = Option<Self>;
+impl AddAssign<&Matrix> for Matrix {
+    fn add_assign(&mut self, rhs: &Self) {
+        *self = *self + rhs;
+    }
+}
 
-    fn sub(mut self, rhs: Self) -> Self::Output {
+impl Sub<&Matrix> for Matrix {
+    type Output = Self;
+
+    fn sub(mut self, rhs: &Self) -> Self::Output {
         if rhs.r != self.r || rhs.c != self.c {
-            return None;
+            panic!("Cannot subtract matrices of different shape");
         }
 
         for i in 0..self.r * self.c {
             self.arr[i] -= rhs.arr[i];
         }
 
-        Some(self)
+        self
     }
 }
 
-impl SubAssign for Matrix {
-    fn sub_assign(&mut self, rhs: Self) {
-        self = *self - rhs;
+impl SubAssign<&Matrix> for Matrix {
+    fn sub_assign(&mut self, rhs: &Self) {
+        *self = *self - rhs;
     }
 }
 
@@ -79,11 +85,15 @@ impl Div<f64> for Matrix {
 }
 
 impl Mul<Self> for &Matrix {
-    type Output = Option<Matrix>;
+    type Output = Matrix;
 
     fn mul(self, rhs: Self) -> Self::Output {
         if self.c != rhs.r {
-            return None;
+            panic!(
+                "Cannot multiply matrices: {:?} x {:?}",
+                (self.r, self.c),
+                (rhs.r, rhs.c)
+            );
         }
 
         let mut v: Vec<f64> = vec![];
@@ -99,11 +109,11 @@ impl Mul<Self> for &Matrix {
             }
         }
 
-        Some(Matrix {
+        Matrix {
             r: self.r,
             c: rhs.c,
             arr: v,
-        })
+        }
     }
 }
 

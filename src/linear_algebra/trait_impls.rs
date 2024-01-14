@@ -5,6 +5,12 @@ use std::{
 
 use super::Matrix;
 
+macro_rules! index_impl {
+    () => {
+        
+    };
+}
+
 impl Index<(usize, usize)> for Matrix {
     type Output = f64;
 

@@ -68,7 +68,8 @@ impl NeuralNetwork {
     pub fn cost_derivative(result_matrix: &Matrix, label: u8) -> Matrix {
         let mut m = result_matrix.clone();
         m[(label as usize, 0)] -= 1.0;
-        m.scale(2.0)
+        m = m * 2.0;
+        m
     }
 
     // train using stochastic gradient descent
@@ -200,7 +201,7 @@ impl NeuralNetwork {
 
         for image in data_set.testing_data.iter() {
             let res = self.propagate(&image.data, activation_function.activate);
-            if res.column(0).argmax().0 == (image.label as usize) {
+            if res.index_of_max() == (image.label as usize) {
                 total_correct += 1.0;
             }
         }

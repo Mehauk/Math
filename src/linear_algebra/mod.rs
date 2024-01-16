@@ -3,7 +3,7 @@ use rand::{distributions::Distribution, Rng};
 pub mod methods;
 pub mod trait_impls;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct Matrix {
     r: usize,
     c: usize,

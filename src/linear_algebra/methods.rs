@@ -21,6 +21,16 @@ impl Matrix {
     pub fn iter(&self) -> std::slice::Iter<'_, f64> {
         self.arr.iter()
     }
+
+    pub fn index_of_max(&self) -> usize {
+        let mut index: usize;
+        let mut max: f64 = f64::MIN;
+        for (i, v) in self.arr.iter().enumerate() {
+            
+        }
+
+        index
+    }
 }
 
 // Extra methods

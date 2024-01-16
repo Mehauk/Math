@@ -13,46 +13,52 @@ impl Index<(usize, usize)> for Matrix {
     }
 }
 
-impl Add<&Matrix> for Matrix {
+impl AsRef<Matrix> for Matrix {
+    fn as_ref(&self) -> &Matrix {
+        self
+    }
+}
+
+impl<T: AsRef<Matrix>> Add<T> for Matrix {
     type Output = Self;
 
-    fn add(mut self, rhs: &Self) -> Self::Output {
-        if rhs.r != self.r || rhs.c != self.c {
+    fn add(mut self, rhs: T) -> Self::Output {
+        if rhs.as_ref().r != self.r || rhs.as_ref().c != self.c {
             panic!("Cannot add matrices of different shape");
         }
 
         for i in 0..self.r * self.c {
-            self.arr[i] += rhs.arr[i];
+            self.arr[i] += rhs.as_ref().arr[i];
         }
 
         self
     }
 }
 
-impl AddAssign<&Matrix> for Matrix {
-    fn add_assign(&mut self, rhs: &Self) {
+impl<T: AsRef<Matrix>> AddAssign<T> for Matrix {
+    fn add_assign(&mut self, rhs: T) {
         *self = *self + rhs;
     }
 }
 
-impl Sub<&Matrix> for Matrix {
+impl<T: AsRef<Matrix>> Sub<T> for Matrix {
     type Output = Self;
 
-    fn sub(mut self, rhs: &Self) -> Self::Output {
-        if rhs.r != self.r || rhs.c != self.c {
+    fn sub(mut self, rhs: T) -> Self::Output {
+        if rhs.as_ref().r != self.r || rhs.as_ref().c != self.c {
             panic!("Cannot subtract matrices of different shape");
         }
 
         for i in 0..self.r * self.c {
-            self.arr[i] -= rhs.arr[i];
+            self.arr[i] -= rhs.as_ref().arr[i];
         }
 
         self
     }
 }
 
-impl SubAssign<&Matrix> for Matrix {
-    fn sub_assign(&mut self, rhs: &Self) {
+impl<T: AsRef<Matrix>> SubAssign<T> for Matrix {
+    fn sub_assign(&mut self, rhs: T) {
         *self = *self - rhs;
     }
 }
@@ -84,24 +90,24 @@ impl Div<f64> for Matrix {
     }
 }
 
-impl Mul<Self> for &Matrix {
+impl<T: AsRef<Matrix>> Mul<T> for Matrix {
     type Output = Matrix;
 
-    fn mul(self, rhs: Self) -> Self::Output {
-        if self.c != rhs.r {
+    fn mul(self, rhs: T) -> Self::Output {
+        if self.c != rhs.as_ref().r {
             panic!(
                 "Cannot multiply matrices: {:?} x {:?}",
                 (self.r, self.c),
-                (rhs.r, rhs.c)
+                (rhs.as_ref().r, rhs.as_ref().c)
             );
         }
 
         let mut v: Vec<f64> = vec![];
 
         for i in 0..self.r {
-            for x in 0..rhs.c {
+            for x in 0..rhs.as_ref().c {
                 let r = self.get_row(i).unwrap();
-                let c = rhs.get_col(x).unwrap();
+                let c = rhs.as_ref().get_col(x).unwrap();
 
                 let value: f64 = r.iter().zip(c.iter()).map(|(x1, y1)| x1 * y1).sum();
 
@@ -111,9 +117,17 @@ impl Mul<Self> for &Matrix {
 
         Matrix {
             r: self.r,
-            c: rhs.c,
+            c: rhs.as_ref().c,
             arr: v,
         }
+    }
+}
+
+impl<T: AsRef<Matrix>> Mul<T> for &Matrix {
+    type Output = Matrix;
+
+    fn mul(self, rhs: T) -> Self::Output {
+        *self * rhs
     }
 }
 

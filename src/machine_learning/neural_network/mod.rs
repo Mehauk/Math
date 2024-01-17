@@ -90,13 +90,13 @@ impl NeuralNetwork {
         contents += "\n\n";
 
         for w in self._weigths.iter() {
-            contents += w.to_str();
+            contents += &w.to_str();
         }
 
         contents += "\n";
 
         for b in self._biases.iter() {
-            contents += b.to_str();
+            contents += &b.to_str();
         }
 
         contents += "\n";

@@ -1,6 +1,6 @@
 use std::{
     fmt::{Debug, Display},
-    ops::{Add, AddAssign, Div, Index, Mul, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, Index, IndexMut, Mul, Sub, SubAssign},
 };
 
 use super::Matrix;
@@ -10,6 +10,12 @@ impl Index<(usize, usize)> for Matrix {
 
     fn index(&self, index: (usize, usize)) -> &f64 {
         &self.arr[index.1 + self.c * index.0]
+    }
+}
+
+impl IndexMut<(usize, usize)> for Matrix {
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
+        &mut self.arr[index.1 + self.c * index.0]
     }
 }
 
@@ -23,6 +29,13 @@ impl<T: AsRef<Matrix>> Add<T> for Matrix {
     type Output = Self;
 
     fn add(mut self, rhs: T) -> Self::Output {
+        self.add_assign(rhs);
+        self
+    }
+}
+
+impl<T: AsRef<Matrix>> AddAssign<T> for Matrix {
+    fn add_assign(&mut self, rhs: T) {
         if rhs.as_ref().r != self.r || rhs.as_ref().c != self.c {
             panic!("Cannot add matrices of different shape");
         }
@@ -30,14 +43,6 @@ impl<T: AsRef<Matrix>> Add<T> for Matrix {
         for i in 0..self.r * self.c {
             self.arr[i] += rhs.as_ref().arr[i];
         }
-
-        self
-    }
-}
-
-impl<T: AsRef<Matrix>> AddAssign<T> for Matrix {
-    fn add_assign(&mut self, rhs: T) {
-        *self = *self + rhs;
     }
 }
 
@@ -45,6 +50,13 @@ impl<T: AsRef<Matrix>> Sub<T> for Matrix {
     type Output = Self;
 
     fn sub(mut self, rhs: T) -> Self::Output {
+        self.sub_assign(rhs);
+        self
+    }
+}
+
+impl<T: AsRef<Matrix>> SubAssign<T> for Matrix {
+    fn sub_assign(&mut self, rhs: T) {
         if rhs.as_ref().r != self.r || rhs.as_ref().c != self.c {
             panic!("Cannot subtract matrices of different shape");
         }
@@ -52,14 +64,6 @@ impl<T: AsRef<Matrix>> Sub<T> for Matrix {
         for i in 0..self.r * self.c {
             self.arr[i] -= rhs.as_ref().arr[i];
         }
-
-        self
-    }
-}
-
-impl<T: AsRef<Matrix>> SubAssign<T> for Matrix {
-    fn sub_assign(&mut self, rhs: T) {
-        *self = *self - rhs;
     }
 }
 
@@ -90,7 +94,7 @@ impl Div<f64> for Matrix {
     }
 }
 
-impl<T: AsRef<Matrix>> Mul<T> for Matrix {
+impl<T: AsRef<Matrix>> Mul<T> for &Matrix {
     type Output = Matrix;
 
     fn mul(self, rhs: T) -> Self::Output {
@@ -123,11 +127,11 @@ impl<T: AsRef<Matrix>> Mul<T> for Matrix {
     }
 }
 
-impl<T: AsRef<Matrix>> Mul<T> for &Matrix {
+impl<T: AsRef<Matrix>> Mul<T> for Matrix {
     type Output = Matrix;
 
     fn mul(self, rhs: T) -> Self::Output {
-        *self * rhs
+        (&self).mul(rhs)
     }
 }
 

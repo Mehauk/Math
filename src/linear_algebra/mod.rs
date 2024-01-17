@@ -36,7 +36,7 @@ impl Matrix {
     }
 
     pub fn from_distribution(r: usize, c: usize, distribution: &impl Distribution<f64>) -> Self {
-        let mut v: Vec<f64> = (0..r * c)
+        let v: Vec<f64> = (0..r * c)
             .map(|_| rand::thread_rng().sample(&distribution))
             .collect();
         Matrix { r, c, arr: v }

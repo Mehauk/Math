@@ -22,11 +22,31 @@ impl Matrix {
         self.arr.iter()
     }
 
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, f64> {
+        self.arr.iter_mut()
+    }
+
+    pub fn apply_into(mut self, func: fn(&mut f64)) -> Self {
+        self.iter_mut().for_each(|f| func(f));
+        self
+    }
+
+    pub fn component_mul(mut self, other: &Matrix) -> Self {
+        self.iter_mut()
+            .zip(other.iter())
+            .for_each(|(a, b)| *a = *a * *b);
+
+        self
+    }
+
     pub fn index_of_max(&self) -> usize {
-        let mut index: usize;
+        let mut index: usize = 0;
         let mut max: f64 = f64::MIN;
         for (i, v) in self.arr.iter().enumerate() {
-            
+            if *v > max {
+                index = i;
+                max = *v;
+            }
         }
 
         index
@@ -185,8 +205,8 @@ impl Matrix {
 
 // Serialize
 impl Matrix {
-    pub fn to_str(&self) -> &str {
-        &format!(
+    pub fn to_str(&self) -> String {
+        format!(
             "{},{} - {}\n",
             self.r,
             self.c,

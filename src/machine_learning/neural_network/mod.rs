@@ -38,22 +38,7 @@ impl NeuralNetwork {
     }
 
     pub fn zeros(shape: Vec<usize>) -> NeuralNetwork {
-        let length = shape.len();
-        let weigths: Vec<Matrix> = shape[1..length]
-            .iter()
-            .zip(&shape[0..length - 1])
-            .map(|(a, b)| Matrix::zeros(*a, *b))
-            .collect();
-        let biases: Vec<Matrix> = shape[1..length]
-            .iter()
-            .map(|a| Matrix::zeros(*a, 1))
-            .collect();
-
-        NeuralNetwork {
-            _weigths: weigths,
-            _biases: biases,
-            _shape: shape,
-        }
+        NeuralNetwork::scalar(shape, 0.0)
     }
 
     pub fn scalar(shape: Vec<usize>, scale: f64) -> NeuralNetwork {
@@ -187,7 +172,7 @@ mod tests {
     use super::NeuralNetwork;
 
     pub fn init_network(v: Vec<usize>) -> (NeuralNetwork, DataSet) {
-        let mut nn = NeuralNetwork::scalar(v, 0.1);
+        let nn = NeuralNetwork::scalar(v, 0.1);
 
         let ds = DataSet {
             training_data: (0..10000)
@@ -209,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_saving_and_loading() {
-        let (nn, _) = init_network(vec![1, 3, 2]);
+        let (nn, _) = init_network(vec![12, 222, 21]);
         let file = "output/before.nn";
 
         nn.save(file).unwrap();

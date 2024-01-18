@@ -84,6 +84,49 @@ impl NeuralNetwork {
         let number_of_batches = data_set_length / batch_size;
         let remaining_data = data_set_length % batch_size;
 
+        // if remaining_data > 0 {
+        //     number_of_batches += 1;
+        // }
+
+        for n in 0..number_of_batches {
+            self.step(
+                self.calculate_batch_step(
+                    data_set,
+                    n * batch_size,
+                    (n + 1) * batch_size,
+                    activation_function,
+                )
+                .unwrap(),
+                learning_rate / batch_size as f64,
+            );
+        }
+
+        if remaining_data > 0 {
+            self.step(
+                self.calculate_batch_step(
+                    data_set,
+                    number_of_batches * batch_size,
+                    number_of_batches * batch_size + remaining_data,
+                    activation_function,
+                )
+                .unwrap(),
+                learning_rate / remaining_data as f64,
+            );
+        }
+    }
+
+    // train using stochastic gradient descent
+    pub fn train_verbose(
+        &mut self,
+        data_set: &DataSet,
+        batch_size: usize,
+        learning_rate: f64,
+        activation_function: &Function,
+    ) {
+        let data_set_length = data_set.training_data.len();
+        let number_of_batches = data_set_length / batch_size;
+        let remaining_data = data_set_length % batch_size;
+
         let mut loading_indicator: [char; 10] = ['_'; 10];
         print!(
             "\rTraining in progress: {} - {:0>3.2}% complete",
@@ -247,8 +290,8 @@ mod tests {
         let y = nn.propagate(&ds.training_data.first().unwrap().data, f.activate);
         let x = nn.propagate(&ds.training_data.first().unwrap().data, f.activate);
 
-        assert!(x.len() == 2);
-        assert!(y.len() == 2);
+        assert!(x.get_col(0).unwrap().len() == 2);
+        assert!(y.get_col(0).unwrap().len() == 2);
         assert_eq!(x, y);
     }
 
@@ -260,8 +303,8 @@ mod tests {
         let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
         let cost = NeuralNetwork::_cost(&output, 1);
 
-        assert!(cost[0] - 0.3 < 0.01);
-        assert!(cost[1] - 0.2 < 0.01);
+        assert!(cost[(0, 0)] - 0.3 < 0.01);
+        assert!(cost[(1, 0)] - 0.2 < 0.01);
     }
 
     #[test]
@@ -272,8 +315,8 @@ mod tests {
         let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
         let derivative = NeuralNetwork::cost_derivative(&output, 1);
 
-        assert!(derivative[0] - 1.1 < 0.01);
-        assert!(derivative[1] + 0.9 < 0.01);
+        assert!(derivative[(0, 0)] - 1.1 < 0.01);
+        assert!(derivative[(1, 0)] + 0.9 < 0.01);
     }
 
     #[test]
@@ -281,21 +324,23 @@ mod tests {
         let (nn, ds) = init_network(vec![1, 2, 2]);
         let batch_step = nn.calculate_batch_step(&ds, 0, 1, &Function::sigmoid());
 
+        println!("{:#?}", batch_step);
+
         match batch_step {
             Some(step) => {
-                assert!(step._biases[0][0] - 0.0012 < 0.0001);
-                assert!(step._biases[0][1] - 0.0012 < 0.0001);
+                assert!(step._biases[0][(0, 0)] - 0.0012 < 0.0001);
+                assert!(step._biases[0][(1, 0)] - 0.0012 < 0.0001);
 
-                assert!(step._weigths[0][0] == 0.0);
-                assert!(step._weigths[0][1] == 0.0);
+                assert!(step._weigths[0][(0, 0)] == 0.0);
+                assert!(step._weigths[0][(1, 0)] == 0.0);
 
-                assert!(step._biases[1][0] - 0.27 < 0.01);
-                assert!(step._biases[1][1] - 0.27 < 0.01);
+                assert!(step._biases[1][(0, 0)] - 0.27 < 0.01);
+                assert!(step._biases[1][(1, 0)] - 0.27 < 0.01);
 
-                assert!(step._weigths[1][0] - 0.14 < 0.01);
-                assert!(step._weigths[1][1] + 0.11 < 0.01);
-                assert!(step._weigths[1][2] - 0.14 < 0.01);
-                assert!(step._weigths[1][3] + 0.11 < 0.01);
+                assert!(step._weigths[1][(0, 0)] - 0.14 < 0.01);
+                assert!(step._weigths[1][(1, 0)] + 0.11 < 0.01);
+                assert!(step._weigths[1][(0, 1)] - 0.14 < 0.01);
+                assert!(step._weigths[1][(1, 1)] + 0.11 < 0.01);
             }
             None => panic!("No batch step calculated."),
         }
@@ -312,14 +357,12 @@ mod tests {
         assert!(
             0 == nn
                 .propagate(&Matrix::from_vec(1, 1, vec![0.7]), f.activate)
-                .argmax()
-                .0
+                .index_of_max()
         );
         assert!(
             1 == nn
                 .propagate(&Matrix::from_vec(1, 1, vec![0.4]), f.activate)
-                .argmax()
-                .0
+                .index_of_max()
         );
     }
 
@@ -334,14 +377,12 @@ mod tests {
         assert!(
             0 == nn
                 .propagate(&Matrix::from_vec(1, 1, vec![0.7]), f.activate)
-                .argmax()
-                .0
+                .index_of_max()
         );
         assert!(
             1 == nn
                 .propagate(&Matrix::from_vec(1, 1, vec![0.4]), f.activate)
-                .argmax()
-                .0
+                .index_of_max()
         );
     }
 }

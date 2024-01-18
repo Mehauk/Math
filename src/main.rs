@@ -71,7 +71,7 @@ fn main() -> Result<(), Error> {
                         .sort_by(|_, _| rand::random::<f32>().partial_cmp(&0.5).unwrap());
 
                     println!("training {}", epi);
-                    nn.train(
+                    nn.train_verbose(
                         &ds,
                         batch_size as usize,
                         learning_rate,

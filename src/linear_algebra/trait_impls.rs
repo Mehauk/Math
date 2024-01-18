@@ -8,12 +8,14 @@ use super::Matrix;
 impl Index<(usize, usize)> for Matrix {
     type Output = f64;
 
+    /// (row, col)
     fn index(&self, index: (usize, usize)) -> &f64 {
         &self.arr[index.1 + self.c * index.0]
     }
 }
 
 impl IndexMut<(usize, usize)> for Matrix {
+    /// (row, col)
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
         &mut self.arr[index.1 + self.c * index.0]
     }

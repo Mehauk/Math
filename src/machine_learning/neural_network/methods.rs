@@ -1,5 +1,9 @@
+use std::{iter::Map, slice::Chunks};
+
 use crate::{
-    calculus::functions::Function, linear_algebra::Matrix, machine_learning::dataset::DataSet,
+    calculus::functions::Function,
+    linear_algebra::Matrix,
+    machine_learning::dataset::{DataSet, DataVector},
 };
 
 use super::NeuralNetwork;
@@ -79,40 +83,20 @@ impl NeuralNetwork {
         batch_size: usize,
         learning_rate: f64,
         activation_function: &Function,
-    ) {
-        let data_set_length = data_set.training_data.len();
-        let number_of_batches = data_set_length / batch_size;
-        let remaining_data = data_set_length % batch_size;
-
-        // if remaining_data > 0 {
-        //     number_of_batches += 1;
-        // }
-
-        for n in 0..number_of_batches {
-            self.step(
-                self.calculate_batch_step(
-                    data_set,
-                    n * batch_size,
-                    (n + 1) * batch_size,
-                    activation_function,
+    ) -> Map<Chunks<'_, DataVector>, impl FnMut(&[DataVector])> {
+         data_set
+            .training_data
+            .chunks(batch_size)
+            .map(move |data_slice| {
+                self.step(
+                    self.calculate_batch_step(data_slice, activation_function)
+                        .unwrap(),
+                    learning_rate / data_slice.len() as f64,
                 )
-                .unwrap(),
-                learning_rate / batch_size as f64,
-            );
-        }
+            })
 
-        if remaining_data > 0 {
-            self.step(
-                self.calculate_batch_step(
-                    data_set,
-                    number_of_batches * batch_size,
-                    number_of_batches * batch_size + remaining_data,
-                    activation_function,
-                )
-                .unwrap(),
-                learning_rate / remaining_data as f64,
-            );
-        }
+            
+        
     }
 
     // train using stochastic gradient descent
@@ -123,68 +107,66 @@ impl NeuralNetwork {
         learning_rate: f64,
         activation_function: &Function,
     ) {
-        let data_set_length = data_set.training_data.len();
-        let number_of_batches = data_set_length / batch_size;
-        let remaining_data = data_set_length % batch_size;
+        // let data_set_length = data_set.training_data.len();
+        // let number_of_batches = data_set_length / batch_size;
+        // let remaining_data = data_set_length % batch_size;
 
-        let mut loading_indicator: [char; 10] = ['_'; 10];
-        print!(
-            "\rTraining in progress: {} - {:0>3.2}% complete",
-            loading_indicator.iter().collect::<String>(),
-            0.0
-        );
-        for n in 0..number_of_batches {
-            let fraction = n as f64 / number_of_batches as f64;
-            loading_indicator[(fraction * 9.0) as usize] = '█';
-            self.step(
-                self.calculate_batch_step(
-                    data_set,
-                    n * batch_size,
-                    (n + 1) * batch_size,
-                    activation_function,
-                )
-                .unwrap(),
-                learning_rate / batch_size as f64,
-            );
+        // let mut loading_indicator: [char; 10] = ['_'; 10];
+        // print!(
+        //     "\rTraining in progress: {} - {:0>3.2}% complete",
+        //     loading_indicator.iter().collect::<String>(),
+        //     0.0
+        // );
+        // for n in 0..number_of_batches {
+        //     let fraction = n as f64 / number_of_batches as f64;
+        //     loading_indicator[(fraction * 9.0) as usize] = '█';
+        //     self.step(
+        //         self.calculate_batch_step(
+        //             data_set,
+        //             n * batch_size,
+        //             (n + 1) * batch_size,
+        //             activation_function,
+        //         )
+        //         .unwrap(),
+        //         learning_rate / batch_size as f64,
+        //     );
 
-            print!(
-                "\rTraining in progress: {} - {:0>3.2}% complete",
-                loading_indicator.iter().collect::<String>(),
-                fraction * 100.0,
-            );
-        }
+        //     print!(
+        //         "\rTraining in progress: {} - {:0>3.2}% complete",
+        //         loading_indicator.iter().collect::<String>(),
+        //         fraction * 100.0,
+        //     );
+        // }
 
-        if remaining_data > 0 {
-            self.step(
-                self.calculate_batch_step(
-                    data_set,
-                    number_of_batches * batch_size,
-                    number_of_batches * batch_size + remaining_data,
-                    activation_function,
-                )
-                .unwrap(),
-                learning_rate / remaining_data as f64,
-            );
-        }
+        // if remaining_data > 0 {
+        //     self.step(
+        //         self.calculate_batch_step(
+        //             data_set,
+        //             number_of_batches * batch_size,
+        //             number_of_batches * batch_size + remaining_data,
+        //             activation_function,
+        //         )
+        //         .unwrap(),
+        //         learning_rate / remaining_data as f64,
+        //     );
+        // }
 
-        loading_indicator[9] = '█';
-        print!(
-            "\rTraining in progress: {} - {:0>3.2}% complete\n",
-            loading_indicator.iter().collect::<String>(),
-            100.0,
-        );
+        // loading_indicator[9] = '█';
+        // print!(
+        //     "\rTraining in progress: {} - {:0>3.2}% complete\n",
+        //     loading_indicator.iter().collect::<String>(),
+        //     100.0,
+        // );
     }
 
     fn calculate_batch_step(
         &self,
-        data_set: &DataSet,
-        batch_start: usize,
-        batch_end: usize,
+        data_set: &[DataVector],
         activation_function: &Function,
     ) -> Option<Self> {
         let mut delta_network = NeuralNetwork::zeros(self._shape.clone());
-        for i in batch_start..batch_end {
-            let training_data = &data_set.training_data[i];
+        for d in data_set.iter() {
+            let training_data = d;
             let mut nodes = self.propagate_returning_all_nodes_prior_to_activation(
                 &training_data.data,
                 activation_function.activate,
@@ -322,7 +304,7 @@ mod tests {
     #[test]
     fn test_batch_step() {
         let (nn, ds) = init_network(vec![1, 2, 2]);
-        let batch_step = nn.calculate_batch_step(&ds, 0, 1, &Function::sigmoid());
+        let batch_step = nn.calculate_batch_step(&ds.training_data, &Function::sigmoid());
 
         println!("{:#?}", batch_step);
 

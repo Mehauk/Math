@@ -77,26 +77,23 @@ impl NeuralNetwork {
     }
 
     // train using stochastic gradient descent
-    pub fn train(
-        &mut self,
-        data_set: &DataSet,
+    pub fn train<'a>(
+        &'a mut self,
+        data_set: &'a DataSet,
         batch_size: usize,
         learning_rate: f64,
-        activation_function: &Function,
-    ) -> Map<Chunks<'_, DataVector>, impl FnMut(&[DataVector])> {
-         data_set
+        activation_function: &'a Function,
+    ) -> Map<Chunks<'_, DataVector>, impl FnMut(&'a [DataVector])> {
+        data_set
             .training_data
             .chunks(batch_size)
-            .map(move |data_slice| {
+            .map(move |data_slice: &'a [DataVector]| {
                 self.step(
                     self.calculate_batch_step(data_slice, activation_function)
                         .unwrap(),
                     learning_rate / data_slice.len() as f64,
                 )
             })
-
-            
-        
     }
 
     // train using stochastic gradient descent
@@ -107,56 +104,25 @@ impl NeuralNetwork {
         learning_rate: f64,
         activation_function: &Function,
     ) {
-        // let data_set_length = data_set.training_data.len();
-        // let number_of_batches = data_set_length / batch_size;
-        // let remaining_data = data_set_length % batch_size;
+        let map = self.train(data_set, batch_size, learning_rate, activation_function);
 
-        // let mut loading_indicator: [char; 10] = ['_'; 10];
-        // print!(
-        //     "\rTraining in progress: {} - {:0>3.2}% complete",
-        //     loading_indicator.iter().collect::<String>(),
-        //     0.0
-        // );
-        // for n in 0..number_of_batches {
-        //     let fraction = n as f64 / number_of_batches as f64;
-        //     loading_indicator[(fraction * 9.0) as usize] = '█';
-        //     self.step(
-        //         self.calculate_batch_step(
-        //             data_set,
-        //             n * batch_size,
-        //             (n + 1) * batch_size,
-        //             activation_function,
-        //         )
-        //         .unwrap(),
-        //         learning_rate / batch_size as f64,
-        //     );
+        let total_iterations = map.len() as f64;
+        let mut current_iteration = 1.0;
 
-        //     print!(
-        //         "\rTraining in progress: {} - {:0>3.2}% complete",
-        //         loading_indicator.iter().collect::<String>(),
-        //         fraction * 100.0,
-        //     );
-        // }
+        let mut loading_indicator: [char; 10] = ['_'; 10];
 
-        // if remaining_data > 0 {
-        //     self.step(
-        //         self.calculate_batch_step(
-        //             data_set,
-        //             number_of_batches * batch_size,
-        //             number_of_batches * batch_size + remaining_data,
-        //             activation_function,
-        //         )
-        //         .unwrap(),
-        //         learning_rate / remaining_data as f64,
-        //     );
-        // }
+        map.for_each(|_| {
+            current_iteration += 1.0;
+            let fraction = current_iteration / total_iterations;
 
-        // loading_indicator[9] = '█';
-        // print!(
-        //     "\rTraining in progress: {} - {:0>3.2}% complete\n",
-        //     loading_indicator.iter().collect::<String>(),
-        //     100.0,
-        // );
+            loading_indicator[(fraction * 10.0) as usize] = '█';
+
+            print!(
+                "\rTraining in progress: {} - {:0>3.2}% complete",
+                loading_indicator.iter().collect::<String>(),
+                fraction * 100.0,
+            )
+        });
     }
 
     fn calculate_batch_step(
@@ -304,9 +270,7 @@ mod tests {
     #[test]
     fn test_batch_step() {
         let (nn, ds) = init_network(vec![1, 2, 2]);
-        let batch_step = nn.calculate_batch_step(&ds.training_data, &Function::sigmoid());
-
-        println!("{:#?}", batch_step);
+        let batch_step = nn.calculate_batch_step(&ds.training_data[0..1], &Function::sigmoid());
 
         match batch_step {
             Some(step) => {
@@ -334,13 +298,14 @@ mod tests {
 
         let f = Function::sigmoid();
 
-        nn.train(&ds, 1, 1.0, &f);
+        nn.train(&ds, 1, 1.0, &f).for_each(|_| {});
 
         assert!(
             0 == nn
                 .propagate(&Matrix::from_vec(1, 1, vec![0.7]), f.activate)
                 .index_of_max()
         );
+
         assert!(
             1 == nn
                 .propagate(&Matrix::from_vec(1, 1, vec![0.4]), f.activate)
@@ -354,7 +319,7 @@ mod tests {
 
         let f = Function::normal_arctan();
 
-        nn.train(&ds, 1, 1.0, &f);
+        nn.train(&ds, 1, 1.0, &f).for_each(|_| {});
 
         assert!(
             0 == nn

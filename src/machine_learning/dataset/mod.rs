@@ -26,7 +26,7 @@ impl DataSet {
     }
 }
 
-// TODO: convert to Trait?
+#[derive(Debug)]
 pub struct DataVector {
     /// `ArrayStorage` requires constant usize for Row and Column.
     ///

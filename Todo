@@ -1,5 +1,6 @@
 - [x] add Saving and loading network
 - [ ] try adding arctan to every calculation?
 - [x] randomize testing data and run multiple times
-- [ ] remove training prints?
-- [ ] Switch from Nalgebra to ndArray? implement matrix mult, transpose, and comp mult manually?
+- [x] ~~remove training prints?~~ training logs still exist but are optional
+- [x] Remove Nalgebra Dependancy?
+- [ ] Use ndArray, or BLAS and Rayon

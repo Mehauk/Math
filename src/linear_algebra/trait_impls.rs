@@ -73,7 +73,7 @@ impl Mul<Matrix> for f64 {
     type Output = Matrix;
 
     fn mul(self, mut rhs: Matrix) -> Self::Output {
-        rhs.arr.iter_mut().for_each(|e| *e *= self);
+        rhs.iter_mut().for_each(|e| *e *= self);
         rhs
     }
 }
@@ -82,7 +82,7 @@ impl Mul<f64> for Matrix {
     type Output = Matrix;
 
     fn mul(mut self, rhs: f64) -> Self::Output {
-        self.arr.iter_mut().for_each(|e| *e *= rhs);
+        self.iter_mut().for_each(|e| *e *= rhs);
         self
     }
 }
@@ -91,7 +91,7 @@ impl Div<f64> for Matrix {
     type Output = Matrix;
 
     fn div(mut self, rhs: f64) -> Self::Output {
-        self.arr.iter_mut().for_each(|e| *e /= rhs);
+        self.iter_mut().for_each(|e| *e /= rhs);
         self
     }
 }

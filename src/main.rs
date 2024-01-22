@@ -3,6 +3,9 @@ mod linear_algebra;
 mod machine_learning;
 mod utilities;
 
+extern crate cblas;
+extern crate openblas_src;
+
 use std::{io::stdin, io::Error};
 
 use machine_learning::{

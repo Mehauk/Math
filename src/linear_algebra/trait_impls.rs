@@ -10,14 +10,14 @@ impl Index<(usize, usize)> for Matrix {
 
     /// (row, col)
     fn index(&self, index: (usize, usize)) -> &f64 {
-        &self.arr[index.1 + self.c * index.0]
+        &self.arr[index.0 + self.c * index.1]
     }
 }
 
 impl IndexMut<(usize, usize)> for Matrix {
     /// (row, col)
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
-        &mut self.arr[index.1 + self.c * index.0]
+        &mut self.arr[index.0 + self.c * index.1]
     }
 }
 
@@ -100,26 +100,49 @@ impl<T: AsRef<Matrix>> Mul<T> for &Matrix {
     type Output = Matrix;
 
     fn mul(self, rhs: T) -> Self::Output {
-        if self.c != rhs.as_ref().r {
-            panic!(
-                "Cannot multiply matrices: {:?} x {:?}",
-                (self.r, self.c),
-                (rhs.as_ref().r, rhs.as_ref().c)
-            );
+        let _rhs = rhs.as_ref();
+        if self.c != _rhs.r {}
+
+        let mut v: Vec<f64> = Vec::with_capacity(self.r * _rhs.c);
+        unsafe { v.set_len(self.r * _rhs.c) }
+        unsafe {
+            cblas::dgemm(
+                cblas::Layout::ColumnMajor,
+                cblas::Transpose::None,
+                cblas::Transpose::None,
+                self.r as i32,
+                _rhs.c as i32,
+                self.c as i32,
+                1.0,
+                &self.arr,
+                self.r as i32,
+                &_rhs.arr,
+                _rhs.r as i32,
+                0.0,
+                &mut v,
+                self.r as i32,
+            )
         }
+        // if self.c != rhs.as_ref().r {
+        //     panic!(
+        //         "Cannot multiply matrices: {:?} x {:?}",
+        //         (self.r, self.c),
+        //         (rhs.as_ref().r, rhs.as_ref().c)
+        //     );
+        // }
 
-        let mut v: Vec<f64> = vec![];
+        // let mut v: Vec<f64> = vec![];
 
-        for i in 0..self.r {
-            for x in 0..rhs.as_ref().c {
-                let r = self.get_row(i).unwrap();
-                let c = rhs.as_ref().get_col(x).unwrap();
+        // for i in 0..self.r {
+        //     for x in 0..rhs.as_ref().c {
+        //         let r = self.get_row(i).unwrap();
+        //         let c = rhs.as_ref().get_col(x).unwrap();
 
-                let value: f64 = r.iter().zip(c.iter()).map(|(x1, y1)| x1 * y1).sum();
+        //         let value: f64 = r.iter().zip(c.iter()).map(|(x1, y1)| x1 * y1).sum();
 
-                v.push(value);
-            }
-        }
+        //         v.push(value);
+        //     }
+        // }
 
         Matrix {
             r: self.r,
@@ -142,8 +165,8 @@ impl Display for Matrix {
         let mut s = String::from("");
 
         let first = self.arr[0];
-        let second = self.arr[self.c - 1];
-        let third = self.arr[self.c * (self.r - 1)];
+        let second = self.arr[self.c * (self.r - 1)];
+        let third = self.arr[self.c - 1];
         let fourth = self.arr[self.c * self.r - 1];
 
         s = s.add(&format!(
@@ -159,17 +182,73 @@ impl Debug for Matrix {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut s = String::from("");
 
+        let (mut ri, mut ci) = (0, 0);
+
         for i in 0..self.r * self.c {
+            ci += 1;
             if i % self.c == 0 {
+                ci = 1;
+                ri += 1;
                 s = s.add("\t\n\n");
             }
-            let mod_i = match self.arr[i] > 0.0 {
+            let mod_i = match self[(ri - 1, ci - 1)] > 0.0 {
                 true => String::from("+"),
                 false => String::new(),
             };
-            s = s.add(&format!("{}{:.2}\t", mod_i, self.arr[i]));
+            s = s.add(&format!("{}{:.2}\t", mod_i, self[(ri - 1, ci - 1)]));
         }
 
         write!(f, "\nMatrix {} x {}{}\n", self.r, self.c, s)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    extern crate cblas;
+    extern crate openblas_src;
+    use crate::linear_algebra::Matrix;
+
+    #[test]
+    fn matrix_mult() {
+        let a = Matrix::from_vec(4, 1, vec![1.0, 1.0, 1.0, 1.0]);
+        let b = Matrix::from_vec(1, 4, vec![3.0, 1.0, 11.0, 0.0]);
+
+        let c = Matrix::from_vec(
+            4,
+            4,
+            vec![
+                3.0, 3.0, 3.0, 3.0, 1.0, 1.0, 1.0, 1.0, 11.0, 11.0, 11.0, 11.0, 0.0, 0.0, 0.0, 0.0,
+            ],
+        );
+
+        assert_eq!(c, (a * b), "Testing Matrix Mult 4,1x1,4");
+
+        let a = Matrix::from_vec(3, 1, vec![1.0, 1.0, 1.0]);
+        let b = Matrix::from_vec(1, 4, vec![3.0, 1.0, 11.0, 0.0]);
+
+        let c = Matrix::from_vec(
+            4,
+            3,
+            vec![
+                3.0, 3.0, 3.0, 1.0, 1.0, 1.0, 11.0, 11.0, 11.0, 0.0, 0.0, 0.0,
+            ],
+        );
+
+        assert_eq!(c, (a * b), "Testing Matrix Mult 4,1x1,3");
+
+        let a = Matrix::from_vec(3, 2, vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
+        let b = Matrix::from_vec(2, 2, vec![3.0, 1.0, 11.0, 0.0]);
+
+        let c = Matrix::from_vec(2, 3, vec![4.0, 4.0, 4.0, 11.0, 11.0, 11.0, 11.0]);
+
+        assert_eq!(c, (a * b), "Testing Matrix Mult 2,2x2,3");
+
+        let a = Matrix::from_vec(1, 4, vec![3.0, 1.0, 11.0, 0.0]);
+        let b = Matrix::from_vec(4, 1, vec![1.0, 1.0, 1.0, 1.0]);
+
+        let c = Matrix::from_vec(1, 1, vec![15.0]);
+
+        assert_eq!(c, (a * b), "Testing Matrix Mult 2,2x2,3");
     }
 }

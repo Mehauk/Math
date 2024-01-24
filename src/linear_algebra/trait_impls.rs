@@ -204,9 +204,6 @@ impl Debug for Matrix {
 
 #[cfg(test)]
 mod tests {
-
-    extern crate cblas;
-    extern crate openblas_src;
     use crate::linear_algebra::Matrix;
 
     #[test]
@@ -228,27 +225,27 @@ mod tests {
         let b = Matrix::from_vec(1, 4, vec![3.0, 1.0, 11.0, 0.0]);
 
         let c = Matrix::from_vec(
-            4,
             3,
+            4,
             vec![
                 3.0, 3.0, 3.0, 1.0, 1.0, 1.0, 11.0, 11.0, 11.0, 0.0, 0.0, 0.0,
             ],
         );
 
-        assert_eq!(c, (a * b), "Testing Matrix Mult 4,1x1,3");
+        assert_eq!(c, (a * b), "Testing Matrix Mult 3,1x1,4");
 
         let a = Matrix::from_vec(3, 2, vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
         let b = Matrix::from_vec(2, 2, vec![3.0, 1.0, 11.0, 0.0]);
 
-        let c = Matrix::from_vec(2, 3, vec![4.0, 4.0, 4.0, 11.0, 11.0, 11.0, 11.0]);
+        let c = Matrix::from_vec(3, 2, vec![4.0, 4.0, 4.0, 11.0, 11.0, 11.0]);
 
-        assert_eq!(c, (a * b), "Testing Matrix Mult 2,2x2,3");
+        assert_eq!(c, (a * b), "Testing Matrix Mult 3,2x2,2");
 
         let a = Matrix::from_vec(1, 4, vec![3.0, 1.0, 11.0, 0.0]);
         let b = Matrix::from_vec(4, 1, vec![1.0, 1.0, 1.0, 1.0]);
 
         let c = Matrix::from_vec(1, 1, vec![15.0]);
 
-        assert_eq!(c, (a * b), "Testing Matrix Mult 2,2x2,3");
+        assert_eq!(c, (a * b), "Testing Matrix Mult 1,4x4,1");
     }
 }

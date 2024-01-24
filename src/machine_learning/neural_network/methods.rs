@@ -113,9 +113,9 @@ impl NeuralNetwork {
 
         map.for_each(|_| {
             current_iteration += 1.0;
-            let fraction = current_iteration / total_iterations;
+            let fraction = (current_iteration - 1.0) / total_iterations;
 
-            loading_indicator[(fraction * 10.0) as usize] = '█';
+            loading_indicator[(fraction * 9.0) as usize] = '█';
 
             print!(
                 "\rTraining in progress: {} - {:0>3.2}% complete",
@@ -123,6 +123,7 @@ impl NeuralNetwork {
                 fraction * 100.0,
             )
         });
+        println!("");
     }
 
     fn calculate_batch_step(

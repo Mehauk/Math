@@ -73,7 +73,7 @@ fn main() -> Result<(), Error> {
                     ds.training_data
                         .sort_by(|_, _| rand::random::<f32>().partial_cmp(&0.5).unwrap());
 
-                    println!("training {}", epi);
+                    println!("=====Training-{}=====", epi);
                     nn.train_verbose(
                         &ds,
                         batch_size as usize,
@@ -86,6 +86,7 @@ fn main() -> Result<(), Error> {
                         "\rTesting completed with {}% accuracy\n",
                         nn.test(&ds, &activation_function) * 100.0
                     );
+                    println!("=====================");
                 }
                 println!("");
             }

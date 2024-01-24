@@ -11,3 +11,4 @@ image = "0.24.7"
 num-traits = "0.2"
 openblas-src = {version = "0.10.8", features = ["system"]}
 rand = "0.8.5"
+rayon = "1.8.1"

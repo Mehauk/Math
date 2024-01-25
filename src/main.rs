@@ -84,7 +84,7 @@ fn main() -> Result<(), Error> {
                     print!("Testing in Progress...");
                     print!(
                         "\rTesting completed with {}% accuracy\n",
-                        nn.test(&ds, &activation_function) * 100.0
+                        nn.test(&mut ds, &activation_function) * 100.0
                     );
                     println!("=====================");
                 }

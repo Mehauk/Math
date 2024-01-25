@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use std::ptr::swap_nonoverlapping;
 
 use super::Matrix;
@@ -26,14 +27,22 @@ impl Matrix {
         self.arr.iter_mut()
     }
 
+    pub fn par_iter(&self) -> rayon::slice::Iter<'_, f64> {
+        self.arr.par_iter()
+    }
+
+    pub fn par_iter_mut(&mut self) -> rayon::slice::IterMut<'_, f64> {
+        self.arr.par_iter_mut()
+    }
+
     pub fn apply_into(mut self, func: fn(&mut f64)) -> Self {
-        self.iter_mut().for_each(|f| func(f));
+        self.par_iter_mut().for_each(|f| func(f));
         self
     }
 
     pub fn component_mul(mut self, other: &Matrix) -> Self {
-        self.iter_mut()
-            .zip(other.iter())
+        self.par_iter_mut()
+            .zip(other.par_iter())
             .for_each(|(a, b)| *a = *a * *b);
 
         self

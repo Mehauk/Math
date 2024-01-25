@@ -6,6 +6,8 @@ use crate::{
     machine_learning::dataset::{DataSet, DataVector},
 };
 
+use rayon::prelude::*;
+
 use super::NeuralNetwork;
 
 // NN Methods
@@ -189,16 +191,21 @@ impl NeuralNetwork {
 
     pub fn test(&self, data_set: &DataSet, activation_function: &Function) -> f64 {
         let data_set_length = data_set.testing_data.len() as f64;
-        let mut total_correct = 0.0;
 
-        for image in data_set.testing_data.iter() {
+        let correct_filtered = data_set.testing_data.par_iter().filter(|image| {
             let res = self.propagate(&image.data, activation_function.activate);
             if res.index_of_max() == (image.label as usize) {
-                total_correct += 1.0;
+                return true;
             }
+
+            false
+        });
+
+        if let Some(u) = correct_filtered.opt_len() {
+            return u as f64 / data_set_length;
         }
 
-        total_correct / data_set_length
+        0.0
     }
 }
 

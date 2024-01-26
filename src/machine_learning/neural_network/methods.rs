@@ -338,4 +338,12 @@ mod tests {
                 .index_of_max()
         );
     }
+
+    #[test]
+    fn test_testing_network() {
+        let (mut nn, ds) = init_network(vec![1, 3, 2]);
+
+
+        
+    }
 }

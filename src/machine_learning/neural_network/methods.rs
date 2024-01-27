@@ -201,11 +201,8 @@ impl NeuralNetwork {
             false
         });
 
-        if let Some(u) = correct_filtered.opt_len() {
-            return u as f64 / data_set_length;
-        }
-
-        0.0
+        let u = correct_filtered.collect::<Vec<&DataVector>>().len();
+        u as f64 / data_set_length
     }
 }
 
@@ -342,8 +339,10 @@ mod tests {
     #[test]
     fn test_testing_network() {
         let (mut nn, ds) = init_network(vec![1, 3, 2]);
+        let f = Function::normal_arctan();
 
+        nn.train(&ds, 1, 1.0, &f).for_each(|_| {});
 
-        
+        assert!(nn.test(&ds, &f) > 0.7);
     }
 }

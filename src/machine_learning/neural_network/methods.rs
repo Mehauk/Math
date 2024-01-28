@@ -210,14 +210,14 @@ impl NeuralNetwork {
 mod tests {
     use crate::{
         calculus::functions::Function, linear_algebra::Matrix,
-        machine_learning::neural_network::tests::init_network,
+        machine_learning::neural_network::test_config::init_network,
     };
 
     use super::NeuralNetwork;
 
     #[test]
     fn test_both_propagation_methods_are_equivalent() {
-        let (nn, ds) = init_network(vec![1, 2, 2]);
+        let (nn, ds) = init_network(vec![2]);
 
         let f = Function::sigmoid();
 
@@ -237,7 +237,7 @@ mod tests {
 
     #[test]
     fn test_multiple_propagation_calls() {
-        let (nn, ds) = init_network(vec![1, 2, 2]);
+        let (nn, ds) = init_network(vec![2]);
         let f = Function::sigmoid();
 
         let y = nn.propagate(&ds.training_data.first().unwrap().data, f.activate);
@@ -248,7 +248,7 @@ mod tests {
 
     #[test]
     fn test_cost() {
-        let (nn, ds) = init_network(vec![1, 2, 2]);
+        let (nn, ds) = init_network(vec![2]);
         let f = Function::sigmoid();
 
         let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
@@ -260,7 +260,7 @@ mod tests {
 
     #[test]
     fn test_cost_derivative() {
-        let (nn, ds) = init_network(vec![1, 2, 2]);
+        let (nn, ds) = init_network(vec![2]);
         let f = Function::sigmoid();
 
         let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
@@ -272,7 +272,7 @@ mod tests {
 
     #[test]
     fn test_batch_step() {
-        let (nn, ds) = init_network(vec![1, 2, 2]);
+        let (nn, ds) = init_network(vec![2]);
         let batch_step = nn.calculate_batch_step(&ds.training_data[0..1], &Function::sigmoid());
 
         match batch_step {
@@ -297,11 +297,11 @@ mod tests {
 
     #[test]
     fn test_training_sigmoid() {
-        let (mut nn, ds) = init_network(vec![1, 3, 2]);
+        let (mut nn, ds) = init_network(vec![3]);
 
         let f = Function::sigmoid();
 
-        nn.train(&ds, 1, 1.0, &f).for_each(|_| {});
+        nn.train(&ds, 4, 1.0, &f).for_each(|_| {});
 
         assert!(
             0 == nn
@@ -318,11 +318,11 @@ mod tests {
 
     #[test]
     fn test_training_normal_arctan() {
-        let (mut nn, ds) = init_network(vec![1, 3, 2]);
+        let (mut nn, ds) = init_network(vec![3]);
 
         let f = Function::normal_arctan();
 
-        nn.train(&ds, 1, 1.0, &f).for_each(|_| {});
+        nn.train(&ds, 4, 1.0, &f).for_each(|_| {});
 
         assert!(
             0 == nn
@@ -338,7 +338,7 @@ mod tests {
 
     #[test]
     fn test_testing_network() {
-        let (mut nn, ds) = init_network(vec![1, 3, 2]);
+        let (mut nn, ds) = init_network(vec![3]);
         let f = Function::normal_arctan();
 
         nn.train(&ds, 1, 1.0, &f).for_each(|_| {});

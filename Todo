@@ -2,5 +2,6 @@
 - [x] Randomize testing data and run multiple times
 - [x] ~~Remove training prints?~~ Training logs still exist but are optional
 - [x] Remove Nalgebra Dependancy?
-- [ ] Use BLAS 
-- [ ] Use Rayon
+- [x] Use BLAS 
+- [x] Use Rayon
+- [ ] Get the network to above 90% correntness

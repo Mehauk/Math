@@ -41,8 +41,8 @@ impl Matrix {
     }
 
     pub fn component_mul(mut self, other: &Matrix) -> Self {
-        self.par_iter_mut()
-            .zip(other.par_iter())
+        self.iter_mut()
+            .zip(other.iter())
             .for_each(|(a, b)| *a = *a * *b);
 
         self

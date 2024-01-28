@@ -161,18 +161,18 @@ impl NeuralNetwork {
 }
 
 #[cfg(test)]
-mod tests {
-    use std::fs;
-
+pub mod test_config {
+    use super::NeuralNetwork;
     use crate::{
         linear_algebra::Matrix,
         machine_learning::dataset::{DataSet, DataVector},
     };
 
-    use super::NeuralNetwork;
-
     pub fn init_network(v: Vec<usize>) -> (NeuralNetwork, DataSet) {
-        let nn = NeuralNetwork::scalar(v, 0.1);
+        let mut v_ = vec![1];
+        v.iter().for_each(|u| v_.push(*u));
+        v_.push(2);
+        let nn = NeuralNetwork::scalar(v_, 0.1);
 
         let ds = DataSet {
             training_data: (0..10000)
@@ -191,10 +191,16 @@ mod tests {
 
         return (nn, ds);
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::NeuralNetwork;
+    use std::fs;
 
     #[test]
     fn test_saving_and_loading() {
-        let (nn, _) = init_network(vec![12, 222, 21]);
+        let nn = NeuralNetwork::random(vec![12, 22, 21]);
         let file = "output/before.nn";
 
         nn.save(file).unwrap();

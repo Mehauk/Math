@@ -123,26 +123,6 @@ impl<T: AsRef<Matrix>> Mul<T> for &Matrix {
                 self.r as i32,
             )
         }
-        // if self.c != rhs.as_ref().r {
-        //     panic!(
-        //         "Cannot multiply matrices: {:?} x {:?}",
-        //         (self.r, self.c),
-        //         (rhs.as_ref().r, rhs.as_ref().c)
-        //     );
-        // }
-
-        // let mut v: Vec<f64> = vec![];
-
-        // for i in 0..self.r {
-        //     for x in 0..rhs.as_ref().c {
-        //         let r = self.get_row(i).unwrap();
-        //         let c = rhs.as_ref().get_col(x).unwrap();
-
-        //         let value: f64 = r.iter().zip(c.iter()).map(|(x1, y1)| x1 * y1).sum();
-
-        //         v.push(value);
-        //     }
-        // }
 
         Matrix {
             r: self.r,

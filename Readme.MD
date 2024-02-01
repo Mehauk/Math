@@ -1,22 +1,7 @@
 # Mathematics
-A repository for experimenting with Maths.
+A repository for exploring Maths and Machine Learning.
 
 ### Table of Contents
-- [Linear Algebra](#linear-algebra)
-  - [Vectors](#vectors)
-    - [Vector Arithmetic](#vector-arithmetic)
-    - [Imaginary Numbers as Vectors](#imaginary-numbers-as-vectors)
-  - [Matrices](#matrices)
-    - [Matrix Arithmetic](#matrix-arithmetic)
-- [Calculus](#calculus)
-  - [Pre-Calc](#pre-calc)
-    - [Functions](#functions)
-  - [Derivatives](#derivatives)
-    - [Extrema](#extrema)
-  - [Integrals](#integrals)
-  - [Differential Equations](#differential-equations)
-  - [Multi-Dimensional Calculus](#multi-dimensional-calculus)
-  - [Convolutions](#convolutions)
 - [Machine Learning](#machine-learning)
   - [Neural Network](#neural-network)
     - [Approximating Relationships](#approximating-relationships)
@@ -26,7 +11,7 @@ A repository for experimenting with Maths.
   - [Back Propagation](#back-propagation)
 
 
-&nbsp;
+<!-- &nbsp;
 # Linear Algebra
 > ### pre-requisites
 > - Algebra
@@ -82,7 +67,7 @@ A repository for experimenting with Maths.
 
  ## Multi-Dimensional Calculus
 
- ## Convolutions
+ ## Convolutions -->
 
 
 &nbsp;

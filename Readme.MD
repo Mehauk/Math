@@ -217,8 +217,8 @@ A repository for exploring Maths and Machine Learning.
   Below is a comparison of $u(x)$ and $\sigma(x)$ and their approximations of $f(x) =x^2$.
   |               $u(x)$               | &rarr; |            $\sigma(x)$             |
   | :--------------------------------: | :----: | :--------------------------------: |
-  |  ![](.misc/visuals/images/u.png)   |        |  ![](.misc/visuals/images/s.png)   |
-  | ![](.misc/visuals/images/xxua.png) |        | ![](.misc/visuals/images/xxsa.png) |
+  |  ![](.misc/visuals/images/u.png)   |   -    |  ![](.misc/visuals/images/s.png)   |
+  | ![](.misc/visuals/images/xxua.png) |   -    | ![](.misc/visuals/images/xxsa.png) |
 
  ## Boundary Detection
 

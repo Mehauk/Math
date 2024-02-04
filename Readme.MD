@@ -214,11 +214,12 @@ A repository for exploring Maths and Machine Learning.
   $$ \sigma(x) = {1\over{1 + e^{-x}}} $$
   $$ \sigma'(x) = \sigma(x)(1-\sigma(x)) $$
 
-  Below is a comparison of $u(x)$ and $\sigma(x)$ and their approximations of $f(x) =x^2$.
+  <!-- The markup below does not show up properly on github  -->
+  <!-- Below is a comparison of $u(x)$ and $\sigma(x)$ and their approximations of $f(x) =x^2$.
   |               $u(x)$               | &rarr; |            $\sigma(x)$             |
   | :--------------------------------: | :----: | :--------------------------------: |
   |  ![](.misc/visuals/images/u.png)   |        |  ![](.misc/visuals/images/s.png)   |
-  | ![](.misc/visuals/images/xxua.png) |        | ![](.misc/visuals/images/xxsa.png) |
+  | ![](.misc/visuals/images/xxua.png) |        | ![](.misc/visuals/images/xxsa.png) | --> |
 
  ## Boundary Detection
 

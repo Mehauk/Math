@@ -208,7 +208,7 @@ A repository for exploring Maths and Machine Learning.
   \end{cases}
   $$
 
-  This particular activation function allows us to aprroximate a relationship for higher order polynomials and other non-linear functions. But, our neural network is still not a good representation of non-linear functions. We can change this by using a smooth activation function, we will be using the sigmoid $\sigma(x)$ function (it is simple to derivate).
+  This particular activation function allows us to aprroximate a relationship for higher order polynomials and other non-linear functions. But, our neural network is still not good at representing non-linear functions. We can change this by using a smooth activation function, we will be using the sigmoid $\sigma(x)$ function (it is simple to derivate).
 
   For reference;
   $$ \sigma(x) = {1\over{1 + e^{-x}}} $$
@@ -219,7 +219,9 @@ A repository for exploring Maths and Machine Learning.
   |               $u(x)$               | &rarr; |            $\sigma(x)$             |
   | :--------------------------------: | :----: | :--------------------------------: |
   |  ![](.misc/visuals/images/u.png)   |        |  ![](.misc/visuals/images/s.png)   |
-  | ![](.misc/visuals/images/xxua.png) |        | ![](.misc/visuals/images/xxsa.png) | --> |
+  | ![](.misc/visuals/images/xxua.png) |        | ![](.misc/visuals/images/xxsa.png) | -->
+
+  <!-- and thus is a function of the output activations. Of course, this cost function also depends on the desired output y, and you may wonder why we're not regarding the cost also as a function of y. Remember, though, that the input training example x is fixed, and so the output y is also a fixed parameter. In particular, it's not something we can modify by changing the weights and biases in any way, i.e., it's not something which the neural network learns. And so it makes sense to regard C as a function of the output activations aL alone, with y merely a parameter that helps define that function. -->
 
  ## Boundary Detection
 

@@ -219,8 +219,9 @@ A repository for exploring Maths and Machine Learning.
   |               $u(x)$               | &rarr; |            $\sigma(x)$             |
   | :--------------------------------: | :----: | :--------------------------------: |
   |  ![](.misc/visuals/images/u.png)   |        |  ![](.misc/visuals/images/s.png)   |
-  | ![](.misc/visuals/images/xxua.png) |        | ![](.misc/visuals/images/xxsa.png) | -->
+  | ![](.misc/visuals/images/xxua.png) |        | ![](.misc/visuals/images/xxsa.png) | --> |
 
+  <!-- The Text Below should be explained -->
   <!-- and thus is a function of the output activations. Of course, this cost function also depends on the desired output y, and you may wonder why we're not regarding the cost also as a function of y. Remember, though, that the input training example x is fixed, and so the output y is also a fixed parameter. In particular, it's not something we can modify by changing the weights and biases in any way, i.e., it's not something which the neural network learns. And so it makes sense to regard C as a function of the output activations aL alone, with y merely a parameter that helps define that function. -->
 
  ## Boundary Detection

@@ -5,4 +5,4 @@
 - [x] Use BLAS 
 - [x] Use Rayon
 - [ ] Use multiple input arays as 2d mtrix to speed up algorithm?
-- [ ] Get the network up to 90%
+- [ ] Get the network up to 90% correctness

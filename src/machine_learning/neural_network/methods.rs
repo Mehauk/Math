@@ -1,7 +1,7 @@
 use std::{iter::Map, slice::Chunks};
 
 use crate::{
-    calculus::functions::Function,
+    calculus::{functions::Function, cost_functions::CostFunction},
     linear_algebra::Matrix,
     machine_learning::dataset::{DataSet, DataVector},
 };
@@ -55,27 +55,6 @@ impl NeuralNetwork {
         }
 
         nodes_array
-    }
-
-    /// calculates the cost the nueral network; `C = (R - E)^2`
-    /// - `C` cost Matrix
-    /// - `R` resulting output Matrix of network
-    /// - `E` expected output Matrix contructed from label
-    pub fn _cost(result_matrix: &Matrix, label: u8) -> Matrix {
-        let mut m = result_matrix.clone();
-        m[(label as usize, 0)] -= 1.0;
-        m.apply_into(|x| *x *= *x)
-    }
-
-    /// calculates the derivative of the cost; `C' = 2(R - E)
-    /// - `C` cost Matrix
-    /// - `R` resulting output Matrix of network
-    /// - `E` expected output Matrix contructed from label
-    pub fn cost_derivative(result_matrix: &Matrix, label: u8) -> Matrix {
-        let mut m = result_matrix.clone();
-        m[(label as usize, 0)] -= 1.0;
-        m = m * 2.0;
-        m
     }
 
     // train using stochastic gradient descent
@@ -132,6 +111,7 @@ impl NeuralNetwork {
         &self,
         data_set: &[DataVector],
         activation_function: &Function,
+        cost_function: &CostFunction,
     ) -> Option<Self> {
         let mut delta_network = NeuralNetwork::zeros(self._shape.clone());
         for d in data_set.iter() {
@@ -144,7 +124,7 @@ impl NeuralNetwork {
             let nodes_cur = nodes.pop()?;
             let mut index = nodes.len();
 
-            let mut delta_cost_by_delta_nodes = NeuralNetwork::cost_derivative(
+            let mut delta_cost_by_delta_nodes = (cost_function.derive)(
                 &nodes_cur.clone().apply_into(activation_function.activate),
                 training_data.label,
             );

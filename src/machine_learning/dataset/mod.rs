@@ -1,4 +1,3 @@
-use image;
 use std::io::Error;
 
 use crate::linear_algebra::Matrix;
@@ -36,37 +35,19 @@ pub struct DataVector {
     /// values in the matrix are between 0-1 (inc), normalized from u8
     pub data: Matrix,
     pub label: u8,
-
-    // property used for recontructing the image
-    _dims: Option<(i32, i32)>,
 }
 
 /// Contructs an image from the parsed ImageData
 /// Usefull for debugging
 impl DataVector {
-    pub fn _new(data: Matrix, label: u8) -> Self {
-        DataVector {
-            data,
-            label,
-            _dims: None,
-        }
+    pub fn new(data: Matrix, label: u8) -> Self {
+        DataVector { data, label }
     }
 
-    pub fn _show(&self, file_path: &str) {
-        if let Some((width, height)) = self._dims {
-            let width = width as u32;
-            let height = height as u32;
-            let mut image = image::RgbImage::new(width, height);
-            for (i, e) in self.data.iter().enumerate() {
-                let p = (e * 255.0) as u8;
-                image.put_pixel(i as u32 / width, i as u32 % height, image::Rgb([p, p, p]));
-            }
-            if let Ok(_) = image.save(file_path) {
-                println!("Saved imageData to: {}", file_path);
-                return;
-            };
-        }
-
-        println!("Failed to save imageData");
+    pub fn matrix_from_label(&self) -> Matrix {
+        let dims = self.data.get_dims();
+        let mut m = Matrix::zeros(dims.0, dims.1);
+        m[(self.label as usize, 0)] = 1.0;
+        m
     }
 }

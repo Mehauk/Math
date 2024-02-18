@@ -5,6 +5,10 @@ use super::Matrix;
 
 // Commonly used methods
 impl Matrix {
+    pub fn get_dims(&self) -> (usize, usize) {
+        (self.r, self.c)
+    }
+
     pub fn transpose(&self) -> Self {
         let mut v: Vec<f64> = vec![];
         for i in 0..self.c {

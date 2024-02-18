@@ -178,13 +178,13 @@ pub mod test_config {
             training_data: (0..10000)
                 .map(|x| {
                     let y: f64 = rand::random::<f64>() * x as f64 / (x + 1) as f64;
-                    DataVector::_new(Matrix::from_vec(1, 1, vec![y]), if y < 0.5 { 1 } else { 0 })
+                    DataVector::new(Matrix::from_vec(1, 1, vec![y]), if y < 0.5 { 1 } else { 0 })
                 })
                 .collect(),
             testing_data: (0..100)
                 .map(|x: usize| {
                     let y: f64 = x as f64 / 100.0;
-                    DataVector::_new(Matrix::from_vec(1, 1, vec![y]), if y < 0.5 { 1 } else { 0 })
+                    DataVector::new(Matrix::from_vec(1, 1, vec![y]), if y < 0.5 { 1 } else { 0 })
                 })
                 .collect(),
         };

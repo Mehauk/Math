@@ -79,7 +79,6 @@ pub fn parse_mnist(
             // 1-26 (inc) -> for letters (a-z)
             // 0-9 (inc) -> for digits
             label: label - 1,
-            _dims: Some((width, height)),
         };
 
         // d._show("C:\\Users\\Noor\\Documents\\rust_ground\\.misc\\visuals\\images\\a.png");

@@ -44,7 +44,7 @@ impl DataVector {
         DataVector { data, label }
     }
 
-    pub fn matrix_from_label(&self) -> Matrix {
+    pub fn expected_matrix(&self) -> Matrix {
         let dims = self.data.get_dims();
         let mut m = Matrix::zeros(dims.0, dims.1);
         m[(self.label as usize, 0)] = 1.0;

@@ -1,7 +1,7 @@
 use std::{iter::Map, slice::Chunks};
 
 use crate::{
-    calculus::{functions::Function, cost_functions::CostFunction},
+    calculus::{cost_functions::CostFunction, functions::Function},
     linear_algebra::Matrix,
     machine_learning::dataset::{DataSet, DataVector},
 };
@@ -64,13 +64,14 @@ impl NeuralNetwork {
         batch_size: usize,
         learning_rate: f64,
         activation_function: &'a Function,
+        cost_function: &'a CostFunction,
     ) -> Map<Chunks<'_, DataVector>, impl FnMut(&'a [DataVector])> {
         data_set
             .training_data
             .chunks(batch_size)
             .map(move |data_slice: &'a [DataVector]| {
                 self.step(
-                    self.calculate_batch_step(data_slice, activation_function)
+                    self.calculate_batch_step(data_slice, activation_function, cost_function)
                         .unwrap(),
                     learning_rate / data_slice.len() as f64,
                 )
@@ -84,8 +85,15 @@ impl NeuralNetwork {
         batch_size: usize,
         learning_rate: f64,
         activation_function: &Function,
+        cost_function: &CostFunction,
     ) {
-        let map = self.train(data_set, batch_size, learning_rate, activation_function);
+        let map = self.train(
+            data_set,
+            batch_size,
+            learning_rate,
+            activation_function,
+            cost_function,
+        );
 
         let total_iterations = map.len() as f64;
         let mut current_iteration = 1.0;
@@ -124,10 +132,9 @@ impl NeuralNetwork {
             let nodes_cur = nodes.pop()?;
             let mut index = nodes.len();
 
-            let mut delta_cost_by_delta_nodes = (cost_function.derive)(
-                &nodes_cur.clone().apply_into(activation_function.activate),
-                training_data.label,
-            );
+            let difference = nodes_cur.clone().apply_into(activation_function.activate)
+                - training_data.expected_matrix();
+            let mut delta_cost_by_delta_nodes = difference.apply_into(cost_function.derive);
 
             let mut delta_nodes_by_delta_activation =
                 nodes_cur.apply_into(activation_function.derive);

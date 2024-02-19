@@ -34,7 +34,7 @@ pub struct DataVector {
     ///
     /// values in the matrix are between 0-1 (inc), normalized from u8
     pub data: Matrix,
-    pub label: u8,
+    label: u8,
 }
 
 /// Contructs an image from the parsed ImageData

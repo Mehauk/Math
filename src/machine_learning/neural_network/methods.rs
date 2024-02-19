@@ -126,18 +126,21 @@ impl NeuralNetwork {
             let training_data = d;
             let mut nodes = self.propagate_returning_all_nodes_prior_to_activation(
                 &training_data.data,
-                activation_function.activate,
+                activation_function.activate(),
             );
 
             let nodes_cur = nodes.pop()?;
             let mut index = nodes.len();
 
-            let difference = nodes_cur.clone().apply_into(activation_function.activate)
+            println!("{:?}", nodes_cur.get_dims());
+            println!("{:?}", training_data.expected_matrix().get_dims());
+
+            let difference = nodes_cur.clone().apply_into(activation_function.activate())
                 - training_data.expected_matrix();
-            let mut delta_cost_by_delta_nodes = difference.apply_into(cost_function.derive);
+            let mut delta_cost_by_delta_nodes = difference.apply_into(cost_function.derive());
 
             let mut delta_nodes_by_delta_activation =
-                nodes_cur.apply_into(activation_function.derive);
+                nodes_cur.apply_into(activation_function.derive());
 
             loop {
                 let nodes_cur = nodes.pop().unwrap_or(training_data.data.clone());
@@ -152,7 +155,7 @@ impl NeuralNetwork {
                 let delta_cost_by_delta_weights = &delta_network._biases[index]
                     * nodes_cur
                         .clone()
-                        .apply_into(activation_function.activate)
+                        .apply_into(activation_function.activate())
                         .transpose();
 
                 if index == 0 {
@@ -167,7 +170,8 @@ impl NeuralNetwork {
                 delta_cost_by_delta_nodes = weights_cur.transpose() * &delta_network._biases[index];
 
                 // calculate new activation function delta
-                delta_nodes_by_delta_activation = nodes_cur.apply_into(activation_function.derive);
+                delta_nodes_by_delta_activation =
+                    nodes_cur.apply_into(activation_function.derive());
 
                 index -= 1;
             }
@@ -180,8 +184,8 @@ impl NeuralNetwork {
         let data_set_length = data_set.testing_data.len() as f64;
 
         let correct_filtered = data_set.testing_data.par_iter().filter(|image| {
-            let res = self.propagate(&image.data, activation_function.activate);
-            if res.index_of_max() == (image.label as usize) {
+            let res = self.propagate(&image.data, activation_function.activate());
+            if res.index_of_max() == image.expected_matrix().index_of_max() {
                 return true;
             }
 
@@ -196,11 +200,10 @@ impl NeuralNetwork {
 #[cfg(test)]
 mod tests {
     use crate::{
-        calculus::functions::Function, linear_algebra::Matrix,
+        calculus::{cost_functions::CostFunction, functions::Function},
+        linear_algebra::Matrix,
         machine_learning::neural_network::test_config::init_network,
     };
-
-    use super::NeuralNetwork;
 
     #[test]
     fn test_both_propagation_methods_are_equivalent() {
@@ -211,13 +214,13 @@ mod tests {
         let x = nn
             .propagate_returning_all_nodes_prior_to_activation(
                 &ds.training_data.first().unwrap().data,
-                f.activate,
+                f.activate(),
             )
             .last()
             .unwrap()
             .clone()
-            .apply_into(f.activate);
-        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.activate);
+            .apply_into(f.activate());
+        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.activate());
 
         assert_eq!(x, y);
     }
@@ -227,8 +230,8 @@ mod tests {
         let (nn, ds) = init_network(vec![2]);
         let f = Function::sigmoid();
 
-        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.activate);
-        let x = nn.propagate(&ds.training_data.first().unwrap().data, f.activate);
+        let y = nn.propagate(&ds.training_data.first().unwrap().data, f.activate());
+        let x = nn.propagate(&ds.training_data.first().unwrap().data, f.activate());
 
         assert_eq!(x, y);
     }
@@ -237,9 +240,13 @@ mod tests {
     fn test_cost() {
         let (nn, ds) = init_network(vec![2]);
         let f = Function::sigmoid();
+        let c = CostFunction::quadratic();
 
-        let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
-        let cost = NeuralNetwork::_cost(&output, 1);
+        let datavec = &ds.testing_data.first().unwrap();
+
+        let output = nn.propagate(&datavec.data, f.activate());
+        let res = output - datavec.expected_matrix();
+        let cost = res.apply_into(c.calc_cost());
 
         assert!(cost[(0, 0)] - 0.3 < 0.01);
         assert!(cost[(1, 0)] - 0.2 < 0.01);
@@ -249,9 +256,13 @@ mod tests {
     fn test_cost_derivative() {
         let (nn, ds) = init_network(vec![2]);
         let f = Function::sigmoid();
+        let c = CostFunction::quadratic();
 
-        let output = nn.propagate(&ds.testing_data.first().unwrap().data, f.activate);
-        let derivative = NeuralNetwork::cost_derivative(&output, 1);
+        let datavec = &ds.testing_data.first().unwrap();
+
+        let output = nn.propagate(&datavec.data, f.activate());
+        let res = output - datavec.expected_matrix();
+        let derivative = res.apply_into(c.derive());
 
         assert!(derivative[(0, 0)] - 1.1 < 0.01);
         assert!(derivative[(1, 0)] + 0.9 < 0.01);
@@ -260,7 +271,11 @@ mod tests {
     #[test]
     fn test_batch_step() {
         let (nn, ds) = init_network(vec![2]);
-        let batch_step = nn.calculate_batch_step(&ds.training_data[0..1], &Function::sigmoid());
+        let batch_step = nn.calculate_batch_step(
+            &ds.training_data[0..1],
+            &Function::sigmoid(),
+            &CostFunction::quadratic(),
+        );
 
         match batch_step {
             Some(step) => {
@@ -287,18 +302,19 @@ mod tests {
         let (mut nn, ds) = init_network(vec![3]);
 
         let f = Function::sigmoid();
+        let c = CostFunction::quadratic();
 
-        nn.train(&ds, 4, 1.0, &f).for_each(|_| {});
+        nn.train(&ds, 4, 1.0, &f, &c).for_each(|_| {});
 
         assert!(
             0 == nn
-                .propagate(&Matrix::from_vec(1, 1, vec![0.7]), f.activate)
+                .propagate(&Matrix::from_vec(1, 1, vec![0.7]), f.activate())
                 .index_of_max()
         );
 
         assert!(
             1 == nn
-                .propagate(&Matrix::from_vec(1, 1, vec![0.4]), f.activate)
+                .propagate(&Matrix::from_vec(1, 1, vec![0.4]), f.activate())
                 .index_of_max()
         );
     }
@@ -308,17 +324,18 @@ mod tests {
         let (mut nn, ds) = init_network(vec![3]);
 
         let f = Function::normal_arctan();
+        let c = CostFunction::quadratic();
 
-        nn.train(&ds, 4, 1.0, &f).for_each(|_| {});
+        nn.train(&ds, 4, 1.0, &f, &c).for_each(|_| {});
 
         assert!(
             0 == nn
-                .propagate(&Matrix::from_vec(1, 1, vec![0.7]), f.activate)
+                .propagate(&Matrix::from_vec(1, 1, vec![0.7]), f.activate())
                 .index_of_max()
         );
         assert!(
             1 == nn
-                .propagate(&Matrix::from_vec(1, 1, vec![0.4]), f.activate)
+                .propagate(&Matrix::from_vec(1, 1, vec![0.4]), f.activate())
                 .index_of_max()
         );
     }
@@ -326,9 +343,11 @@ mod tests {
     #[test]
     fn test_testing_network() {
         let (mut nn, ds) = init_network(vec![3]);
-        let f = Function::normal_arctan();
 
-        nn.train(&ds, 1, 1.0, &f).for_each(|_| {});
+        let f = Function::normal_arctan();
+        let c = CostFunction::quadratic();
+
+        nn.train(&ds, 1, 1.0, &f, &c).for_each(|_| {});
 
         assert!(nn.test(&ds, &f) > 0.7);
     }

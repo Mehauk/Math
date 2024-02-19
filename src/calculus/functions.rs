@@ -3,53 +3,63 @@
 use std::f64::consts::{E, PI};
 
 pub struct Function {
-    pub activate: fn(&mut f64),
-    pub derive: fn(&mut f64),
+    activator: fn(&mut f64),
+    derivative: fn(&mut f64),
+}
+
+impl Function {
+    pub fn activate(&self) -> fn(&mut f64) {
+        self.activator
+    }
+    pub fn derive(&self) -> fn(&mut f64) {
+        self.derivative
+    }
 }
 
 impl Function {
     pub fn sigmoid() -> Self {
         Function {
-            activate: sigmoid,
-            derive: sigmoid_derivative,
+            activator: sigmoid,
+            derivative: sigmoid_derivative,
         }
     }
 
     pub fn swish() -> Self {
         Function {
-            activate: swish,
-            derive: swish_derivative,
+            activator: swish,
+            derivative: swish_derivative,
         }
     }
 
     pub fn arctan() -> Self {
         Function {
-            activate: arctan,
-            derive: arctan_derivative,
+            activator: arctan,
+            derivative: arctan_derivative,
         }
     }
 
     pub fn normal_arctan() -> Self {
         Function {
-            activate: normalized_arctan,
-            derive: normalized_arctan_derivative,
+            activator: normalized_arctan,
+            derivative: normalized_arctan_derivative,
         }
     }
 
     pub fn relu() -> Self {
         Function {
-            activate: relu,
-            derive: relu_derivative,
+            activator: relu,
+            derivative: relu_derivative,
         }
     }
 
     pub fn leaky_relu() -> Self {
         Function {
-            activate: leaky_relu,
-            derive: leaky_relu_derivative,
+            activator: leaky_relu,
+            derivative: leaky_relu_derivative,
         }
     }
 }
+
 fn sigmoid(t: &mut f64) {
     *t = 1.0 / (1.0 + E.powf(-*t))
 }

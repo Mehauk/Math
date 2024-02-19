@@ -8,6 +8,7 @@ extern crate openblas_src;
 
 use std::{io::stdin, io::Error};
 
+use calculus::cost_functions::CostFunction;
 use machine_learning::{
     dataset::{
         mnist::{parse_mnist, INPUT_SIZE},
@@ -27,6 +28,7 @@ fn main() -> Result<(), Error> {
     let mut nn = create_nn();
 
     let mut activation_function = Function::sigmoid();
+    let cost_function = CostFunction::quadratic();
     choose_activation_function(&mut activation_function);
 
     // TODO: Rework CLI
@@ -79,6 +81,7 @@ fn main() -> Result<(), Error> {
                         batch_size as usize,
                         learning_rate,
                         &activation_function,
+                        &cost_function,
                     );
 
                     print!("Testing in Progress...");

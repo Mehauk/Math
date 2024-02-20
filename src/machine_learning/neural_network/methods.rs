@@ -132,11 +132,8 @@ impl NeuralNetwork {
             let nodes_cur = nodes.pop()?;
             let mut index = nodes.len();
 
-            println!("{:?}", nodes_cur.get_dims());
-            println!("{:?}", training_data.expected_matrix().get_dims());
-
             let difference = nodes_cur.clone().apply_into(activation_function.activate())
-                - training_data.expected_matrix();
+                - training_data.expected_matrix(nodes_cur.get_dims());
             let mut delta_cost_by_delta_nodes = difference.apply_into(cost_function.derive());
 
             let mut delta_nodes_by_delta_activation =
@@ -185,7 +182,7 @@ impl NeuralNetwork {
 
         let correct_filtered = data_set.testing_data.par_iter().filter(|image| {
             let res = self.propagate(&image.data, activation_function.activate());
-            if res.index_of_max() == image.expected_matrix().index_of_max() {
+            if res.index_of_max() == image.expected_matrix(res.get_dims()).index_of_max() {
                 return true;
             }
 
@@ -242,10 +239,10 @@ mod tests {
         let f = Function::sigmoid();
         let c = CostFunction::quadratic();
 
-        let datavec = &ds.testing_data.first().unwrap();
+        let datavec = ds.testing_data.first().unwrap();
 
         let output = nn.propagate(&datavec.data, f.activate());
-        let res = output - datavec.expected_matrix();
+        let res = output.clone() - datavec.expected_matrix(output.get_dims());
         let cost = res.apply_into(c.calc_cost());
 
         assert!(cost[(0, 0)] - 0.3 < 0.01);
@@ -258,10 +255,10 @@ mod tests {
         let f = Function::sigmoid();
         let c = CostFunction::quadratic();
 
-        let datavec = &ds.testing_data.first().unwrap();
+        let datavec = ds.testing_data.first().unwrap();
 
         let output = nn.propagate(&datavec.data, f.activate());
-        let res = output - datavec.expected_matrix();
+        let res = output.clone() - datavec.expected_matrix(output.get_dims());
         let derivative = res.apply_into(c.derive());
 
         assert!(derivative[(0, 0)] - 1.1 < 0.01);

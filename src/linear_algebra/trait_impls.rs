@@ -60,7 +60,11 @@ impl<T: AsRef<Matrix>> Sub<T> for Matrix {
 impl<T: AsRef<Matrix>> SubAssign<T> for Matrix {
     fn sub_assign(&mut self, rhs: T) {
         if rhs.as_ref().r != self.r || rhs.as_ref().c != self.c {
-            panic!("Cannot subtract matrices of different shape");
+            panic!(
+                "Cannot subtract matrices of different shape. shape1:{:?} - shape2:{:?}",
+                rhs.as_ref().get_dims(),
+                self.as_ref().get_dims()
+            );
         }
 
         for i in 0..self.r * self.c {

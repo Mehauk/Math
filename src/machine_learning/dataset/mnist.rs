@@ -73,15 +73,8 @@ pub fn parse_mnist(
 
         label_file.read_exact(&mut buf)?;
         let label = buf[0];
-        let d = DataVector {
-            data: Matrix::from_vec(pixels.len(), 1, pixels),
+        let d = DataVector::new(Matrix::from_vec(pixels.len(), 1, pixels), label - 1);
 
-            // 1-26 (inc) -> for letters (a-z)
-            // 0-9 (inc) -> for digits
-            label: label - 1,
-        };
-
-        // d._show("C:\\Users\\Noor\\Documents\\rust_ground\\.misc\\visuals\\images\\a.png");
         image_vector.push(d);
 
         let fraction = ((i + 1) as f32) / (image_sizes[0] as f32) * 100.0;

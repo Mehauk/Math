@@ -35,3 +35,17 @@ fn quadratic_cost(t: &mut f64) {
 fn quadratic_cost_derivative(t: &mut f64) {
     *t = 2.0 * *t;
 }
+
+/// calculates the cost the nueral network; `C = (R - E)^2`
+/// - `C` cost Matrix
+/// - `R - E` Difference of actual result verses expected
+fn cross_entropy_cost(t: &mut f64) {
+    *t *= *t;
+}
+
+/// calculates the derivative of the cost; `C' = 2(R - E)`
+/// - `C'` cost derivative Matrix
+/// - `R - E` Difference of actual result verses expected
+fn cross_entropy_cost_derivative(t: &mut f64) {
+    *t = 2.0 * *t;
+}

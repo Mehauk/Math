@@ -43,7 +43,7 @@ fn cross_entropy_cost(t: &mut f64) {
     *t *= *t;
 }
 
-/// calculates the derivative of the cost; `C' = 2(R - E)`
+/// calculates the derivative of the cost; `C' = ln(R) + *E/R -ln(1 - R) + (1 - E)/(1 - R)`
 /// - `C'` cost derivative Matrix
 /// - `R - E` Difference of actual result verses expected
 fn cross_entropy_cost_derivative(t: &mut f64) {

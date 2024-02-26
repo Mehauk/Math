@@ -1,6 +1,8 @@
+use crate::linear_algebra::Matrix;
+
 pub struct CostFunction {
-    cost: fn(&mut f64),
-    derivative: fn(&mut f64),
+    cost: fn(&mut f64) -> Matrix,
+    derivative: fn(&mut f64) -> Matrix,
 }
 
 impl CostFunction {

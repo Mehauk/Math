@@ -6,6 +6,8 @@ use crate::linear_algebra::Matrix;
 
 pub mod methods;
 
+pub mod cost_functions;
+
 #[derive(Debug, PartialEq)]
 /// ### Parameters
 /// - `_weights` : `Vec<Matrix>`

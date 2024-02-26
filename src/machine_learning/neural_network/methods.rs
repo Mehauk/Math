@@ -1,14 +1,14 @@
 use std::{iter::Map, slice::Chunks};
 
 use crate::{
-    calculus::{cost_functions::CostFunction, functions::Function},
+    calculus::functions::Function,
     linear_algebra::Matrix,
     machine_learning::dataset::{DataSet, DataVector},
 };
 
 use rayon::prelude::*;
 
-use super::NeuralNetwork;
+use super::{cost_functions::CostFunction, NeuralNetwork};
 
 // NN Methods
 impl NeuralNetwork {
@@ -197,9 +197,9 @@ impl NeuralNetwork {
 #[cfg(test)]
 mod tests {
     use crate::{
-        calculus::{cost_functions::CostFunction, functions::Function},
+        calculus::functions::Function,
         linear_algebra::Matrix,
-        machine_learning::neural_network::test_config::init_network,
+        machine_learning::neural_network::{cost_functions::CostFunction, test_config::init_network},
     };
 
     #[test]

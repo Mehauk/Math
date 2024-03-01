@@ -6,11 +6,11 @@ pub struct CostFunction {
 }
 
 impl CostFunction {
-    pub fn calc_cost(&self) -> fn(&Matrix, &Matrix) {
+    pub fn calc_cost(&self) -> fn(&Matrix, &Matrix) -> Matrix {
         self.cost
     }
 
-    pub fn derive(&self) -> fn(&Matrix, &Matrix) {
+    pub fn derive(&self) -> fn(&Matrix, &Matrix) -> Matrix {
         self.derivative
     }
 }

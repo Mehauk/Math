@@ -27,7 +27,7 @@ impl CostFunction {
 /// calculates the cost the nueral network; `C = (R - E)^2`
 /// - `C` cost Matrix
 /// - `R - E` Difference of actual result verses expected
-fn quadratic_cost(r: &Matrix, e: &Matrix) -> Matrix {}
+fn quadratic_cost(r: &Matrix, e: &Matrix) -> Matrix {} // DO stuff here
 
 /// calculates the derivative of the cost; `C' = 2(R - E)`
 /// - `C'` cost derivative Matrix

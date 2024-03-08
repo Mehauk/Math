@@ -23,7 +23,7 @@ impl CostFunction {
         }
     }
 }
-
+// TODO: change
 /// calculates the cost the nueral network; `C = (R - E)^2`
 /// - `C` cost Matrix
 /// - `R - E` Difference of actual result verses expected
